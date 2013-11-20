@@ -8,6 +8,7 @@
 
 \usepackage{url}
 \usepackage{algorithmic,algorithm}
+\usepackage{multirow}
 
 \usepackage{listings}
 \definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
@@ -59,7 +60,79 @@
 
 \section{Introduction}
 
-blah.
+
+\section{A toy model}
+
+We start by assuming that ever target star has some $K$ orbiting planets.
+Most of these planets are unobserved because they are two small to be
+detectable or because of geometry.
+The graphical model in \fig{gm} is a sketch of the hypothetical generative
+procedure for a catalog of exoplanet observations.
+The way it is shown, this model is extremely general but we will consider a
+very specific form here.
+In \fig{gm} the global ``hyper'' parameters are:
+\begin{itemize}
+\item{the parameters describing the distributions of the exoplanet population
+\population, and}
+\item{the parameters of a model of the catalog's exoplanet selection function
+\selection.}
+\end{itemize}
+Similarly, the ``hidden variables'' are:
+\begin{itemize}
+\item{the physical parameters of the star and the stellar system
+\stellar---including the stellar mass and radius, a measure of the stellar
+variability, and the mean inclination of the orbiting exoplanets---and}
+\item{the physical parameters of an exoplanet \planet---period, radius, and
+relative inclination.}
+\end{itemize}
+Finally, the observables are
+
+\begin{figure}[htbp]
+\begin{center}
+    \includegraphics{gm.pdf}
+\end{center}
+\caption{%
+\figlabel{gm}}
+\end{figure}
+
+\begin{deluxetable}{ccl}
+\tablecaption{%
+A description of the model parameters.
+\tablabel{parameters}}
+\tablewidth{0pt}
+\tablehead{& & \colhead{Description}}
+\startdata
+\multirow{3}{*}{\population}
+& $\population_\period$ & The period distribution \\
+& $\population_\radius$ & The exoplanet radius distribution \\
+& $\population_\relincl$ & The relative inclination distribution \\
+\hline
+\selection & --- & The parameters of the catalog selection function \\
+\hline
+$\isobs_{kn}$ & --- & A flag indicating the presence of exoplanet $k$ orbiting
+star $n$ in the catalog \\
+\hline
+\multirow{3}{*}{$\planet_{kn}$}
+& $\period_{kn}$ & The period of exoplanet $k$ orbiting star $n$ (or null) \\
+& $\radius_{kn}$ & The exoplanet's radius \\
+& $\relincl_{kn}$ & The inclination of this orbit away from the systemic mean \\
+\hline
+\multirow{3}{*}{$\planetobs_{kn}$}
+& $\periodobs_{kn}$ & The observed exoplanet period and uncertainty \\
+& $(\rorobs)_{kn}$ & The observed radius ratio and uncertainty \\
+& $\impactobs_{kn}$ & A constraint on the observed impact parameter \\
+\hline
+\multirow{4}{*}{$\stellar_{n}$}
+& $\smass_{n}$ & The mass of star $n$ \\
+& $\sradius_{n}$ & The radius of star $n$ \\
+& $\snoise_{n}$ & The ``variability'' of star $n$ \\
+& $\incl_{n}$ & The mean inclination of the exoplanets in the system $n$ \\
+\hline
+\multirow{2}{*}{$\stellarobs_{n}$}
+& $\sloggobs_{n}$ & The observed surface gravity (and uncertainty) of star $n$ \\
+& $\snoiseobs_{n}$ & The estimated variability of star $n$ \\
+\enddata
+\end{deluxetable}
 
 \acknowledgments
 SAMSI. %
