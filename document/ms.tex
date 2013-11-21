@@ -30,8 +30,9 @@
 \begin{document}
 
 \title{%
-    Probabilistic hierarchical modeling of exoplanet populations using
-    incomplete catalogs
+    Exoplanet population inferences
+    from a hierarchical model
+    of the \Kepler\ ``Object of Interest'' Catalog
 }
 
 \newcommand{\nyu}{2}
@@ -50,12 +51,27 @@
                         K\"onigstuhl 17, D-69117 Heidelberg, Germany}
 
 \begin{abstract}
-
-
-
+The catalog of \Kepler\ Objects of Interest (KOI) is a list of putative periodic exoplanet transit signals
+  discovered in the photometric data from the \Kepler Satellite.
+In principle this catalog contains a wealth of statistical information about the full population of exoplanets.
+Here we construct a model of the population that explains the content of the catalog.
+Our approach is novel in that
+  it takes the form of a rigorous (if approximate) hierarchical Bayesian inference,
+  it includes a parameterization of a non-trivial selection function (incompleteness),
+  and we fully marginalize out all latent and nuisance parameters using sampling.
+Because the model is properly hierarchical,
+  it can be constrained by multiple data sources;
+  we demonstrate this by adding the Solar System as a constraint,
+  but extensions to radial velocity, direct detection, and astrometric surveys would also be straightforward.
+Approximations abound:
+  Simple parameterized forms are assumed for the multivariate distribution of exoplanet parameters,
+  incompleteness is assumed to depend only on a scalar related to signal-to-noise,
+  and the KOI catalog is assumed to be dominated by real (not false-positive) exoplanet signals.
+We find XXX and YYY.
 \end{abstract}
 
 \keywords{%
+methods:statistical
 }
 
 \section{Introduction}
@@ -64,7 +80,7 @@
 \section{A toy model}
 
 We start by assuming that ever target star has some $K$ orbiting planets.
-Most of these planets are unobserved because they are two small to be
+Most of these planets are unobserved because they are two (2) small to be
 detectable or because of geometry.
 The graphical model in \fig{gm} is a sketch of the hypothetical generative
 procedure for a catalog of exoplanet observations.
