@@ -70,22 +70,42 @@ The graphical model in \fig{gm} is a sketch of the hypothetical generative
 procedure for a catalog of exoplanet observations.
 The way it is shown, this model is extremely general but we will consider a
 very specific form here.
-In \fig{gm} the global ``hyper'' parameters are:
-\begin{itemize}
-\item{the parameters describing the distributions of the exoplanet population
-\population, and}
-\item{the parameters of a model of the catalog's exoplanet selection function
-\selection.}
-\end{itemize}
-Similarly, the ``hidden variables'' are:
-\begin{itemize}
-\item{the physical parameters of the star and the stellar system
-\stellar---including the stellar mass and radius, a measure of the stellar
-variability, and the mean inclination of the orbiting exoplanets---and}
-\item{the physical parameters of an exoplanet \planet---period, radius, and
-relative inclination.}
-\end{itemize}
-Finally, the observables are
+The parameters of this model are listed and described in \tab{parameters}.
+
+Using this model, we want to find---conditioned on the catalog of exoplanet
+candidates---joint constraints on the parameters describing the population of
+exoplanets and the selection function of the survey.
+To this end, we need to be able to efficiently marginalize over the parameters
+of all of the exoplanet systems (observed and unobserved) to compute the
+marginalized likelihood function
+\begin{eqnarray}
+p(\planetobs,\stellarobs,\isobs\,|\,\population,\selection) &=&
+\prod_{n=1}^N \int \left [
+p(\stellar_n)\,p(\stellarobs_n\,|\,\stellar_n) \,
+ \prod_{k=1}^K
+p(\planetobs_{kn},\isobs_{kn}\,|\,\stellar_n,\population,\selection)\right ]
+\dd \stellar_n
+\end{eqnarray}
+where
+\begin{eqnarray}\eqlabel{planet-marg}
+p(\planetobs_{kn},\isobs_{kn}\,|\,\stellar_n,\population,\selection) &=&
+\int
+p(\planet_{kn}\,|\,\population) \,
+p(\planetobs_{kn}\,|\,\planet_{kn},\stellar_{n}) \,
+p(\isobs_{kn}\,|\,\planet_{kn},\stellar_{n},\selection)
+\dd \planet_{kn} \quad.
+\end{eqnarray}
+
+We can evaluate the integral in \eq{planet-marg} using importance sampling.
+If the exoplanet is not observed ($\isobs_{kn}=0$), the most sensible proposal
+density is simply $\tilde{p}(\planet_{kn})=p(\planet_{kn}\,|\,\population)$
+and the integral becomes
+\begin{eqnarray}
+p(\planetobs_{kn},\isobs_{kn}\,|\,\stellar_n,\population,\selection) &=&
+\frac{1}{\sum_l \tilde{p}(x_l)}\,\sum_l
+p(\isobs_{kn}\,|\,\planet_{kn}=x_l,\stellar_{n},\selection)
+\end{eqnarray}
+for $x_l \sim p(\planet_{kn}\,|\,\population)$.
 
 \begin{figure}[htbp]
 \begin{center}
