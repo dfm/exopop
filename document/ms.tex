@@ -90,7 +90,123 @@ We find XXX and YYY.
 
 \section{Introduction}
 
+\section{Hierarchical inference}
 
+If we assume that the exoplanetary systems that we have observed are drawn (in
+noisy and biased way) from some global distribution then it would be
+interesting to infer the shape of this global distribution conditioned on all
+the available data and our understanding of survey selection effects.
+This problem is called the \emph{hierarchical inference problem}.
+In theory, this problem is no different than a standard inference problem and
+the same algorithms might be applicable but in general, this class of problems
+refer to the cases where forward modelling directly to the raw data is
+computationally intractable.
+
+To be concrete, it is useful to consider a simple abstract example.
+\Fig{abstract} shows the probabilistic graphical model for a set of
+observations $\data_n$ taken some $N$ systems that are each parameterized by a
+set of physical parameters $\local_n$ drawn from some global distribution
+parameterized by the ``hyperparameters'' \hyper.
+Note that each $\data_n$ and $\local_n$ are, in general, large vectors (or
+blobs) with many entries.
+Given this structure, we would like to compute the marginalized likelihood of
+the full set of observations $\data = \{ \data_n \}$ given a specific
+parameterization \hyper
+\begin{eqnarray}
+p(\data\,|\,\hyper) &=& \int \dd \local\,p(\data,\,\local\,|\,\hyper)
+\nonumber\\
+&=& \prod_{n=1}^N\int \dd \local_n\,p(\data_n,\,\local_n\,|\,\hyper) \quad.
+\eqlabel{marg-like}
+\end{eqnarray}
+This integral isn't generally analytic but it could be solved using MCMC or
+another approximate numerical technique.
+A problem becomes apparent when we think a little harder about what might want
+to \emph{do} with this marginalized likelihood.
+In general, we will want to optimize it to find the maximum likelihood
+population distribution of apply a prior function---parameterized by
+\hyperhyper\ in \fig{abstract}---and draw posterior samples
+$\hyper \sim p(\hyper\,|\,\data)$.
+In both of these cases, we would have to perform the (probably extremely
+expensive) integration in \eq{marg-like} some impractically huge number of
+times.
+
+It is possible, however, to greatly simplify this problem and make it
+computationally tractable if we have a \emph{catalog}.
+In this context, a catalog is a set of posterior probabilistic constraints on
+the parameters $\local_n$ under some (known) \emph{interim priors}
+$p(w_n\,|\,\hyper_0)$.
+In particular, the best representation of these constraints is a set of
+posterior samples $\local_n^{(j)} \sim p(\local_n\,|\,\data_n,\,\hyper_0)$.
+Given a set of $J$ such samples, the integral in \eq{marg-like} can be
+re-written as
+\begin{eqnarray}
+\int \dd \local_n\,p(\data_n,\,\local_n\,|\,\hyper) &=&
+\int \dd \local_n\,p(\local_n\,|\,\hyper)\,p(\data_n\,|\,\local_n,\,\hyper)\,
+    \frac{p(\local_n\,|\,\data_n,\,\hyper_0)}
+         {p(\local_n\,|\,\data_n,\,\hyper_0)} \nonumber\\
+&=& Z_n\,\int \dd\local_n\,
+    \frac{p(\local_n\,|\,\hyper)}{p(\local_n\,|\,\hyper_0)} \,
+    \frac{p(\data_n\,|\,\local_n,\,\hyper)}{p(\data_n\,|\,\local_n,\,\hyper_0)}
+    \,p(\local_n\,|\,\data_n,\,\hyper_0) \nonumber\\
+&\approx& \frac{Z_n}{J} \, \sum_{j=1}^J
+    \frac{p(\local_n^{(j)}\,|\,\hyper)}{p(\local_n^{(j)}\,|\,\hyper_0)} \,
+    \frac{p(\data_n\,|\,\local_n^{(j)},\,\hyper)}
+         {p(\data_n\,|\,\local_n^{(j)},\,\hyper_0)}
+\eqlabel{full-import}
+\end{eqnarray}
+where
+\begin{eqnarray}
+Z_n &=& \int \dd\local_n\,p(\local_n,\,\data_n\,|\,\hyper_0)
+\end{eqnarray}
+is the ``evidence'' for the data under the interim priors.
+For our purposes, $Z_n$ is a constant that we (thankfully) never need to
+compute.
+
+There is a further simplification that we can make in the case where the
+likelihood function does not depend on the hyperparameters.
+In this case, \eq{full-import} becomes
+\begin{eqnarray}
+\int \dd \local_n\,p(\data_n,\,\local_n\,|\,\hyper) &\propto&
+\int \dd\local_n\,
+    \frac{p(\local_n^{(j)}\,|\,\hyper)}{p(\local_n^{(j)}\,|\,\hyper_0)} \,
+    p(\local_n\,|\,\data_n,\,\hyper_0) \nonumber\\
+&\approx& \frac{1}{J} \, \sum_{j=1}^J
+    \frac{p(\local_n^{(j)}\,|\,\hyper)}{p(\local_n^{(j)}\,|\,\hyper_0)} \quad.
+\end{eqnarray}
+This simplification won't always be completely applicable and we'll come back
+to it when we discuss the effects of survey selection functions below but most
+of the expensive computations can normally be cancelled.
+
+\begin{figure}[htbp]
+\begin{center}
+    \includegraphics{abstract.pdf}
+\end{center}
+\caption{%
+\figlabel{abstract}}
+\end{figure}
+
+In this \paper, we will focus on the problem of inferring the population
+parameters from a noisy incomplete \emph{catalog}.
+This catalog is defined as some set of posterior probability
+functions---preferably represented as samples---for some ``observable'' set of
+systems.
+
+\section{The model}
+
+\paragraph{Selection function}
+We assume that the selection function is specified by a probability
+distribution function that gives the probability of observing a transit with a
+given signal-to-noise ratio.
+Although we don't perform the integral explicitly, this assumption requires a
+marginalization over the period and inclination distribution.
+Instead, we choose to model the selection function as a scaled logistic
+function of signal-to-noise \sn:
+\begin{eqnarray}
+p(\isobs=1\,|\,\sn,\,\selection) &=&
+\frac{\Pmax}{1+\exp \left [ -(\sn-\snmin) / \selectwidth^2 \right ]} \quad.
+\end{eqnarray}
+Particular period and inclination distributions imply different values for
+\Pmax.
 
 \begin{figure}[htbp]
 \begin{center}
