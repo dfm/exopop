@@ -30,9 +30,7 @@
 \begin{document}
 
 \title{%
-    Exoplanet population inferences
-    from a hierarchical model
-    of the \kepler\ ``Object of Interest'' Catalog
+Inferring the exoplanet radius distribution from a noisy, incomplete catalog
 }
 
 \newcommand{\nyu}{2}
@@ -93,51 +91,6 @@ We find XXX and YYY.
 \section{Introduction}
 
 
-\section{A toy model}
-
-We start by assuming that ever target star has some $K$ orbiting planets.
-Most of these planets are unobserved because they are two (2) small to be
-detectable or because of geometry.
-The graphical model in \fig{gm} is a sketch of the hypothetical generative
-procedure for a catalog of exoplanet observations.
-The way it is shown, this model is extremely general but we will consider a
-very specific form here.
-The parameters of this model are listed and described in \tab{parameters}.
-
-Using this model, we want to find---conditioned on the catalog of exoplanet
-candidates---joint constraints on the parameters describing the population of
-exoplanets and the selection function of the survey.
-To this end, we need to be able to efficiently marginalize over the parameters
-of all of the exoplanet systems (observed and unobserved) to compute the
-marginalized likelihood function
-\begin{eqnarray}
-p(\planetobs,\stellarobs,\isobs\,|\,\population,\selection) &=&
-\prod_{n=1}^N \int \left [
-p(\stellar_n)\,p(\stellarobs_n\,|\,\stellar_n) \,
- \prod_{k=1}^K
-p(\planetobs_{kn},\isobs_{kn}\,|\,\stellar_n,\population,\selection)\right ]
-\dd \stellar_n
-\end{eqnarray}
-where
-\begin{eqnarray}\eqlabel{planet-marg}
-p(\planetobs_{kn},\isobs_{kn}\,|\,\stellar_n,\population,\selection) &=&
-\int
-p(\planet_{kn}\,|\,\population) \,
-p(\planetobs_{kn}\,|\,\planet_{kn},\stellar_{n}) \,
-p(\isobs_{kn}\,|\,\planet_{kn},\stellar_{n},\selection)
-\dd \planet_{kn} \quad.
-\end{eqnarray}
-
-We can evaluate the integral in \eq{planet-marg} using importance sampling.
-If the exoplanet is not observed ($\isobs_{kn}=0$), the most sensible proposal
-density is simply $\tilde{p}(\planet_{kn})=p(\planet_{kn}\,|\,\population)$
-and the integral becomes
-\begin{eqnarray}
-p(\planetobs_{kn},\isobs_{kn}\,|\,\stellar_n,\population,\selection) &=&
-\frac{1}{\sum_l \tilde{p}(x_l)}\,\sum_l
-p(\isobs_{kn}\,|\,\planet_{kn}=x_l,\stellar_{n},\selection)
-\end{eqnarray}
-for $x_l \sim p(\planet_{kn}\,|\,\population)$.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -147,44 +100,44 @@ for $x_l \sim p(\planet_{kn}\,|\,\population)$.
 \figlabel{gm}}
 \end{figure}
 
-\begin{deluxetable}{ccl}
-\tablecaption{%
-A description of the model parameters.
-\tablabel{parameters}}
-\tablewidth{0pt}
-\tablehead{& & \colhead{Description}}
-\startdata
-\multirow{3}{*}{\population}
-& $\population_\period$ & The period distribution \\
-& $\population_\radius$ & The exoplanet radius distribution \\
-& $\population_\relincl$ & The relative inclination distribution \\
-\hline
-\selection & --- & The parameters of the catalog selection function \\
-\hline
-$\isobs_{kn}$ & --- & A flag indicating the presence of exoplanet $k$ orbiting
-star $n$ in the catalog \\
-\hline
-\multirow{3}{*}{$\planet_{kn}$}
-& $\period_{kn}$ & The period of exoplanet $k$ orbiting star $n$ (or null) \\
-& $\radius_{kn}$ & The exoplanet's radius \\
-& $\relincl_{kn}$ & The inclination of this orbit away from the systemic mean \\
-\hline
-\multirow{3}{*}{$\planetobs_{kn}$}
-& $\periodobs_{kn}$ & The observed exoplanet period and uncertainty \\
-& $(\rorobs)_{kn}$ & The observed radius ratio and uncertainty \\
-& $\impactobs_{kn}$ & A constraint on the observed impact parameter \\
-\hline
-\multirow{4}{*}{$\stellar_{n}$}
-& $\smass_{n}$ & The mass of star $n$ \\
-& $\sradius_{n}$ & The radius of star $n$ \\
-& $\snoise_{n}$ & The ``variability'' of star $n$ \\
-& $\incl_{n}$ & The mean inclination of the exoplanets in the system $n$ \\
-\hline
-\multirow{2}{*}{$\stellarobs_{n}$}
-& $\sloggobs_{n}$ & The observed surface gravity (and uncertainty) of star $n$ \\
-& $\snoiseobs_{n}$ & The estimated variability of star $n$ \\
-\enddata
-\end{deluxetable}
+% \begin{deluxetable}{ccl}
+% \tablecaption{%
+% A description of the model parameters.
+% \tablabel{parameters}}
+% \tablewidth{0pt}
+% \tablehead{& & \colhead{Description}}
+% \startdata
+% \multirow{3}{*}{\population}
+% & $\population_\period$ & The period distribution \\
+% & $\population_\radius$ & The exoplanet radius distribution \\
+% & $\population_\relincl$ & The relative inclination distribution \\
+% \hline
+% \selection & --- & The parameters of the catalog selection function \\
+% \hline
+% $\isobs_{kn}$ & --- & A flag indicating the presence of exoplanet $k$ orbiting
+% star $n$ in the catalog \\
+% \hline
+% \multirow{3}{*}{$\planet_{kn}$}
+% & $\period_{kn}$ & The period of exoplanet $k$ orbiting star $n$ (or null) \\
+% & $\radius_{kn}$ & The exoplanet's radius \\
+% & $\relincl_{kn}$ & The inclination of this orbit away from the systemic mean \\
+% \hline
+% \multirow{3}{*}{$\planetobs_{kn}$}
+% & $\periodobs_{kn}$ & The observed exoplanet period and uncertainty \\
+% & $(\rorobs)_{kn}$ & The observed radius ratio and uncertainty \\
+% & $\impactobs_{kn}$ & A constraint on the observed impact parameter \\
+% \hline
+% \multirow{4}{*}{$\stellar_{n}$}
+% & $\smass_{n}$ & The mass of star $n$ \\
+% & $\sradius_{n}$ & The radius of star $n$ \\
+% & $\snoise_{n}$ & The ``variability'' of star $n$ \\
+% & $\incl_{n}$ & The mean inclination of the exoplanets in the system $n$ \\
+% \hline
+% \multirow{2}{*}{$\stellarobs_{n}$}
+% & $\sloggobs_{n}$ & The observed surface gravity (and uncertainty) of star $n$ \\
+% & $\snoiseobs_{n}$ & The estimated variability of star $n$ \\
+% \enddata
+% \end{deluxetable}
 
 \acknowledgments
 SAMSI. %
