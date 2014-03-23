@@ -1,0 +1,224 @@
+\documentclass[12pt,preprint]{aastex}
+
+\usepackage{color,hyperref}
+\definecolor{linkcolor}{rgb}{0,0,0.5}
+\hypersetup{colorlinks=true,linkcolor=linkcolor,citecolor=linkcolor,
+            filecolor=linkcolor,urlcolor=linkcolor}
+\usepackage{url}
+\usepackage{amssymb,amsmath}
+
+\newcommand{\project}[1]{{\sffamily #1}}
+\newcommand{\emcee}{\project{emcee}}
+\newcommand{\kepler}{\project{Kepler}}
+\newcommand{\license}{MIT License}
+
+\newcommand{\paper}{\emph{Article}}
+
+\newcommand{\foreign}[1]{\emph{#1}}
+\newcommand{\etal}{\foreign{et\,al.}}
+\newcommand{\etc}{\foreign{etc.}}
+
+\newcommand{\Fig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\fig}[1]{\Fig{#1}}
+\newcommand{\figlabel}[1]{\label{fig:#1}}
+\newcommand{\Tab}[1]{Table~\ref{tab:#1}}
+\newcommand{\tab}[1]{\Tab{#1}}
+\newcommand{\tablabel}[1]{\label{tab:#1}}
+\newcommand{\Eq}[1]{Equation~(\ref{eq:#1})}
+\newcommand{\eq}[1]{\Eq{#1}}
+\newcommand{\eqlabel}[1]{\label{eq:#1}}
+\newcommand{\Sect}[1]{Section~\ref{sect:#1}}
+\newcommand{\sect}[1]{\Sect{#1}}
+\newcommand{\App}[1]{Appendix~\ref{sect:#1}}
+\newcommand{\app}[1]{\App{#1}}
+\newcommand{\sectlabel}[1]{\label{sect:#1}}
+
+\newcommand{\dd}{\ensuremath{\,\mathrm{d}}}
+\newcommand{\bvec}[1]{\ensuremath{\boldsymbol{#1}}}
+
+% TO DOS
+\newcommand{\todo}[3]{{\color{#2} \emph{#1} TODO: #3}}
+\newcommand{\dfmtodo}[1]{\todo{DFM}{red}{#1}}
+\newcommand{\hoggtodo}[1]{\todo{HOGG}{blue}{#1}}
+\newcommand{\mortontodo}[1]{\todo{MORTON}{green}{#1}}
+
+% Document specific variables.
+\newcommand{\rate}{\ensuremath{\eta}}
+\newcommand{\ratepars}{\ensuremath{\theta}}
+\newcommand{\obs}[1]{\ensuremath{\hat{#1}}}
+\newcommand{\radius}{\ensuremath{r}}
+\newcommand{\period}{\ensuremath{T}}
+\newcommand{\completeness}{\ensuremath{P_\mathrm{c}}}
+\newcommand{\transitprob}{\ensuremath{P_\mathrm{t}}}
+
+\newcommand{\interim}{\ensuremath{\alpha}}
+
+\begin{document}
+
+\title{%
+    Inferring the rate of Earth-like exoplanets from noisy data
+}
+
+\newcommand{\nyu}{2}
+\newcommand{\mpia}{3}
+\newcommand{\princeton}{4}
+\author{%
+    Daniel~Foreman-Mackey\altaffilmark{1,\nyu},
+    David~W.~Hogg\altaffilmark{\nyu,\mpia},
+    Timothy~D.~Morton\altaffilmark{\princeton},
+    \etal
+}
+\altaffiltext{1}            {To whom correspondence should be addressed:
+                             \url{danfm@nyu.edu}}
+\altaffiltext{\nyu}         {Center for Cosmology and Particle Physics,
+                             Department of Physics, New York University,
+                             4 Washington Place, New York, NY, 10003, USA}
+\altaffiltext{\mpia}        {Max-Planck-Institut f\"ur Astronomie,
+                             K\"onigstuhl 17, D-69117 Heidelberg, Germany}
+\altaffiltext{\princeton}   {Department of Astrophysics, Princeton University,
+                             Princeton, NJ}
+
+\begin{abstract}
+
+We infer the distribution and rate of Earth-like exoplanets around Sun-like
+stars.
+
+\end{abstract}
+
+\keywords{%
+exoplanets: sickness
+---
+code: open-source
+---
+keywords: made-up-by-Hogg
+}
+
+\section{Introduction}
+
+\section{The model}
+
+\emph{Note: I think that we should use $T$ instead of $P$ for period because
+$P$ is too heavily overloaded by the probabilities\ldots}
+
+We have some parametric function \rate\ describing the true rate of exoplanets
+with periods \period\ and radii \radius
+\begin{eqnarray}\eqlabel{true-rate}
+\rate (\period,\,\radius;\,\ratepars)
+&=& \frac{\dd N}{\dd\ln\period\dd\ln\radius}\quad.
+\end{eqnarray}
+Here we have not made any assumptions about the functional form of \rate, we
+are only stating that it can be modeled by some---possibly very large---set of
+parameters \ratepars.
+
+In this \paper, we will assume that the completeness function of the survey is
+known and it can be represented as a probability at every period and radius
+$\completeness (\period,\,\radius)$.
+Similarly, we can consider the marginalized transit probability $\transitprob
+(\period)$ as only a function of period.
+These selection effects can be incorporated into the rate from \eq{true-rate}
+to get the \emph{observed rate}
+\begin{eqnarray}\eqlabel{obs-rate}
+\obs{\rate} (\period,\,\radius;\,\ratepars)
+&=& \rate (\period,\,\radius;\,\ratepars)\,\completeness(\period,\,\radius)\,
+\transitprob(\period)\quad.
+\end{eqnarray}
+
+Now we will make the further assumption that every candidate in our sample of
+detected exoplanets is an independent Poisson sample from the population
+described by our rate function.
+Under this assumption, the likelihood of the catalog conditioned on a set of
+parameters \ratepars\ is
+\begin{eqnarray}
+\ln p(\period,\,\radius\,|\,\ratepars) &\propto&
+\sum_{k=1}^K \ln\obs{\rate} (\period_k,\,\radius_k;\,\ratepars)
+- \int \obs{\rate} (\period,\,\radius;\,\ratepars) \dd\period\dd\radius
+\quad.
+\end{eqnarray}
+
+\hoggtodo{How is this related to the version of the likelihood that doesn't
+include the normalization. What is the best way to introduce both forms?}
+
+\section{Including observational uncertainties}
+
+In the previous section, we implicitly assumed that the measurements of
+\period\ and \radius\ given by the catalog were perfect, without any
+observational uncertainties.
+This isn't a terrible approximation for the period measurements but not for
+the radii.
+Luckily, it is not hard to include these effects in our probabilistic
+framework.
+
+In general, catalogs produce posterior probability distributions for
+quantities conditioned on data.
+In particular, the catalog that we're considering here provides estimates of
+the posterior distribution of \period\ and \radius\ conditioned on the
+observables $\obs{\period}$ and $\obs{\radius}$ under some \emph{interim
+priors} parameterized by \interim
+\begin{eqnarray}
+p(\period,\,\radius\,|\,\obs{\period},\,\obs{\radius},\,\interim) \quad.
+\end{eqnarray}
+This estimate can be propagated as \emph{posterior samples}
+\begin{eqnarray}
+\{\period^{(n)},\,\radius^{(n)}\} &\sim&
+p(\period,\,\radius\,|\,\obs{\period},\,\obs{\radius},\,\interim) \quad.
+\end{eqnarray}
+
+Now the quantity that we need to compute is again the (marginalized)
+likelihood of the data $\obs{\period}$ and $\obs{\radius}$ conditioned on a
+set of rate function parameters \ratepars
+\begin{eqnarray}
+p(\obs{\period},\,\obs{\radius}\,|\,\ratepars) &=&
+\int p(\period,\,\radius,\,\obs{\period},\,\obs{\radius}\,|\,\ratepars)
+\dd\period\dd\radius \\
+&=&
+\int p(\period,\,\radius\,|\,\ratepars) \,
+p(\obs{\period},\,\obs{\radius}\,|\,\period,\,\radius)
+\dd\period\dd\radius \\
+&=&
+\int p(\period,\,\radius\,|\,\ratepars) \,
+p(\obs{\period},\,\obs{\radius}\,|\,\period,\,\radius)\,
+\frac{p(\period,\,\radius\,|\,\obs{\period},\,\obs{\radius},\,\interim)}
+     {p(\period,\,\radius\,|\,\obs{\period},\,\obs{\radius},\,\interim)}
+\dd\period\dd\radius \\
+&=&
+p(\obs{\period},\,\obs{\radius}\,|\,\interim)\,
+\int
+\frac{p(\period,\,\radius\,|\,\ratepars) \,
+      p(\obs{\period},\,\obs{\radius}\,|\,\period,\,\radius)}
+     {p(\period,\,\radius\,|\,\interim) \,
+      p(\obs{\period},\,\obs{\radius}\,|\,\period,\,\radius)}\,
+p(\period,\,\radius\,|\,\obs{\period},\,\obs{\radius},\,\interim)
+\dd\period\dd\radius \\
+\frac{p(\obs{\period},\,\obs{\radius}\,|\,\ratepars)}
+     {p(\obs{\period},\,\obs{\radius}\,|\,\interim)}
+&=&
+\int
+\frac{p(\period,\,\radius\,|\,\ratepars)}
+     {p(\period,\,\radius\,|\,\interim)} \,
+p(\period,\,\radius\,|\,\obs{\period},\,\obs{\radius},\,\interim)
+\dd\period\dd\radius \\
+&\approx&
+\frac{1}{N}
+\sum_{n=1}^N
+\frac{p(\period^{(n)},\,\radius^{(n)}\,|\,\ratepars)}
+     {p(\period^{(n)},\,\radius^{(n)}\,|\,\interim)}
+\end{eqnarray}
+
+\acknowledgments
+It is a pleasure to thank
+    Erik Petigura (Berkeley),
+    \ldots
+for helpful contributions to the ideas and code presented here.
+This project was partially supported by the NSF (grant AST-0908357), and NASA
+(grant NNX08AJ48G).
+
+\newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
+\begin{thebibliography}{}\raggedright
+
+\bibitem[Petigura \etal(2013)]{petigura}
+Petigura, E.~A., Howard, A.~W., \& Marcy, G.~W.\ 2013,
+Proceedings of the National Academy of Science, 110, 19273
+
+\end{thebibliography}
+
+\end{document}
