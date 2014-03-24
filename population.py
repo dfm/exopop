@@ -10,6 +10,7 @@ import numpy as np
 from itertools import izip
 import matplotlib.pyplot as pl
 from scipy.misc import logsumexp
+from scipy.linalg import cho_factor, cho_solve
 
 
 class BrokenPowerLaw(object):
@@ -105,33 +106,64 @@ class Population(object):
         # Compute the cell areas.
         p = self.log_per_bins[::log_per_resample]
         rp = self.log_rp_bins[::log_rp_resample]
+        ir, ip = np.meshgrid(0.5*(rp[1:]+rp[:-1]), 0.5*(p[1:]+p[:-1]))
+        self.cell_coords = np.vstack((ip.flatten(), ir.flatten())).T
         self.ln_cell_area = (np.log(p[1:]-p[:-1])[:, None] +
                              np.log(rp[1:]-rp[:-1])[None, :])
         self.grid_shape = self.ln_cell_area.shape
         self.ln_cell_area = self.ln_cell_area.flatten()
         self.ncells = np.prod(len(self.ln_cell_area))
 
+        # Allocate the cache as empty.
+        self._cache_key = None
+        self._cache_val = None
+
     def __len__(self):
-        return self.ncells - 1
+        return self.ncells + 2
 
     def initial(self):
-        v = np.zeros(self.ncells)
-        v -= logsumexp(v + self.ln_cell_area)
+        v = np.zeros(self.ncells+3)
+        v[3:] -= logsumexp(v[3:] + self.ln_cell_area)
+        v[:3] = [0.5, -3.0, -3.0]
         return v[:-1]
 
-    def evaluate(self, theta):
+    def _get_grid(self, theta):
+        k = tuple(theta[3:])
+        if k == self._cache_key:
+            return self._cache_val
+
         # Compute the integral over the first N-1 cells.
-        norm = logsumexp(theta + self.ln_cell_area[:-1])
+        norm = logsumexp(theta[3:] + self.ln_cell_area[:-1])
         if norm >= 0.0:
             return None
 
-        # Compute the height of the last cell.
+        # Compute the height of the last cell and cache the heights.
         v = np.log(1.0 - np.exp(norm)) - self.ln_cell_area[-1]
-        ln_heights = np.append(theta, v).reshape(self.grid_shape)
-        return ln_heights[self.ix, self.iy]
+        self._cache_key = k
+        self._cache_val = np.append(theta[3:], v).reshape(self.grid_shape)
+
+        return self._cache_val
+
+    def evaluate(self, theta):
+        grid = self._get_grid(theta)
+        if grid is None:
+            return None
+        return grid[self.ix, self.iy]
 
     def lnprior(self, theta):
-        return 0.0
+        grid = self._get_grid(theta)
+        if grid is None:
+            return -np.inf
+
+        # Compute the Gaussian process prior.
+        y = grid.flatten()
+        y -= np.mean(y)
+        d = (self.cell_coords[:, None, :] - self.cell_coords[None, :, :])**2
+        K = np.exp(theta[0] - 0.5 * np.sum(d / np.exp(theta[1:3]), axis=2))
+        K += np.diag(1e-10 * np.ones_like(y))
+        factor, flag = cho_factor(K)
+        logdet = np.sum(2*np.log(np.diag(factor)))
+        return -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
 
 
 class SeparablePopulation(object):

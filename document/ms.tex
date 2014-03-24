@@ -46,7 +46,7 @@
 \newcommand{\rate}{\ensuremath{\eta}}
 \newcommand{\ratepars}{\ensuremath{\theta}}
 \newcommand{\obs}[1]{\ensuremath{\hat{#1}}}
-\newcommand{\radius}{\ensuremath{r}}
+\newcommand{\radius}{\ensuremath{R}}
 \newcommand{\period}{\ensuremath{T}}
 \newcommand{\completeness}{\ensuremath{P_\mathrm{c}}}
 \newcommand{\transitprob}{\ensuremath{P_\mathrm{t}}}
@@ -127,16 +127,13 @@ Now we will make the further assumption that every candidate in our sample of
 detected exoplanets is an independent Poisson sample from the population
 described by our rate function.
 Under this assumption, the likelihood of the catalog conditioned on a set of
-parameters \ratepars\ is
+parameters \ratepars\ is (see Appendix XXXXX for a derivation)
 \begin{eqnarray}
 \ln p(\period,\,\radius\,|\,\ratepars) &\propto&
 \sum_{k=1}^K \ln\obs{\rate} (\period_k,\,\radius_k;\,\ratepars)
 - \int \obs{\rate} (\period,\,\radius;\,\ratepars) \dd\period\dd\radius
 \quad.
 \end{eqnarray}
-
-\hoggtodo{How is this related to the version of the likelihood that doesn't
-include the normalization. What is the best way to introduce both forms?}
 
 \section{Including observational uncertainties}
 
