@@ -90,22 +90,24 @@ Here we build a set of probabilistic models of the population of known small pla
 The models all take into account the transit probability and the completeness (or detection efficiency)
   as a function of planet radius and orbital period.
 Because we forward model the data,
-  we do not ever have to weight the data by the inverse detection efficiency,
-  which leads to higher-variance population estimators.
+  we do not ever have to perform the traditional weighting of the data by the inverse detection efficiency;
+  our inferences are more precise than those produced by traditional methods.
 Our most sophisticated models do not assume that the joint radius--period distribution is separable,
-  and correctly take into account the significant observational uncertainties on the planet radii
+  and correctly take into account the significant observational uncertainties on the planet radii,
   using the machinery of hierarchical inference.
 One output of these models is fully marginalized estimates---%
   marginalizing out observational uncertainties and all distribution parameters---%
   of the rate density of true Earth analogs,
-  expressed as a number or Earths per star per natural logarithmic interval of radius and period.
-These rate densities depend on the permitted flexibility of the distribution model,
-  but tend to come out around ten percent,
-  with large uncertainties.
+  expressed as a number of planets per star per natural logarithmic interval of radius and period,
+  evaluated at the properties of Earth.
+The rate density we infer depends strongly on the permitted flexibility of the distribution model,
+  but tends to come out around ten percent, with large uncertainty.
 \end{abstract}
 
 \keywords{%
 exoplanets: sickness
+---
+exoplanets: eta-Earth
 ---
 code: open-source
 ---
