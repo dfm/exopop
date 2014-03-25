@@ -77,7 +77,7 @@
 \altaffiltext{\mpia}        {Max-Planck-Institut f\"ur Astronomie,
                              K\"onigstuhl 17, D-69117 Heidelberg, Germany}
 \altaffiltext{\princeton}   {Department of Astrophysics, Princeton University,
-                             Princeton, NJ}
+                             Princeton, NJ, 08540, USA} % CHECK THIS ZIP CODE
 
 \begin{abstract}
 Although no true extra-solar Earth analog is known,
@@ -130,9 +130,15 @@ Re-weighting the data by inverse selection probability---%
   a method called V-max in the quasar and galaxy luminosity function contexts---%
   is not wrong,
   but it produces a higher-variance estimate of the population than a justified likelihood approach.
-Here our likelihood function is a Poisson rate likelihood;
+One simple intuition along these lines is that the inverse probability weights can be large in dynamic range,
+  so the effective number of samples, after weighting, can be much smaller than the actual number of samples.
+Another is that it tends to upweight most strongly the most marginal detections in the data sample,
+  since these tend to be the samples that lie in the region of lowest completeness.
+In this work, we build a justified likelihood of the observed data,
+  taking into account the completeness function or detection efficiency.
+Our likelihood function is a variable-rate Poisson likelihood;
   it makes the fundamental assumption that the data points are independently drawn from the model,
-  but no other assumptions.
+  but is agnostic about all other properties of the data or distribution functions.
 Indeed, the assumptions behind this study are weaker than those of any previous study
   of the Earth-analog population (CITE PETIGURA, DONG).
 
@@ -281,6 +287,49 @@ It is a pleasure to thank
 for helpful contributions to the ideas and code presented here.
 This project was partially supported by the NSF (grant AST-0908357), and NASA
 (grant NNX08AJ48G).
+
+\section{Results}
+
+\section{Discussion}
+
+We have made the first measurement of the Earth-like exoplanet population
+  that is based on forward modeling,
+  takes proper account of the observational uncertainties on planet radii,
+  and makes use of extremely flexible non-separable distributions for radius and period.
+We find BLAH BLAH BLAH.
+
+Although our method makes weaker assumptions than any previous work in this area,
+  of course it \emph{does} make strong assumptions.
+It assumes that the data set (provided by CITE PETIGURA)
+  contains planets and only planets (no false positives).
+It assumes that the individual-planet radius uncertainties
+  are also correctly determined.
+It assumes that the completeness calculation (CITE PETIGURA)
+  is accurate and smoothly varying with radius and period;
+  it makes no attempt to adjust the completeness star-by-star for brightness or variability.
+It assumes that the exoplanets are all independently drawn from the same distribution function,
+  with no regard to age, metallicity, or multiplicity.
+
+Although we have taken account of the radius uncertainties in a principled way,
+  we did make one important approximation:
+We ignored planets with central values far outside the radius and period box in which we built the model.
+That is, we assumed that there are no very large outliers in radius determination.
+This assumption is a complex one;
+  it involves the effective, end-to-end error distribution in the data set,
+  but also smoothness of the distribution function at or near the edges of the analysis box.
+
+If our inferences are right about true Earth analogs,
+  then we expect that there are about XXX transiting Earth analogs
+  hidden in the \kepler\ data set.
+We would be able to find some of these Earth analogs if the effective noise level in the data could be reduced
+  by a factor of about XXX.
+We have identified a number of directions along which this noise reduction might happen,
+  including but not limited to
+  retrospective data-driven or physics-driven recalibrations of the \kepler\ focal plane (CITE HOGG WHITEPAPER),
+  new methods for performing aperture photometry (NOTHING TO CITE),
+  and better models for stochastic stellar variability that take account of frequency structure (CITE CARTER, BREWER, AIGRAIN).
+If any (or all) of these deliver substantial improvements for \kepler\ archival data reanalyses,
+  it's Nobel Prize time!  (Or at least \textsl{The Colbert Report}?)
 
 \newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
 \begin{thebibliography}{}\raggedright
