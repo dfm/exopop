@@ -141,8 +141,8 @@ STUFF HERE ABOUT EARTH ANALOGS.
 This study is novel in a number of ways.
 We create probabilistic information about the full exoplanet population
 \emph{not} by weighting the detected objects by the inverse detection
-efficiency (CITE PETIGURA), but rather by forward modeling the observed
-distribution subject to the detection efficienty.
+efficiency (\citealt{dong, petigura}), but rather by forward modeling the
+observed distribution subject to the detection efficiency.
 Re-weighting the data by inverse selection probability---a method called
 V-max in the quasar and galaxy luminosity function contexts---is not wrong,
 but it produces a higher-variance estimate of the population than a justified
@@ -190,7 +190,7 @@ The justified probabilistic approach to including these uncertainties in a
 distribution analysis is to introduce the ``true'' radii as latent variables
 and infer and marginalize them out along with all other nuisance parameters.
 Although this sounds expensive---and it can be---there is a simple approach
-we have been advocating (CITE HOGG) that makes use of importance sampling.
+we have been advocating (\cite{hogge}) that makes use of importance sampling.
 We use this approach here; our results are fully marginalized over posterior
 uncertainties in all of the planet radii.
 More will be said about this below; the importance sampling looks like a
@@ -349,13 +349,13 @@ We find BLAH BLAH BLAH.
 
 Although our method makes weaker assumptions than any previous work in this
 area, of course it \emph{does} make strong assumptions.
-It assumes that the data set (provided by CITE PETIGURA) contains planets and
+It assumes that the data set (from \citealt{petigura}) contains planets and
 only planets (no false positives).
 It assumes that the individual-planet radius uncertainties are also correctly
 determined.
-It assumes that the completeness calculation (CITE PETIGURA) is accurate and
-smoothly varying with radius and period; it makes no attempt to adjust the
-completeness star-by-star for brightness or variability.
+It assumes that the completeness calculation (again from \citealt{petigura})
+is accurate and smoothly varying with radius and period; it makes no attempt
+to adjust the completeness star-by-star for brightness or variability.
 It assumes that the exoplanets are all independently drawn from the same
 distribution function, with no regard to age, metallicity, or multiplicity.
 
@@ -374,10 +374,11 @@ We would be able to find some of these Earth analogs if the effective noise
 level in the data could be reduced by a factor of about XXX.
 We have identified a number of directions along which this noise reduction
 might happen, including but not limited to retrospective data-driven or
-physics-driven recalibrations of the \kepler\ focal plane (CITE HOGG
-WHITEPAPER), new methods for performing aperture photometry (NOTHING TO CITE),
-and better models for stochastic stellar variability that take account of
-frequency structure (CITE CARTER, BREWER, AIGRAIN).
+physics-driven recalibrations of the \kepler\ focal plane
+(\citealt{hoggwhitepaper}), new methods for performing aperture photometry,
+and better models for stochastic instrument variability or stochastic
+intrinsic stellar variability that take account of frequency structure
+(\citealt{brewer, carter, roberts}).
 If any (or all) of these deliver substantial improvements for \kepler\
 archival data reanalyses, it's Nobel Prize time!  (Or at least \textsl{The
 Colbert Report}?)
@@ -388,14 +389,25 @@ It is a pleasure to thank
 for helpful contributions to the ideas and code presented here.
 This project was partially supported by the NSF (grant AST-0908357), and NASA
 (grant NNX08AJ48G).
+This research made use of the NASA \project{Astrophysics Data System}.
 
 \newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
 \begin{thebibliography}{}\raggedright
+\bibitem[Brewer \& Stello(2009)]{brewer}
+Brewer, B.~J., \& Stello, D.\ 2009, \mnras, 395, 2226 (\arxiv{0902.3907})
+\bibitem[Carter \& Winn(2009)]{carter}
+Carter, J.~A., \& Winn, J.~N.\ 2009, \apj, 704, 51 (\arxiv{0909.0747})
 \bibitem[Dong \& Zhu(2013)]{dong}
-Dong, S., \& Zhu, Z.\ 2013, \apj, 778, 53 
+Dong, S., \& Zhu, Z.\ 2013, \apj, 778, 53 (\arxiv{1212.4853})
+\bibitem[Hogg et \etal(2013)]{hoggwhitepaper}
+Hogg, D.~W., Angus, R., Barclay, T., et al.\ 2013, \arxiv{1309.0653}
+\bibitem[Hogg \etal(2010)]{hogge}
+Hogg, D.~W., Myers, A.~D., \& Bovy, J.\ 2010, \apj, 725, 2166 (\arxiv{1008.4146})
 \bibitem[Petigura \etal(2013)]{petigura}
 Petigura, E.~A., Howard, A.~W., \& Marcy, G.~W.\ 2013,
-Proceedings of the National Academy of Science, 110, 19273
+Proceedings of the National Academy of Science, 110, 19273 (\arxiv{1311.6806})
+\bibitem[Roberts \etal(2013)]{roberts}
+Roberts, S., McQuillan, A., Reece, S., \& Aigrain, S.\ 2013, \mnras, 435, 3639 (\arxiv{1308.3644})
 \end{thebibliography}
 
 \end{document}
