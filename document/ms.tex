@@ -58,6 +58,7 @@
 %
 %  * 80 characters
 %  * line breaks at the ends of sentences
+%  * eqnarrys ONLY
 %  * that is all.
 %
 
@@ -300,49 +301,56 @@ p(\period,\,\radius\,|\,\obs{\period},\,\obs{\radius},\,\interim)
      {p(\period^{(n)},\,\radius^{(n)}\,|\,\interim)}
 \end{eqnarray}
 
-\acknowledgments
-It is a pleasure to thank
-    Erik Petigura (Berkeley),
-    \ldots
-for helpful contributions to the ideas and code presented here.
-This project was partially supported by the NSF (grant AST-0908357), and NASA
-(grant NNX08AJ48G).
+\section{Separable Distribution}
 
-\section{Results}
+The first model that we consider for $\rate(\period,\,\radius)$ is a simple
+separable distribution.
+This assumption means that the rate can be written as
+\begin{eqnarray}
+\rate(\period,\,\radius) &=& \rate(\period)\,\rate(\radius)
+\end{eqnarray}
+and, more specifically, we model the period distribution as a broken power law
+\dfmtodo{CHECK ME!!}
+\begin{eqnarray}
+\rate(\period) &\propto& \frac{\period^\alpha \,
+(\period+\period_0)^{\beta-\alpha}}{\period_0^\beta}
+\end{eqnarray}
+and the radius distribution as a piecewise constant function (or histogram)
+where the parameters are the bin heights.
 
 \section{Discussion}
 
-We have made the first measurement of the Earth-like exoplanet population
-  that is based on forward modeling,
-  takes proper account of the observational uncertainties on planet radii,
-  and makes use of extremely flexible non-separable distributions for radius and period.
+We have made the first measurement of the Earth-like exoplanet population that
+is based on forward modeling, takes proper account of the observational
+uncertainties on planet radii, and makes use of extremely flexible
+non-separable distributions for radius and period.
 We find BLAH BLAH BLAH.
 
-Although our method makes weaker assumptions than any previous work in this area,
-  of course it \emph{does} make strong assumptions.
-It assumes that the data set (provided by CITE PETIGURA)
-  contains planets and only planets (no false positives).
-It assumes that the individual-planet radius uncertainties
-  are also correctly determined.
-It assumes that the completeness calculation (CITE PETIGURA)
-  is accurate and smoothly varying with radius and period;
-  it makes no attempt to adjust the completeness star-by-star for brightness or variability.
-It assumes that the exoplanets are all independently drawn from the same distribution function,
-  with no regard to age, metallicity, or multiplicity.
+Although our method makes weaker assumptions than any previous work in this
+area, of course it \emph{does} make strong assumptions.
+It assumes that the data set (provided by CITE PETIGURA) contains planets and
+only planets (no false positives).
+It assumes that the individual-planet radius uncertainties are also correctly
+determined.
+It assumes that the completeness calculation (CITE PETIGURA) is accurate and
+smoothly varying with radius and period; it makes no attempt to adjust the
+completeness star-by-star for brightness or variability.
+It assumes that the exoplanets are all independently drawn from the same
+distribution function, with no regard to age, metallicity, or multiplicity.
 
-Although we have taken account of the radius uncertainties in a principled way,
-  we did make one important approximation:
-We ignored planets with central values far outside the radius and period box in which we built the model.
-That is, we assumed that there are no very large outliers in radius determination.
-This assumption is a complex one;
-  it involves the effective, end-to-end error distribution in the data set,
-  but also smoothness of the distribution function at or near the edges of the analysis box.
+Although we have taken account of the radius uncertainties in a principled
+way, we did make one important approximation: We ignored planets with central
+values far outside the radius and period box in which we built the model.
+That is, we assumed that there are no very large outliers in radius
+determination.
+This assumption is a complex one; it involves the effective, end-to-end error
+distribution in the data set, but also smoothness of the distribution function
+at or near the edges of the analysis box.
 
-If our inferences are right about true Earth analogs,
-  then we expect that there are about XXX transiting Earth analogs
-  hidden in the \kepler\ data set.
-We would be able to find some of these Earth analogs if the effective noise level in the data could be reduced
-  by a factor of about XXX.
+If our inferences are right about true Earth analogs, then we expect that
+there are about XXX transiting Earth analogs hidden in the \kepler\ data set.
+We would be able to find some of these Earth analogs if the effective noise
+level in the data could be reduced by a factor of about XXX.
 We have identified a number of directions along which this noise reduction
 might happen, including but not limited to retrospective data-driven or
 physics-driven recalibrations of the \kepler\ focal plane (CITE HOGG
@@ -352,6 +360,14 @@ frequency structure (CITE CARTER, BREWER, AIGRAIN).
 If any (or all) of these deliver substantial improvements for \kepler\
 archival data reanalyses, it's Nobel Prize time!  (Or at least \textsl{The
 Colbert Report}?)
+
+\acknowledgments
+It is a pleasure to thank
+    \ldots
+for helpful contributions to the ideas and code presented here.
+This project was partially supported by the NSF (grant AST-0908357), and NASA
+(grant NNX08AJ48G).
+
 
 \newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
 \begin{thebibliography}{}\raggedright

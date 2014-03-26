@@ -212,6 +212,8 @@ class SeparablePopulation(object):
         fig = pl.figure(figsize=(6, 8))
         ax2 = fig.add_subplot(211)
         ax1 = fig.add_subplot(212)
+        fig.subplots_adjust(left=0.15, bottom=0.1, right=0.98, top=0.99,
+                            hspace=0.2)
 
         # Loop over parameter vectors and plot the samples.
         for theta in thetas:
