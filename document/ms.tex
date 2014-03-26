@@ -53,6 +53,14 @@
 
 \newcommand{\interim}{\ensuremath{\alpha}}
 
+%
+%  RULES OF THE GAME, MOTHAFUCKERS.
+%
+%  * 80 characters
+%  * line breaks at the ends of sentences
+%  * that is all.
+%
+
 \begin{document}
 
 \title{%
@@ -130,55 +138,61 @@ STUFF HERE ABOUT EARTH ANALOGS.
 
 This study is novel in a number of ways.
 We create probabilistic information about the full exoplanet population
-  \emph{not} by weighting the detected objects by the inverse detection efficiency (CITE PETIGURA),
-  but rather by forward modeling the observed distribution subject to the detection efficienty.
-Re-weighting the data by inverse selection probability---%
-  a method called V-max in the quasar and galaxy luminosity function contexts---%
-  is not wrong,
-  but it produces a higher-variance estimate of the population than a justified likelihood approach.
-One simple intuition along these lines is that the inverse probability weights can be large in dynamic range,
-  so the effective number of samples, after weighting, can be much smaller than the actual number of samples.
-Another is that it tends to upweight most strongly the most marginal detections in the data sample,
-  since these tend to be the samples that lie in the region of lowest completeness.
-In this work, we build a justified likelihood of the observed data,
-  taking into account the completeness function or detection efficiency.
-Our likelihood function is a variable-rate Poisson likelihood;
-  it makes the fundamental assumption that the data points are independently drawn from the model,
-  but is agnostic about all other properties of the data or distribution functions.
-Indeed, the assumptions behind this study are weaker than those of any previous study
-  of the Earth-analog population (CITE PETIGURA, DONG).
+\emph{not} by weighting the detected objects by the inverse detection
+efficiency (CITE PETIGURA), but rather by forward modeling the observed
+distribution subject to the detection efficienty.
+Re-weighting the data by inverse selection probability---a method called
+V-max in the quasar and galaxy luminosity function contexts---is not wrong,
+but it produces a higher-variance estimate of the population than a justified
+likelihood approach.
+One simple intuition along these lines is that the inverse probability weights
+can be large in dynamic range, so the effective number of samples, after
+weighting, can be much smaller than the actual number of samples.
+Another is that it tends to upweight most strongly the most marginal
+detections in the data sample, since these tend to be the samples that lie in
+the region of lowest completeness.  In this work, we build a justified
+likelihood of the observed data, taking into account the completeness function
+or detection efficiency.
+Our likelihood function is a variable-rate Poisson likelihood; it makes the
+fundamental assumption that the data points are independently drawn from the
+model, but is agnostic about all other properties of the data or distribution
+functions.
+Indeed, the assumptions behind this study are weaker than those of any
+previous study of the Earth-analog population (CITE PETIGURA, DONG).
 
-Another new aspect of this study is that it makes use of very flexible distribution function models.
+Another new aspect of this study is that it makes use of very flexible
+distribution function models.
 Indeed most of the models we consider are ``non-parametric'' in the weak sense
-  that they have enormous numbers of free parameters
-  (not the strong sense of having an \emph{infinite} number of free parameters).
+that they have enormous numbers of free parameters (not the strong sense of
+having an \emph{infinite} number of free parameters).
 The models are protected from degeneracies and over-fitting by priors.
-In some models we assume that the two-dimensional distribution of planets
-  in radius and period is separable;
-  in others we don't.
-We treat all of these parameters as ``nuisance parameters'' when we ask questions
-  about the occurrence of Earth analogs.
-That is, our rate conclusions are fully marginalized,
-  and those marginalizations are over non-trivial numbers of parameters.
+In some models we assume that the two-dimensional distribution of planets in
+radius and period is separable; in others we don't.
+We treat all of these parameters as ``nuisance parameters'' when we ask
+questions about the occurrence of Earth analogs.
+That is, our rate conclusions are fully marginalized, and those
+marginalizations are over non-trivial numbers of parameters.
 
-When, in what follows, we ask questions about the radius disribution of exoplanets,
-  the distribution parameters are no longer nuisances
-The radius-distribution parameters are what we are trying to measure.
-Even in this case, however, our results will have the period-distribution parameters marginalized out.
+When, in what follows, we ask questions about the radius disribution of
+exoplanets, the distribution parameters are no longer nuisances The
+radius-distribution parameters are what we are trying to measure.
+Even in this case, however, our results will have the period-distribution
+parameters marginalized out.
 
-Perhaps the most important novelty of this study is in its treatment of observational uncertainties.
-Although planet periods in our data set are very precisely measured,
-  the planet radius measurements have large uncertainties.
-The justified probabilistic approach to including these uncertainties in a distribution analysis
-  is to introduce the ``true'' radii as latent variables and infer and marginalize them out
-  along with all other nuisance parameters.
-Although this sounds expensive---and it can be---%
-  there is a simple approach we have been advocating (CITE HOGG) that makes use of importance sampling.
-We use this approach here;
-  our results are fully marginalized over posterior uncertainties in all of the planet radii.
-More will be said about this below;
-  the importance sampling looks like a product over data points
-  of sums (averages) over individual-datum radius samplings.
+Perhaps the most important novelty of this study is in its treatment of
+observational uncertainties.
+Although planet periods in our data set are very precisely measured, the
+planet radius measurements have large uncertainties.
+The justified probabilistic approach to including these uncertainties in a
+distribution analysis is to introduce the ``true'' radii as latent variables
+and infer and marginalize them out along with all other nuisance parameters.
+Although this sounds expensive---and it can be---there is a simple approach
+we have been advocating (CITE HOGG) that makes use of importance sampling.
+We use this approach here; our results are fully marginalized over posterior
+uncertainties in all of the planet radii.
+More will be said about this below; the importance sampling looks like a
+product over data points of sums (averages) over individual-datum radius
+samplings.
 
 \section{The model}
 
@@ -329,13 +343,15 @@ If our inferences are right about true Earth analogs,
   hidden in the \kepler\ data set.
 We would be able to find some of these Earth analogs if the effective noise level in the data could be reduced
   by a factor of about XXX.
-We have identified a number of directions along which this noise reduction might happen,
-  including but not limited to
-  retrospective data-driven or physics-driven recalibrations of the \kepler\ focal plane (CITE HOGG WHITEPAPER),
-  new methods for performing aperture photometry (NOTHING TO CITE),
-  and better models for stochastic stellar variability that take account of frequency structure (CITE CARTER, BREWER, AIGRAIN).
-If any (or all) of these deliver substantial improvements for \kepler\ archival data reanalyses,
-  it's Nobel Prize time!  (Or at least \textsl{The Colbert Report}?)
+We have identified a number of directions along which this noise reduction
+might happen, including but not limited to retrospective data-driven or
+physics-driven recalibrations of the \kepler\ focal plane (CITE HOGG
+WHITEPAPER), new methods for performing aperture photometry (NOTHING TO CITE),
+and better models for stochastic stellar variability that take account of
+frequency structure (CITE CARTER, BREWER, AIGRAIN).
+If any (or all) of these deliver substantial improvements for \kepler\
+archival data reanalyses, it's Nobel Prize time!  (Or at least \textsl{The
+Colbert Report}?)
 
 \newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
 \begin{thebibliography}{}\raggedright
