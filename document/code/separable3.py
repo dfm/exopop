@@ -11,11 +11,42 @@ from load_data import (transit_lnprob0, ln_period0, load_completenes_sim,
                        load_candidates, load_petigura_bins)
 from population import (CensoringFunction, BrokenPowerLaw, Histogram,
                         SeparablePopulation, NormalizedPopulation,
-                        ProbabilisticModel)
+                        ProbabilisticModel, Population)
 
 # Load the data.
 ep = load_petigura_bins()
 ln_P_inj, ln_R_inj, recovered = load_completenes_sim()
+tlp = lambda lnp, lnr: transit_lnprob0 - 2.*(lnp - ln_period0)/3
+
+# Set up the censoring function.
+censor = CensoringFunction(np.vstack((ln_P_inj, ln_R_inj)).T, recovered,
+                           bins=(32, 64),
+                           range=[np.log([5, 400]), np.log([0.5, 16])],
+                           transit_lnprob_function=tlp)
+
+# Define the population.
+lpb, lrb = censor.bins
+pop = Population([lpb[::4], lrb[::4]], base=censor.bins)
+print(pop.evaluate(pop.initial()))
+pop.evaluate(pop.initial())
+pop.evaluate(pop.initial())
+
+if True:
+    import matplotlib.pyplot as pl
+    # Plot the completeness function.
+    pl.figure(figsize=(10, 6))
+    x = censor.bins[0]
+    y = censor.bins[1]
+    pl.pcolor(x, y, np.exp(censor.lncompleteness[1:-1, 1:-1]).T, cmap="gray")
+    # pl.plot(dataset.log_per_obs, dataset.log_rp_obs, ".r", ms=3)
+    pl.xlim(x.min(), x.max())
+    pl.ylim(y.min(), y.max())
+    pl.xlabel(r"$\ln P$")
+    pl.ylabel(r"$\ln R_P$")
+    pl.colorbar()
+    pl.savefig("separable3-completeness.png")
+
+assert 0
 
 per_rng = np.log([5.0, 400.0])
 rp_rng = np.log([16.0, 64.0])
