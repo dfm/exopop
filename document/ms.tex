@@ -44,14 +44,16 @@
 
 % Document specific variables.
 \newcommand{\rate}{\ensuremath{\eta}}
-\newcommand{\ratepars}{\ensuremath{\theta}}
+\newcommand{\ratepars}{{\ensuremath{\bvec{\theta}}}}
 \newcommand{\obs}[1]{\ensuremath{\hat{#1}}}
 \newcommand{\radius}{\ensuremath{R}}
 \newcommand{\period}{\ensuremath{T}}
-\newcommand{\completeness}{\ensuremath{P_\mathrm{c}}}
-\newcommand{\transitprob}{\ensuremath{P_\mathrm{t}}}
+\newcommand{\completeness}{{\ensuremath{P_\mathrm{c}}}}
+\newcommand{\transitprob}{{\ensuremath{P_\mathrm{t}}}}
+\newcommand{\entry}{\ensuremath{S}}
+\newcommand{\catalog}{{\ensuremath{\bvec{\entry}}}}
 
-\newcommand{\interim}{\ensuremath{\alpha}}
+\newcommand{\interim}{{\ensuremath{\bvec{\alpha}}}}
 
 %
 %  RULES OF THE GAME, MOTHAFUCKERS.
@@ -243,10 +245,19 @@ These relate to the unobserved ``true'' period and radius by a noise model.
 For the conclusions of this study, the true values of period and radius are
 nuisance parameters; we will marginalize them out.
 
+Let's also introduce more succinct notation for a \emph{catalog}.
+We'll refer to the set of period and radius measurements for a set of $K$
+candidate exoplanets as
+\begin{eqnarray}
+\catalog &=& \{\entry_k\}_{k=1}^K
+\end{eqnarray}
+where each entry $\entry_k = (\period_k,\,\radius_k)$ is a tuple containing a
+period and radius.
+
 The purpose of this \paper\ is to determine constraints on the \emph{rate
 function} of exoplanets
 \begin{eqnarray}\eqlabel{true-rate}
-\rate_\ratepars (\period,\,\radius)
+\rate_\ratepars (\entry)
 &=& \frac{\dd N}{\dd\ln\period\dd\ln\radius}
 \end{eqnarray}
 given our dataset.
@@ -256,30 +267,32 @@ parameters \ratepars.
 
 In this \paper, we will assume that the completeness function of the survey is
 known and it can be represented as a probability at every (true) period and
-radius $\completeness (\period,\,\radius)$.
+radius $\completeness (\entry)$.
 Similarly, we can consider the marginalized transit probability $\transitprob
 (\period)$ as only a function of period.
 These selection effects can be incorporated into the rate from \eq{true-rate}
-to get the \emph{observed rate}
+to get the \emph{observable rate}
 \begin{eqnarray}\eqlabel{obs-rate}
-\obs{\rate} (\period,\,\radius;\,\ratepars)
-&=& \rate (\period,\,\radius;\,\ratepars)\,\completeness(\period,\,\radius)\,
+\obs{\rate}_\ratepars (\entry)
+&=& \rate_\ratepars(\entry)\,\completeness(\entry)\,
 \transitprob(\period)\quad.
 \end{eqnarray}
 
 Now we will make the further assumption that every candidate in our sample of
 detected exoplanets is an independent Poisson sample from the population
 described by our rate function.
-Under this assumption, the likelihood of the catalog conditioned on a set of
-parameters \ratepars\ is (see Appendix XXXXX for a derivation)
-\begin{eqnarray}
-\ln p(\period,\,\radius\,|\,\ratepars) &\propto&
-\sum_{k=1}^K \ln\obs{\rate} (\period_k,\,\radius_k;\,\ratepars)
-- \int \obs{\rate} (\period,\,\radius;\,\ratepars) \dd\period\dd\radius
+Under this assumption, the likelihood of a catalog \catalog\ conditioned on a
+set of parameters \ratepars\ is (see Appendix XXXXX for a derivation)
+\begin{eqnarray}\eqlabel{true-like}
+\ln p(\catalog\,|\,\ratepars) &\propto&
+\sum_{k=1}^K \ln\obs{\rate}_\ratepars (\entry_k)
+- \int \obs{\rate}_\ratepars (\entry) \dd\entry
 \quad.
 \end{eqnarray}
 
 \section{Including observational uncertainties}
+
+The ``likelihood function'' given in \eq{true-like}\ldots
 
 In the previous section, we implicitly assumed that the measurements of
 \period\ and \radius\ given by the catalog were perfect, without any
