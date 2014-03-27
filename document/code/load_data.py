@@ -32,15 +32,22 @@ def load_completenes_sim(rp_func=np.log):
     return np.log(sim.inj_P), rp_func(sim.inj_Rp), m
 
 
-def load_candidates(censor, samples=0, rp_func=np.log):
+def load_candidates(censor, samples=0, N=10000, rp_func=np.log):
     log_per_obs = []
     log_rp_obs = []
     for line in open(os.path.join(bp, "table_ekoi836.tex")):
         cols = line.split("&")
-        log_per_obs.append(np.log(float(cols[2])))
+        log_per = np.log(float(cols[2]))
+        log_per_obs.append(log_per)
         if samples > 0:
-            log_rp_obs.append(rp_func(float(cols[12]) +
-                              float(cols[13])*np.random.randn(samples)))
+            m, s = map(float, cols[12:14])
+            r = m + s*np.sort(np.random.randn(N))
+            lnw = censor.evaluate([log_per], rp_func(r)) - 0.5 * ((r-m)/s)**2
+            cummulative = np.cumsum(np.exp(lnw))
+            cummulative /= cummulative[-1]
+            rnd = np.random.rand(samples)
+            r = np.interp(rnd, cummulative, r)
+            log_rp_obs.append(rp_func(r))
         else:
             log_rp_obs.append(rp_func(float(cols[12])))
 

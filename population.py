@@ -18,6 +18,7 @@ class BrokenPowerLaw(object):
     def __init__(self, bins, alpha_range=(-10, 10), beta_range=(-10, 10),
                  logc_range=None):
         self.bins = np.atleast_1d(bins)
+        self.base = np.array(self.bins)
         self.logx = 0.5*(bins[1:] + bins[:-1])
         self.ln_bin_widths = np.log(self.bins[1:] - self.bins[:-1])
         self.alpha_range = alpha_range
@@ -52,14 +53,20 @@ class BrokenPowerLaw(object):
 
 class Histogram(object):
 
-    def __init__(self, bins, resample=1):
+    def __init__(self, bins, base=None):
         self.bins = np.atleast_1d(bins)
-        self.resampled = self.bins[::resample]
-        assert self.resampled[-1] == self.bins[-1]
+        if base is None:
+            self.base = np.array(bins)
+        else:
+            self.base = np.atleast_1d(base)
+        assert self.bins[0] == self.base[0]
+        assert self.bins[-1] == self.base[-1]
 
-        self.ln_bin_widths = np.log(self.resampled[1:] - self.resampled[:-1])
+        self.ln_bin_widths = np.log(self.bins[1:] - self.bins[:-1])
         self.nbins = len(self.ln_bin_widths)
-        self.inds = np.arange(len(self.bins)-1) // resample
+        self.inds = np.digitize(0.5*(self.base[1:]+self.base[:-1]),
+                                self.bins) - 1
+        assert np.all((self.inds >= 0) * (self.inds < len(self.bins)))
 
     def __len__(self):
         return self.nbins - 1
@@ -88,24 +95,37 @@ class Population(object):
     poisson = False
 
     def __init__(self, log_per_bins, log_rp_bins,
-                 log_per_resample=1, log_rp_resample=1):
+                 log_per_base=None, log_rp_base=None):
         self.log_per_bins = np.atleast_1d(log_per_bins)
         self.log_rp_bins = np.atleast_1d(log_rp_bins)
+        if log_per_base is None:
+            self.log_per_base = np.array(self.log_per_bins)
+        else:
+            self.log_per_base = np.atleast_1d(log_per_base)
+        if log_rp_base is None:
+            self.log_rp_base = np.array(self.log_rp_bins)
+        else:
+            self.log_rp_base = np.atleast_1d(log_rp_base)
 
         # Make sure that the resampling is sane.
-        self.log_per_resample = int(log_per_resample)
-        self.log_rp_resample = int(log_rp_resample)
-        assert (self.log_per_bins[::self.log_per_resample][-1] ==
-                self.log_per_bins[-1])
-        assert (self.log_rp_bins[::self.log_rp_resample][-1] ==
-                self.log_rp_bins[-1])
-        ix = np.arange(len(self.log_per_bins)-1) // log_per_resample
-        iy = np.arange(len(self.log_rp_bins)-1) // log_rp_resample
+        assert (self.log_per_bins[0] == self.log_per_base[0])
+        assert (self.log_per_bins[-1] == self.log_per_base[-1])
+        assert (self.log_rp_bins[0] == self.log_rp_base[0])
+        assert (self.log_rp_bins[-1] == self.log_rp_base[-1])
+
+        # Figure out which bins the base grid sits in. This will only be exact
+        # when the grids line up perfectly.
+        p = self.log_per_base
+        rp = self.log_rp_base
+        ix = np.digitize(0.5*(p[1:]+p[:-1]), self.log_per_bins) - 1
+        assert np.all((ix >= 0) * (ix < len(self.log_per_bins)))
+        iy = np.digitize(0.5*(rp[1:]+rp[:-1]), self.log_rp_bins) - 1
+        assert np.all((iy >= 0) * (iy < len(self.log_rp_bins)))
         self.iy, self.ix = np.meshgrid(iy, ix)
 
-        # Compute the cell areas.
-        p = self.log_per_bins[::log_per_resample]
-        rp = self.log_rp_bins[::log_rp_resample]
+        # Compute the cell centers and areas.
+        p = self.log_per_bins
+        rp = self.log_rp_bins
         ir, ip = np.meshgrid(0.5*(rp[1:]+rp[:-1]), 0.5*(p[1:]+p[:-1]))
         self.cell_coords = np.vstack((ip.flatten(), ir.flatten())).T
         self.ln_cell_area = (np.log(p[1:]-p[:-1])[:, None] +
@@ -165,14 +185,75 @@ class Population(object):
         logdet = np.sum(2*np.log(np.diag(factor)))
         return -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
 
+    def plot(self, thetas, ep=None, alpha=0.5, rp_label="\ln R"):
+        thetas = np.atleast_2d(thetas)
 
-class SeparablePopulation(object):
+        # Set up figures and axes.
+        fig_per = pl.figure(figsize=(6, 5))
+        ax_per = fig_per.add_subplot(111)
+        fig_rp = pl.figure(figsize=(6, 5))
+        ax_rp = fig_rp.add_subplot(111)
+        for fig in [fig_per, fig_rp]:
+            fig.subplots_adjust(left=0.16, bottom=0.15, right=0.98, top=0.97)
+
+        if ep is None:
+            rinds = np.ones(len(self.log_rp_bins), dtype=bool)
+        else:
+            rinds = ((self.log_rp_bins <= ep[1].max())
+                     * (self.log_rp_bins >= ep[1].min()))
+
+        # Loop over samples and plot the projections.
+        for theta in thetas:
+            grid = self.evaluate(theta)
+
+            z_per = self.log_rp_bins
+            y_per = logsumexp(grid + np.log(z_per[1:]-z_per[:-1])[None, :],
+                              axis=1)
+            z_rp = self.log_per_bins
+            y_rp = logsumexp(grid + np.log(z_rp[1:]-z_rp[:-1])[:, None],
+                             axis=0)
+            y_rp = y_rp[rinds[1:] * rinds[:-1]]
+
+            for ax, x, y in izip([ax_per, ax_rp],
+                                 [self.log_per_bins, self.log_rp_bins[rinds]],
+                                 [y_per, y_rp]):
+                y -= logsumexp(y + np.log(x[1:] - x[:-1]))
+                x = np.array(zip(x[:-1], x[1:])).flatten()
+                y = np.array(zip(y, y)).flatten()
+                ax.plot(x, np.exp(y), "k", alpha=alpha)
+
+        # Plot Erik's values if given.
+        if ep is not None:
+            ax_rp.plot(0.5*(ep[1][1:]+ep[1][:-1]), ep[3], ".", color="r",
+                       ms=8)
+            ax_per.plot(0.5*(ep[0][1:]+ep[0][:-1]), ep[2], ".", color="r",
+                        ms=8)
+
+        ax_per.set_xlim(np.min(self.log_per_bins),
+                        np.max(self.log_per_bins))
+        ax_per.set_ylim(np.array((-0.1, 1.0))*(ax_per.get_ylim()[1]))
+        ax_per.set_ylabel("$p(\ln P)$")
+        ax_per.set_xlabel("$\ln P$")
+        ax_per.axhline(0.0, color="k", alpha=0.3)
+
+        ax_rp.set_xlim(np.min(ep[1]), np.max(ep[1]))
+        ax_rp.set_ylim(np.array((-0.1, 1.0))*(ax_rp.get_ylim()[1]))
+        ax_rp.set_ylabel("$p({0})$".format(rp_label))
+        ax_rp.set_xlabel("${0}$".format(rp_label))
+        ax_rp.axhline(0.0, color="k", alpha=0.3)
+
+        return fig_per, fig_rp
+
+
+class SeparablePopulation(Population):
     poisson = False
 
     def __init__(self, log_per_dist, log_rp_dist):
         self.log_per_dist = log_per_dist
         self.log_rp_dist = log_rp_dist
         self.npars = len(self.log_per_dist) + len(self.log_rp_dist)
+        super(SeparablePopulation, self).__init__(self.log_per_dist.base,
+                                                  self.log_rp_dist.base)
 
     def __len__(self):
         return self.npars
@@ -203,55 +284,6 @@ class SeparablePopulation(object):
         if not np.isfinite(lp):
             return -np.inf
         return lp + self.log_rp_dist.lnprior(theta[n:])
-
-    def plot(self, thetas, title=None, ep=None, alpha=0.5):
-        thetas = np.atleast_2d(thetas)
-        n = len(self.log_per_dist)
-
-        # Set up the figure and subplots.
-        fig = pl.figure(figsize=(6, 8))
-        ax2 = fig.add_subplot(211)
-        ax1 = fig.add_subplot(212)
-        fig.subplots_adjust(left=0.16, bottom=0.1, right=0.98, top=0.99,
-                            hspace=0.21)
-
-        # Loop over parameter vectors and plot the samples.
-        for theta in thetas:
-            for ax, dist, v in izip([ax2, ax1],
-                                    [self.log_per_dist, self.log_rp_dist],
-                                    [theta[:n], theta[n:]]):
-                x = dist.bins
-                y = dist(v)
-                x = np.array(zip(x[:-1], x[1:])).flatten()
-                y = np.array(zip(y, y)).flatten()
-                ax.plot(x, np.exp(y), "k", alpha=alpha)
-
-        if ep is not None:
-            # ax1.plot(0.5*(ep[1][1:]+ep[1][:-1]), ep[3], ".", color="k", ms=6)
-            # ax2.plot(0.5*(ep[0][1:]+ep[0][:-1]), ep[2], ".", color="k", ms=6)
-            for ax, b, v in izip([ax2, ax1], ep[:2], ep[2:]):
-                x = np.array(zip(b[:-1], b[1:])).flatten()
-                y = np.array(zip(v, v)).flatten()
-                ax.plot(x, y, "r", lw=1.5, alpha=0.5)
-
-        ax1.set_xlim(np.min(self.log_rp_dist.bins),
-                     np.max(self.log_rp_dist.bins))
-        ax1.set_ylim(np.array((-0.1, 1.0))*(ax1.get_ylim()[1]))
-        ax1.set_ylabel("$p(\ln R_p)$")
-        ax1.set_xlabel("$\ln R_p$")
-        ax1.axhline(0.0, color="k", alpha=0.3)
-
-        ax2.set_xlim(np.min(self.log_per_dist.bins),
-                     np.max(self.log_per_dist.bins))
-        ax2.set_ylim(np.array((-0.1, 1.0))*(ax2.get_ylim()[1]))
-        ax2.set_ylabel("$p(\ln P)$")
-        ax2.set_xlabel("$\ln P$")
-        ax2.axhline(0.0, color="k", alpha=0.3)
-
-        if title is not None:
-            ax2.set_title(title)
-
-        return fig
 
 
 class NormalizedPopulation(object):
@@ -304,7 +336,7 @@ class Dataset(object):
         # this...
         s = censor.lncompleteness.shape
         q = -np.inf + np.zeros((s[0]+2, s[1]+2))
-        q[1:-1, 1:-1] = censor.lncompleteness
+        q[1:-1, 1:-1] = censor.lnprob_grid
         m = ((self.log_per_ind > 0)[:, None] *
              (self.log_per_ind < len(censor.log_per_bins))[:, None] *
              (self.log_rp_ind > 0) *
@@ -315,6 +347,18 @@ class Dataset(object):
         self.log_rp_obs = self.log_rp_obs[m, :]
         self.log_per_ind = self.log_per_ind[m]
         self.log_rp_ind = self.log_rp_ind[m, :]
+
+        # Pre-compute the "interim prior" weights for each sample.
+        w = -np.inf + np.zeros((s[0]+2, s[1]+2))
+        w[1:-1, 1:-1] = censor.lnprob_grid
+        self.lnw = np.sum(w[self.log_per_ind[:, None], self.log_rp_ind],
+                          axis=0)
+
+        # Only include "catalogs" with non-zero prior probability. TOTAL HACK.
+        m = np.isfinite(self.lnw)
+        self.log_rp_obs = self.log_rp_obs[:, m]
+        self.log_rp_ind = self.log_rp_ind[:, m]
+        self.lnw = self.lnw[m]
 
 
 class ProbabilisticModel(object):
@@ -347,8 +391,10 @@ class ProbabilisticModel(object):
         if self.dataset.log_rp_ind.shape[1] == 1:
             return np.sum(q[self.dataset.log_per_ind,
                             self.dataset.log_rp_ind[:, 0]]) - norm
-        return np.sum(logsumexp(q[self.dataset.log_per_ind[:, None],
-                                  self.dataset.log_rp_ind], axis=1)) - norm
+
+        ll = q[self.dataset.log_per_ind[:, None], self.dataset.log_rp_ind]
+        ll = np.sum(ll, axis=0) - norm - self.dataset.lnw
+        return logsumexp(ll)
 
     def lnprior(self, theta):
         return self.population.lnprior(theta)
@@ -409,7 +455,13 @@ class CensoringFunction(object):
         # Pre-compute transit probability on the period grid.
         cen = 0.5*(self.log_per_bins[1:] + self.log_per_bins[:-1])
         self.transit_lnprob = transit_lnprob0 - 2.*(cen - ln_period0)/3
-        # self.transit_lnprob = transit_lnprob0 - 2.*(cen - log_period0)/3
 
         # Build the full ln-probability grid.
         self.lnprob_grid = self.transit_lnprob[:, None] + self.lncompleteness
+
+    def evaluate(self, log_per, log_rp):
+        s = self.lnprob_grid.shape
+        q = -np.inf + np.zeros((s[0]+2, s[1]+2))
+        q[1:-1, 1:-1] = self.lnprob_grid
+        return q[np.digitize(log_per, self.log_per_bins),
+                 np.digitize(log_rp, self.log_rp_bins)]

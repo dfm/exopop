@@ -3,11 +3,9 @@
 
 from __future__ import division, print_function
 
-import sys
 import emcee
 import numpy as np
 import cPickle as pickle
-import matplotlib.pyplot as pl
 
 from load_data import (transit_lnprob0, ln_period0, load_completenes_sim,
                        load_candidates, load_petigura_bins)
@@ -30,32 +28,13 @@ dataset = load_candidates(censor)
 
 # Build the probabilistic model.
 log_per_dist = BrokenPowerLaw(censor.log_per_bins)
-log_rp_dist = Histogram(censor.log_rp_bins, resample=4)
+log_rp_dist = Histogram(censor.log_rp_bins, resample=2)
 pop = NormalizedPopulation(11., SeparablePopulation(log_per_dist, log_rp_dist))
 model = ProbabilisticModel(dataset, pop)
 
-if "--plot" in sys.argv:
-    # Plot the completeness function.
-    pl.figure(figsize=(10, 6))
-    x = censor.log_per_bins
-    y = censor.log_rp_bins
-    pl.pcolor(x, y, np.exp(censor.lncompleteness).T, cmap="gray")
-    pl.plot(dataset.log_per_obs, dataset.log_rp_obs, ".r", ms=3)
-    pl.xlim(censor.log_per_bins.min(), censor.log_per_bins.max())
-    pl.ylim(censor.log_rp_bins.min(), censor.log_rp_bins.max())
-    pl.xlabel(r"$\ln P$")
-    pl.ylabel(r"$\ln R_P$")
-    pl.colorbar()
-    pl.savefig("separable1-completeness.pdf")
-
-    # Plot the initial distribution.
-    fig = pop.plot(pop.initial() + 0.1 * np.random.randn(len(pop.initial())),
-                   ep=ep)
-    fig.savefig("separable1-initial.pdf")
-
 # Set up the sampler.
 p0 = pop.initial()
-ndim, nwalkers = len(p0), 32
+ndim, nwalkers = len(p0), 64
 pos = [p0 + 1e-8 * np.random.randn(ndim) for i in range(nwalkers)]
 
 # Make sure that all the initial positions have finite probability.
@@ -67,4 +46,4 @@ pos, lp, state = sampler.run_mcmc(pos, 3000)
 sampler.reset()
 sampler.run_mcmc(pos, 2000)
 
-pickle.dump((censor, dataset, pop, sampler), open("separable1.pkl", "wb"), -1)
+pickle.dump((censor, dataset, pop, sampler), open("separable2.pkl", "wb"), -1)
