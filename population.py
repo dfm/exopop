@@ -204,7 +204,7 @@ class SeparablePopulation(object):
             return -np.inf
         return lp + self.log_rp_dist.lnprior(theta[n:])
 
-    def plot(self, thetas, title=None):
+    def plot(self, thetas, title=None, ep=None, alpha=0.5):
         thetas = np.atleast_2d(thetas)
         n = len(self.log_per_dist)
 
@@ -212,8 +212,8 @@ class SeparablePopulation(object):
         fig = pl.figure(figsize=(6, 8))
         ax2 = fig.add_subplot(211)
         ax1 = fig.add_subplot(212)
-        fig.subplots_adjust(left=0.15, bottom=0.1, right=0.98, top=0.99,
-                            hspace=0.2)
+        fig.subplots_adjust(left=0.16, bottom=0.1, right=0.98, top=0.99,
+                            hspace=0.21)
 
         # Loop over parameter vectors and plot the samples.
         for theta in thetas:
@@ -224,22 +224,28 @@ class SeparablePopulation(object):
                 y = dist(v)
                 x = np.array(zip(x[:-1], x[1:])).flatten()
                 y = np.array(zip(y, y)).flatten()
-                ax.plot(x, np.exp(y), "k", alpha=0.5)
+                ax.plot(x, np.exp(y), "k", alpha=alpha)
 
-        # ax1.plot(ep_Rp_logbin_cen, ep_Rp_pdf, ".", color="r", ms=5)
+        if ep is not None:
+            # ax1.plot(0.5*(ep[1][1:]+ep[1][:-1]), ep[3], ".", color="k", ms=6)
+            # ax2.plot(0.5*(ep[0][1:]+ep[0][:-1]), ep[2], ".", color="k", ms=6)
+            for ax, b, v in izip([ax2, ax1], ep[:2], ep[2:]):
+                x = np.array(zip(b[:-1], b[1:])).flatten()
+                y = np.array(zip(v, v)).flatten()
+                ax.plot(x, y, "r", lw=1.5, alpha=0.5)
+
         ax1.set_xlim(np.min(self.log_rp_dist.bins),
                      np.max(self.log_rp_dist.bins))
         ax1.set_ylim(np.array((-0.1, 1.0))*(ax1.get_ylim()[1]))
-        ax1.set_ylabel("$p(\log R_p)$")
-        ax1.set_xlabel("$\log R_p$")
+        ax1.set_ylabel("$p(\ln R_p)$")
+        ax1.set_xlabel("$\ln R_p$")
         ax1.axhline(0.0, color="k", alpha=0.3)
 
-        # ax2.plot(ep_p_logbin_cen, ep_p_pdf, ".", color="r", ms=5)
         ax2.set_xlim(np.min(self.log_per_dist.bins),
                      np.max(self.log_per_dist.bins))
         ax2.set_ylim(np.array((-0.1, 1.0))*(ax2.get_ylim()[1]))
-        ax2.set_ylabel("$p(\log P)$")
-        ax2.set_xlabel("$\log P$")
+        ax2.set_ylabel("$p(\ln P)$")
+        ax2.set_xlabel("$\ln P$")
         ax2.axhline(0.0, color="k", alpha=0.3)
 
         if title is not None:
