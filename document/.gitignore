@@ -8,3 +8,4 @@
 *.dvi
 *.ps
 *.synctex.gz
+!figures/*.pdf
