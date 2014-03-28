@@ -176,65 +176,6 @@ class Population(object):
         logdet = np.sum(2*np.log(np.diag(factor)))
         return -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
 
-    def plot(self, thetas, ep=None, alpha=0.5, rp_label="\ln R"):
-        thetas = np.atleast_2d(thetas)
-
-        # Set up figures and axes.
-        fig_per = pl.figure(figsize=(6, 5))
-        ax_per = fig_per.add_subplot(111)
-        fig_rp = pl.figure(figsize=(6, 5))
-        ax_rp = fig_rp.add_subplot(111)
-        for fig in [fig_per, fig_rp]:
-            fig.subplots_adjust(left=0.16, bottom=0.15, right=0.98, top=0.97)
-
-        if ep is None:
-            rinds = np.ones(len(self.log_rp_bins), dtype=bool)
-        else:
-            rinds = ((self.log_rp_bins <= ep[1].max())
-                     * (self.log_rp_bins >= ep[1].min()))
-
-        # Loop over samples and plot the projections.
-        for theta in thetas:
-            grid = self.evaluate(theta)
-
-            z_per = self.log_rp_bins
-            y_per = logsumexp(grid + np.log(z_per[1:]-z_per[:-1])[None, :],
-                              axis=1)
-            z_rp = self.log_per_bins
-            y_rp = logsumexp(grid + np.log(z_rp[1:]-z_rp[:-1])[:, None],
-                             axis=0)
-            y_rp = y_rp[rinds[1:] * rinds[:-1]]
-
-            for ax, x, y in izip([ax_per, ax_rp],
-                                 [self.log_per_bins, self.log_rp_bins[rinds]],
-                                 [y_per, y_rp]):
-                y -= logsumexp(y + np.log(x[1:] - x[:-1]))
-                x = np.array(zip(x[:-1], x[1:])).flatten()
-                y = np.array(zip(y, y)).flatten()
-                ax.plot(x, np.exp(y), "k", alpha=alpha)
-
-        # Plot Erik's values if given.
-        if ep is not None:
-            ax_rp.plot(0.5*(ep[1][1:]+ep[1][:-1]), ep[3], ".", color="r",
-                       ms=8)
-            ax_per.plot(0.5*(ep[0][1:]+ep[0][:-1]), ep[2], ".", color="r",
-                        ms=8)
-
-        ax_per.set_xlim(np.min(self.log_per_bins),
-                        np.max(self.log_per_bins))
-        ax_per.set_ylim(np.array((-0.1, 1.0))*(ax_per.get_ylim()[1]))
-        ax_per.set_ylabel("$p(\ln P)$")
-        ax_per.set_xlabel("$\ln P$")
-        ax_per.axhline(0.0, color="k", alpha=0.3)
-
-        ax_rp.set_xlim(np.min(ep[1]), np.max(ep[1]))
-        ax_rp.set_ylim(np.array((-0.1, 1.0))*(ax_rp.get_ylim()[1]))
-        ax_rp.set_ylabel("$p({0})$".format(rp_label))
-        ax_rp.set_xlabel("${0}$".format(rp_label))
-        ax_rp.axhline(0.0, color="k", alpha=0.3)
-
-        return fig_per, fig_rp
-
 
 class SeparablePopulation(Population):
     poisson = False
@@ -383,6 +324,13 @@ class ProbabilisticModel(object):
         self.index = censor.index(c.reshape((-1, s[2])))
         self.index = [i.reshape(s[:2]) for i in self.index]
 
+    def get_lnrate(self, theta):
+        # Evaluate the population rate.
+        lnrate = self.population.evaluate(theta)
+        if lnrate is None:
+            return None
+        return lnrate + self.censor.lnprob[[slice(1, -1)] * len(lnrate.shape)]
+
     def lnlike(self, theta):
         # Evaluate the population rate.
         lnrate = self.population.evaluate(theta)
@@ -393,8 +341,8 @@ class ProbabilisticModel(object):
         center = [slice(1, -1)] * len(lnrate.shape)
 
         # Compute the censoring ln-probability.
-        q = self.censor.lnprob
-        q[center] += lnrate
+        q = np.array(self.censor.lnprob)
+        q[1:-1, 1:-1] += lnrate
 
         if self.population.poisson:
             norm = np.exp(logsumexp(q[center]+self.censor.ln_cell_area))

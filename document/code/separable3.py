@@ -43,6 +43,7 @@ pop = NormalizedPopulation(11., SeparablePopulation([pdist, rdist]))
 # Define the probabilistic model.
 model = ProbabilisticModel(dataset, pop, censor)
 print("Initial ln-prob = {0}".format(model.lnprob(pop.initial())))
+print("Initial ln-prob = {0}".format(model.lnprob(pop.initial())))
 
 if True:
     import matplotlib.pyplot as pl
