@@ -279,7 +279,7 @@ to get the \emph{observable rate}
 \end{eqnarray}
 
 Given this parameterized rate $\obs{\rate}_\ratepars$, we can compute the
-Poisson likelihood of a \catalog\ (see Appendix XXXXX for the derivation)
+Poisson likelihood of a \catalog\ (\citealt{tabachnik,youdin,dong})
 \begin{eqnarray}\eqlabel{true-like}
 \ln p(\catalog\,|\,\ratepars) &\propto&
 \sum_{k=1}^K \ln\obs{\rate}_\ratepars (\entry_k)
@@ -344,7 +344,20 @@ p(\obs{\catalog}\,|\,\ratepars) &\appropto&
 where the numerator inside the sum is given by \eq{true-like} and the
 denominator is the interim prior evaluated at the samples.
 
-\section{Separable Distribution}
+In practice, the variance of this approximation depends on the choice of
+interim prior and, in particular, it is useful to include the completeness
+function.
+\dfmtodo{BLAH BLAH BLAH.}
+
+\section{The completeness function \& dataset}
+
+\dfmtodo{%
+Describe Erik's data products and our model of the completeness in boxes
+extended artificially beyond the original range.
+Also describe the re-sampling procedure for the candidate parameters.
+}
+
+\section{Separable distribution}
 
 The first model that we consider for $\rate(\period,\,\radius)$ is a simple
 separable distribution.
@@ -415,21 +428,37 @@ This research made use of the NASA \project{Astrophysics Data System}.
 
 \newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
 \begin{thebibliography}{}\raggedright
+
 \bibitem[Brewer \& Stello(2009)]{brewer}
 Brewer, B.~J., \& Stello, D.\ 2009, \mnras, 395, 2226 (\arxiv{0902.3907})
+
 \bibitem[Carter \& Winn(2009)]{carter}
 Carter, J.~A., \& Winn, J.~N.\ 2009, \apj, 704, 51 (\arxiv{0909.0747})
+
 \bibitem[Dong \& Zhu(2013)]{dong}
 Dong, S., \& Zhu, Z.\ 2013, \apj, 778, 53 (\arxiv{1212.4853})
+
 \bibitem[Hogg \etal(2013)]{hoggwhitepaper}
 Hogg, D.~W., Angus, R., Barclay, T., et al.\ 2013, \arxiv{1309.0653}
+
 \bibitem[Hogg \etal(2010)]{hogge}
 Hogg, D.~W., Myers, A.~D., \& Bovy, J.\ 2010, \apj, 725, 2166 (\arxiv{1008.4146})
+
 \bibitem[Petigura \etal(2013)]{petigura}
 Petigura, E.~A., Howard, A.~W., \& Marcy, G.~W.\ 2013,
 Proceedings of the National Academy of Science, 110, 19273 (\arxiv{1311.6806})
+
 \bibitem[Roberts \etal(2013)]{roberts}
-Roberts, S., McQuillan, A., Reece, S., \& Aigrain, S.\ 2013, \mnras, 435, 3639 (\arxiv{1308.3644})
+Roberts, S., McQuillan, A., Reece, S., \& Aigrain, S.\ 2013, \mnras, 435, 3639
+(\arxiv{1308.3644})
+
+\bibitem[Tabachnik \& Tremaine(2002)]{tabachnik}
+Tabachnik, S., \& Tremaine, S.\ 2002, \mnras, 335, 151
+(\arxiv{astro-ph/0107482})
+
+\bibitem[Youdin(2011)]{youdin}
+Youdin, A.~N.\ 2011, \apj, 742, 38 (\arxiv{1105.1782})
+
 \end{thebibliography}
 
 \end{document}
