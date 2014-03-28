@@ -9,9 +9,12 @@ __all__ = ["BrokenPowerLaw", "Histogram", "Population", "SeparablePopulation",
 from itertools import izip
 
 import numpy as np
-import matplotlib.pyplot as pl
+
 from scipy.misc import logsumexp
 from scipy.linalg import cho_factor, cho_solve
+
+import matplotlib.pyplot as pl
+from matplotlib.ticker import ScalarFormatter
 
 
 class BrokenPowerLaw(object):
@@ -99,7 +102,7 @@ class Population(object):
         self.bins = bins
         if base is None:
             base = bins
-        self.base = bins
+        self.base = base
         self.shape = np.array(map(len, bins)) - 1
 
         # Make sure that the resampling is sane.
@@ -176,6 +179,83 @@ class Population(object):
         logdet = np.sum(2*np.log(np.diag(factor)))
         return -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
 
+    def plot(self, thetas, labels=None, ranges=None, alpha=0.3,
+             literature=None, top_axes=None):
+        # Pre-compute the ranges and allowed ranges.
+        if ranges is None:
+            ranges = [(b.min(), b.max()) for b in self.base]
+        bm = []
+        vm = []
+        for rng, b in izip(ranges, self.base):
+            if rng is None:
+                rng = (b.min(), b.max())
+            m = (b >= rng[0]) * (b <= rng[1])
+            bm.append(m)
+            vm.append(np.arange(len(m) - 1)[m[:-1] * m[1:]])
+        vm = np.meshgrid(*vm, indexing="ij")
+
+        thetas = np.atleast_2d(thetas)
+        figs = [pl.figure(figsize=(6, 5)) for b in self.base]
+        axes = [f.add_subplot(111) for f in figs]
+
+        lbw0 = map(np.log, map(np.diff,
+                               [b[m] for b, m in izip(self.base, bm)]))
+        N = len(self.base)
+        for theta in thetas:
+            grid = self._get_grid(theta)[vm]
+            for i, (x, m) in enumerate(izip(self.base, bm)):
+                # Compute the volumes along the marginalized axes.
+                lbw = list(lbw0)
+                lbw.pop(i)
+                lnvol = reduce(np.add, np.ix_(*lbw))
+
+                # Build a broadcasting object and axis list to perform the
+                # marginalization.
+                bc = [slice(None)] * N
+                bc[i] = None
+                a = range(N)
+                a.pop(i)
+
+                # Do the marginalization and normalize.
+                y = np.logaddexp.reduce(grid + lnvol[bc], axis=tuple(a))
+                y -= logsumexp(y + lbw0[i])
+
+                # Plot the histogram.
+                x = np.array(zip(x[m][:-1], x[m][1:])).flatten()
+                y = np.array(zip(y, y)).flatten()
+                axes[i].plot(x, np.exp(y), "k", alpha=0.3)
+
+        # Plot literature values.
+        if literature is not None:
+            for ax, (x, y) in izip(axes, literature):
+                ax.plot(0.5*(x[1:]+x[:-1]), y, ".r")
+
+        # Set the axis limits.
+        for i, (ax, rng) in enumerate(izip(axes, ranges)):
+            ax.set_xlim(rng)
+            ax.set_ylim(np.array((-0.1, 1.05))*(ax.get_ylim()[1]))
+            ax.axhline(0.0, color="k", alpha=0.3)
+            if labels is not None:
+                ax.set_xlabel(labels[i])
+                ax.set_ylabel("$p(${0}$)$".format(labels[i]))
+
+        # Add the linear axes along the top if requested.
+        if top_axes is not None:
+            for ax, t in izip(axes, top_axes):
+                if t is None:
+                    continue
+                a2 = ax.twiny()
+                a2.set_xlim(np.exp(ax.get_xlim()))
+                a2.set_xscale("log")
+                a2.xaxis.set_major_formatter(ScalarFormatter())
+                a2.set_xlabel(t)
+
+        # Format the figures.
+        for fig in figs:
+            fig.subplots_adjust(left=0.16, bottom=0.15, right=0.95, top=0.85)
+
+        return figs
+
 
 class SeparablePopulation(Population):
     poisson = False
@@ -219,6 +299,7 @@ class NormalizedPopulation(object):
     def __init__(self, ln_norm, base_population):
         self.ln_norm = ln_norm
         self.base_population = base_population
+        self.base = base_population.base
 
     def __len__(self):
         return len(self.base_population) + 1

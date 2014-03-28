@@ -30,7 +30,7 @@ censor = CensoringFunction(np.vstack((ln_P_inj, ln_R_inj)).T, recovered,
                            transit_lnprob_function=tlp)
 
 # Load the dataset and resample under the censoring function.
-dataset = load_candidates(censor, 24)
+dataset = load_candidates(censor, 120)
 
 # Define the population.
 lpb, lrb = censor.bins
@@ -72,8 +72,6 @@ assert np.all(finite), "{0}".format(np.sum(finite))
 
 # Set up the sampler.
 sampler = emcee.EnsembleSampler(nwalkers, ndim, model)
-pos, lp, state = sampler.run_mcmc(pos, 3000)
-sampler.reset()
-sampler.run_mcmc(pos, 2000)
+sampler.run_mcmc(pos, 5000)
 
 pickle.dump((censor, dataset, pop, sampler), open("separable3.pkl", "wb"), -1)

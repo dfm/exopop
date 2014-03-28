@@ -88,4 +88,4 @@ def load_petigura_bins(mylog=np.log):
     norm = np.sum(ep_p_values * (ep_p_lnbins[1:] - ep_p_lnbins[:-1]))
     ep_p_pdf = ep_p_values / norm
 
-    return ep_p_lnbins, ep_Rp_lnbins, ep_p_pdf, ep_Rp_pdf
+    return (ep_p_lnbins, ep_p_pdf), (ep_Rp_lnbins, ep_Rp_pdf)
