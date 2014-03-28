@@ -10,19 +10,29 @@ import cPickle as pickle
 
 from load_data import load_petigura_bins
 
-mylog = np.log
-rp_label = "\ln R"
-if "--linear" in sys.argv:
-    mylog = lambda x: x
-    rp_label = "R"
+ep = load_petigura_bins()
 
-ep = load_petigura_bins(mylog=mylog)
-censor, dataset, pop, sampler = pickle.load(open(sys.argv[1]))
+# Load the MCMC results.
+bp = sys.argv[1]
+fn = os.path.join(bp, "results.pkl")
+censor, dataset, pop, sampler = pickle.load(open(fn))
 
-samples = sampler.chain
+# Remove a burn-in and flatten the chain.
+if len(sys.argv) > 2:
+    burnin = int(sys.argv[2])
+else:
+    burnin = 4000
+samples = sampler.chain[:, burnin:, :]
 samples = samples.reshape((-1, samples.shape[-1]))
 
-fig_per, fig_rp = pop.plot(samples[np.random.randint(len(samples), size=24)],
-                           rp_label=rp_label, ep=ep)
-fig_per.savefig(os.path.splitext(sys.argv[1])[0]+"-period.png")
-fig_rp.savefig(os.path.splitext(sys.argv[1])[0]+"-radius.png")
+# Subsample the chain to get some posterior samples to display.
+subsamples = samples[np.random.randint(len(samples), size=100)]
+figs = pop.plot(subsamples,
+                ranges=[np.log([6.25, 100]), np.log([1.0, 16.0])],
+                labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
+                top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
+                literature=ep)
+figs[0].savefig(os.path.join(bp, "period.png"))
+figs[0].savefig(os.path.join(bp, "period.pdf"))
+figs[1].savefig(os.path.join(bp, "radius.png"))
+figs[1].savefig(os.path.join(bp, "radius.pdf"))
