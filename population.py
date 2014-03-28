@@ -6,7 +6,7 @@ from __future__ import division, print_function
 __all__ = ["BrokenPowerLaw", "Histogram", "Population", "SeparablePopulation",
            "NormalizedPopulation", "Dataset", "CensoringFunction"]
 
-from itertools import izip, product
+from itertools import izip
 
 import numpy as np
 import matplotlib.pyplot as pl
@@ -63,7 +63,8 @@ class Histogram(object):
         assert self.bins[0] == self.base[0]
         assert self.bins[-1] == self.base[-1]
 
-        self.ln_bin_widths = np.log(self.bins[1:] - self.bins[:-1])
+        self.ln_bin_widths = np.log(np.diff(self.bins))
+        assert np.all(np.isfinite(self.ln_bin_widths))
         self.nbins = len(self.ln_bin_widths)
         self.inds = np.digitize(0.5*(self.base[1:]+self.base[:-1]),
                                 self.bins) - 1
@@ -73,8 +74,7 @@ class Histogram(object):
         return self.nbins - 1
 
     def initial(self):
-        v = np.zeros(self.nbins)
-        v -= logsumexp(v + self.ln_bin_widths)
+        v = np.zeros(self.nbins) - logsumexp(self.ln_bin_widths)
         return v[:-1]
 
     def lnprior(self, theta):
@@ -135,11 +135,7 @@ class Population(object):
         # v[:3] = [0.5, -3.0, -3.0]
         return v[:-1]
 
-    def _get_grid(self, theta):
-        k = tuple(theta)
-        if k == self._cache_key:
-            return self._cache_val
-
+    def compute_grid(self, theta):
         # Compute the integral over the first N-1 cells.
         norm = logsumexp(theta + self.ln_cell_area[:-1])
         if norm >= 0.0:
@@ -147,9 +143,14 @@ class Population(object):
 
         # Compute the height of the last cell and cache the heights.
         v = np.log(1.0 - np.exp(norm)) - self.ln_cell_area[-1]
-        self._cache_key = k
-        self._cache_val = np.append(theta, v).reshape(self.shape)
+        return np.append(theta, v).reshape(self.shape)
 
+    def _get_grid(self, theta):
+        k = tuple(theta)
+        if k == self._cache_key:
+            return self._cache_val
+        self._cache_key = k
+        self._cache_val = self.compute_grid(theta)
         return self._cache_val
 
     def evaluate(self, theta):
@@ -238,42 +239,37 @@ class Population(object):
 class SeparablePopulation(Population):
     poisson = False
 
-    def __init__(self, log_per_dist, log_rp_dist):
-        self.log_per_dist = log_per_dist
-        self.log_rp_dist = log_rp_dist
-        self.npars = len(self.log_per_dist) + len(self.log_rp_dist)
-        super(SeparablePopulation, self).__init__(self.log_per_dist.base,
-                                                  self.log_rp_dist.base)
+    def __init__(self, distributions):
+        self.distributions = distributions
+        self.npars = sum(map(len, distributions))
+        super(SeparablePopulation, self).__init__(
+            [d.base for d in distributions])
 
     def __len__(self):
         return self.npars
 
     def initial(self):
-        return np.append(self.log_per_dist.initial(),
-                         self.log_rp_dist.initial())
+        return np.concatenate([d.initial() for d in self.distributions])
 
-    def evaluate(self, theta):
-        assert len(theta) == self.npars
-        n = len(self.log_per_dist)
-
-        # Compute the period rate.
-        ln_rate_per = self.log_per_dist(theta[:n])
-        if ln_rate_per is None:
-            return None
-
-        # Compute the radius rate.
-        ln_rate_rp = self.log_rp_dist(theta[n:])
-        if ln_rate_rp is None:
-            return None
-
-        return ln_rate_per[:, None] + ln_rate_rp[None, :]
+    def compute_grid(self, theta):
+        n = 0
+        axes = []
+        for d in self.distributions:
+            axes.append(d(theta[n:n+len(d)]))
+            if axes[-1] is None:
+                return None
+            n += len(d)
+        return reduce(np.add, np.ix_(*axes))
 
     def lnprior(self, theta):
-        n = len(self.log_per_dist)
-        lp = self.log_per_dist.lnprior(theta[:n])
-        if not np.isfinite(lp):
-            return -np.inf
-        return lp + self.log_rp_dist.lnprior(theta[n:])
+        n = 0
+        lp = 0.0
+        for d in self.distributions:
+            lp += d.lnprior(theta[n:n+len(d)])
+            if not np.isfinite(lp):
+                return -np.inf
+            n += len(d)
+        return lp
 
 
 class NormalizedPopulation(object):
@@ -304,15 +300,21 @@ class NormalizedPopulation(object):
 
 
 class Dataset(object):
+    """
 
-    def __init__(self, catalogs, weights=None):
-        self.catalogs = np.atleast_2d(catalogs)
-        self.K, self.ndim = self.catalogs.shape
-        if weights is None:
-            self.weights = np.zeros(self.K)
+    :param catalogs: ``(ncatalogs, ncandidates, nparams)``
+    :param lnweights: ``(ncatalogs, )``
+
+    """
+
+    def __init__(self, catalogs, lnweights=None):
+        self.catalogs = np.atleast_3d(catalogs)
+        self.ncatalogs, self.ncandidates, self.nparams = self.catalogs.shape
+        if lnweights is None:
+            self.lnweights = np.zeros(self.ncatalogs)
         else:
-            self.weights = np.atleast_1d(weights)
-        assert len(self.weights) == self.K
+            self.lnweights = np.atleast_1d(lnweights)
+        assert len(self.lnweights) == self.ncatalogs
 
 
 class CensoringFunction(object):
@@ -357,7 +359,8 @@ class CensoringFunction(object):
         self.lnprob[[slice(1, -1)] * len(self.bins)] = lnprob
 
     def index(self, samples):
-        return [np.digitize(x, b) for x, b in izip(samples.T, self.bins)]
+        return [np.digitize(x, b)
+                for x, b in izip(np.atleast_2d(samples).T, self.bins)]
 
     def get_lnprob(self, samples):
         i = self.index(samples)
@@ -370,9 +373,15 @@ class CensoringFunction(object):
 
 class ProbabilisticModel(object):
 
-    def __init__(self, dataset, population):
+    def __init__(self, dataset, population, censor):
         self.dataset = dataset
         self.population = population
+        self.censor = censor
+
+        c = dataset.catalogs
+        s = c.shape
+        self.index = censor.index(c.reshape((-1, s[2])))
+        self.index = [i.reshape(s[:2]) for i in self.index]
 
     def lnlike(self, theta):
         # Evaluate the population rate.
@@ -380,27 +389,25 @@ class ProbabilisticModel(object):
         if lnrate is None:
             return -np.inf
 
-        # Add in the censoring function.
-        censor = self.dataset.censor
-        lnrate += censor.lnprob_grid
+        # Compute the slice indexing the non-zero censoring region.
+        center = [slice(1, -1)] * len(lnrate.shape)
+
+        # Compute the censoring ln-probability.
+        q = self.censor.lnprob
+        q[center] += lnrate
 
         if self.population.poisson:
-            norm = np.exp(logsumexp(lnrate + censor.ln_cell_area))
+            norm = np.exp(logsumexp(q[center]+self.censor.ln_cell_area))
         else:
-            lnrate -= logsumexp(lnrate + censor.ln_cell_area)
+            lnrate -= logsumexp(q[center]+self.censor.ln_cell_area)
             norm = 0.0
 
-        # Deal with points outside the range.
-        s = lnrate.shape
-        q = -np.inf + np.zeros((s[0]+2, s[1]+2))
-        q[1:-1, 1:-1] = lnrate
+        # If there is only one sample, we don't need to do the logsumexp.
+        if self.dataset.ncatalogs == 1:
+            return np.sum(q[self.index]) - norm - self.dataset.lnweights[0]
 
-        if self.dataset.log_rp_ind.shape[1] == 1:
-            return np.sum(q[self.dataset.log_per_ind,
-                            self.dataset.log_rp_ind[:, 0]]) - norm
-
-        ll = q[self.dataset.log_per_ind[:, None], self.dataset.log_rp_ind]
-        ll = np.sum(ll, axis=0) - norm - self.dataset.lnw
+        # Compute the approximate marginalized likelihood.
+        ll = np.sum(q[self.index], axis=1) - norm - self.dataset.lnweights
         return logsumexp(ll)
 
     def lnprior(self, theta):

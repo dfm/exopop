@@ -26,34 +26,53 @@ transit_lnprob0 = -2.98353340397
 ln_period0 = np.log(P)
 
 
-def load_completenes_sim(rp_func=np.log):
+def load_completenes_sim(rp_func=np.log, per_rng=np.log([5, 400]),
+                         rp_rng=None, K=50000):
+    if rp_rng is None:
+        rp_rng = rp_func([0.5, 16])
     sim = pd.read_hdf(os.path.join(bp, "mcDV.h5"), "mcDV")
     m = sim.found * sim.bDV
-    return np.log(sim.inj_P), rp_func(sim.inj_Rp), m
+    x, y, z = np.log(sim.inj_P), rp_func(sim.inj_Rp), m
+    if rp_rng[1] > rp_func(16):
+        x = np.append(x, np.random.uniform(per_rng[0], per_rng[1], K))
+        y = np.append(y, np.random.uniform(rp_func(16.), rp_rng[1], K))
+        z = np.append(z, np.ones(K, dtype=bool))
+    return x, y, z
 
 
-def load_candidates(censor, samples=0, N=10000, rp_func=np.log):
-    log_per_obs = []
-    log_rp_obs = []
-    for line in open(os.path.join(bp, "table_ekoi836.tex")):
+def load_candidates(censor=None, samples=0, N=10000, rp_func=np.log):
+    lines = open(os.path.join(bp, "table_ekoi836.tex")).readlines()
+    K = len(lines)
+    good = np.ones(K, dtype=bool)
+    catalogs = np.empty((max(samples, 1), K, 2))
+    lnweights = np.zeros(max(samples, 1))
+    for k, line in enumerate(lines):
         cols = line.split("&")
         log_per = np.log(float(cols[2]))
-        log_per_obs.append(log_per)
+
         if samples > 0:
             m, s = map(float, cols[12:14])
-            r = m + s*np.sort(np.random.randn(N))
-            lnw = censor.evaluate([log_per], rp_func(r)) - 0.5 * ((r-m)/s)**2
-            cummulative = np.cumsum(np.exp(lnw))
-            cummulative /= cummulative[-1]
-            rnd = np.random.rand(samples)
-            r = np.interp(rnd, cummulative, r)
-            log_rp_obs.append(rp_func(r))
+            catalogs[:, k, 0] = log_per
+            if censor is None:
+                catalogs[:, k, 1] = rp_func(m+s*np.random.randn(samples))
+                continue
+            r = m + s*np.random.randn(N)
+            r = rp_func(r[r > 0.0])
+            v = np.vstack([log_per+np.zeros_like(r), r]).T
+            lnp = censor.get_lncompleteness(v)
+            mask = np.random.rand(len(lnp)) < np.exp(lnp)
+            if np.sum(mask) < samples:
+                print("Dropping candidate at R={0}".format(m))
+                good[k] = 0
+                continue
+            inds = np.arange(len(lnp))[mask]
+            catalogs[:, k, 1] = r[inds[:samples]]
+            lnweights += lnp[inds[:samples]]
         else:
-            log_rp_obs.append(rp_func(float(cols[12])))
+            catalogs[0, k, 0] = log_per
+            catalogs[0, k, 1] = rp_func(float(cols[12]))
 
-    log_per_obs = np.array(log_per_obs, dtype=float)
-    log_rp_obs = np.array(log_rp_obs, dtype=float)
-    return population.Dataset(log_per_obs, log_rp_obs, censor)
+    return population.Dataset(catalogs[:, good], lnweights)
 
 
 def load_petigura_bins(mylog=np.log):
