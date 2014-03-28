@@ -3,6 +3,7 @@
 
 from __future__ import division, print_function
 
+import os
 import sys
 import numpy as np
 import cPickle as pickle
@@ -10,9 +11,17 @@ import cPickle as pickle
 from load_data import load_petigura_bins
 
 ep = load_petigura_bins()
-censor, dataset, pop, sampler = pickle.load(open(sys.argv[1]))
 
-burnin = 4000
+# Load the MCMC results.
+bp = sys.argv[1]
+fn = os.path.join(bp, "results.pkl")
+censor, dataset, pop, sampler = pickle.load(open(fn))
+
+# Remove a burn-in and flatten the chain.
+if len(sys.argv) > 2:
+    burnin = int(sys.argv[2])
+else:
+    burnin = 4000
 samples = sampler.chain[:, burnin:, :]
 samples = samples.reshape((-1, samples.shape[-1]))
 
@@ -23,7 +32,7 @@ figs = pop.plot(subsamples,
                 labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
                 top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
                 literature=ep)
-figs[0].savefig("period.png")
-figs[0].savefig("period.pdf")
-figs[1].savefig("radius.png")
-figs[1].savefig("radius.pdf")
+figs[0].savefig(os.path.join(bp, "period.png"))
+figs[0].savefig(os.path.join(bp, "period.pdf"))
+figs[1].savefig(os.path.join(bp, "radius.png"))
+figs[1].savefig(os.path.join(bp, "radius.pdf"))

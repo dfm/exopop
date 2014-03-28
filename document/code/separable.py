@@ -3,6 +3,7 @@
 
 from __future__ import division, print_function
 
+import os
 import emcee
 import numpy as np
 import cPickle as pickle
@@ -11,7 +12,12 @@ from load_data import (transit_lnprob0, ln_period0, load_completenes_sim,
                        load_candidates, load_petigura_bins)
 from population import (CensoringFunction, BrokenPowerLaw, Histogram,
                         SeparablePopulation, NormalizedPopulation,
-                        ProbabilisticModel, Population)
+                        ProbabilisticModel)
+
+try:
+    os.makedirs("separable")
+except os.error:
+    pass
 
 # Define the box that we're going to work in.
 per_rng = np.log([5.0, 400.0])
@@ -43,7 +49,6 @@ pop = NormalizedPopulation(11., SeparablePopulation([pdist, rdist]))
 # Define the probabilistic model.
 model = ProbabilisticModel(dataset, pop, censor)
 print("Initial ln-prob = {0}".format(model.lnprob(pop.initial())))
-print("Initial ln-prob = {0}".format(model.lnprob(pop.initial())))
 
 if True:
     import matplotlib.pyplot as pl
@@ -59,7 +64,7 @@ if True:
     pl.xlabel(r"$\ln P$")
     pl.ylabel(r"$\ln R_P$")
     pl.colorbar()
-    pl.savefig("separable3-completeness.png")
+    pl.savefig("separable/completeness.png")
 
 # Set up the sampler.
 p0 = pop.initial()
@@ -74,4 +79,5 @@ assert np.all(finite), "{0}".format(np.sum(finite))
 sampler = emcee.EnsembleSampler(nwalkers, ndim, model)
 sampler.run_mcmc(pos, 5000)
 
-pickle.dump((censor, dataset, pop, sampler), open("separable3.pkl", "wb"), -1)
+pickle.dump((censor, dataset, pop, sampler),
+            open("separable/results.pkl", "wb"), -1)
