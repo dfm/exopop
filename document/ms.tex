@@ -108,14 +108,15 @@ measurement of the probability or rate at which Sun-like stars host true Earth
 analogs.
 Here we build a set of probabilistic models of the population of known small
 planets around G dwarfs.
-The models all take into account the transit probability and the completeness
+The models take into account the transit probability and the completeness
 (or detection efficiency) as a function of planet radius and orbital period.
-Because we forward model the data, we do not ever have to perform the
-traditional weighting of the data by the inverse detection efficiency.
+Because we forward model the data, we do not ever have to perform any kind of
+inverse-detection-efficiency weighting of the data.
 Our most sophisticated models do not assume that the joint radius--period
-distribution is separable, and correctly take into account the significant
-observational uncertainties on the planet radii, using the machinery of
-hierarchical inference.
+distribution is separable.
+They also correctly take into account the significant observational
+uncertainties on the planet radii, using the machinery of hierarchical
+inference.
 We reconsider and confirm with weaker assumptions prior results on the
 distribution of exoplanet radii that show a flattening of the distribution
 below a few Earth radii.
@@ -166,28 +167,25 @@ than anyone who has come before.
 This study is novel in a number of ways.
 We create probabilistic information about the full exoplanet population
 \emph{not} by weighting the detected objects by the inverse detection
-efficiency (\citealt{dong, petigura}), but rather by forward modeling the
-observed distribution subject to the detection efficiency.
-\hoggtodo{Check that Dong \& Zhu do indeed weight by inverse probability.}
+efficiency (\citealt{petigura}), but rather by forward modeling the
+observed distribution subject to the detection efficiency
+(\dfmtodo{CITE TREMAINE?} \citealt{dong}).
 Re-weighting the data by inverse selection probability---a method called
 V-max in the quasar and galaxy luminosity function contexts---is not wrong,
 but it produces a higher-variance estimate of the population than a justified
-likelihood approach.
-One simple intuition along these lines is that the inverse probability weights
-can be large in dynamic range, so the effective number of samples, after
+likelihood approach; it is higher variance because
+the effective number of samples, after
 weighting, can be much smaller than the actual number of samples.
-Another is that it tends to upweight most strongly the most marginal
-detections in the data sample, since these tend to be the samples that lie in
-the region of lowest completeness.  In this work, we build a justified
+In this work, we build a justified
 likelihood of the observed data, taking into account the completeness function
 or detection efficiency.
 Our likelihood function is a variable-rate Poisson likelihood; it makes the
 fundamental assumption that the data points are independently drawn from the
 model, but is agnostic about all other properties of the data or distribution
 functions.
-Indeed, the assumptions behind this study are weaker than those of any
-previous study of the period and radius distribution of the Earth-analog
-population (\citealt{dong, petigura}).
+Indeed, the assumptions behind this study here are weaker than those of any
+previous study of the period and radius distribution of the Earth-sized
+exoplanet population (\dfmtodo{CITE TREMAINE?} \citealt{dong, petigura}).
 
 Another new aspect of this study is that it makes use of very flexible
 distribution function models.
