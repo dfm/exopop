@@ -163,10 +163,10 @@ class Population(object):
         return grid[self.inds]
 
     def lnprior(self, theta):
-        return 0.0
+        return np.sum(theta)
 
     def plot(self, thetas, labels=None, ranges=None, alpha=0.3,
-             literature=None, top_axes=None):
+             literature=None, lit_style={}, top_axes=None):
         # Pre-compute the ranges and allowed ranges.
         if ranges is None:
             ranges = [(b.min(), b.max()) for b in self.base]
@@ -212,9 +212,12 @@ class Population(object):
                 axes[i].plot(x, np.exp(y), "k", alpha=0.3)
 
         # Plot literature values.
+        lit_style["marker"] = lit_style.get("marker", ".")
+        lit_style["color"] = lit_style.get("color", "r")
+        lit_style["ls"] = lit_style.get("ls", "None")
         if literature is not None:
             for ax, (x, y) in izip(axes, literature):
-                ax.plot(0.5*(x[1:]+x[:-1]), y, ".r")
+                ax.plot(0.5*(x[1:]+x[:-1]), y, **lit_style)
 
         # Set the axis limits.
         for i, (ax, rng) in enumerate(izip(axes, ranges)):
@@ -317,14 +320,54 @@ class SmoothPopulation(object):
             return -np.inf
 
         # Compute the Gaussian process prior.
-        y = grid.flatten()
-        y -= np.mean(y)
+        y = np.exp(grid.flatten())
+        # y -= np.mean(y)
         chi2 = np.sum(self.dvec/np.exp(theta[1:self.ndim]), axis=2)
         K = np.exp(theta[0] - 0.5 * chi2)
         K += np.diag(self.eps * np.ones_like(y))
         factor, flag = cho_factor(K)
         logdet = np.sum(2*np.log(np.diag(factor)))
         return -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
+
+    def plot(self, thetas, **kwargs):
+        thetas = np.atleast_2d(thetas)
+        return self.base_population.plot(thetas[:, self.ndim:], **kwargs)
+
+
+class BinToBinPopulation(object):
+    poisson = False
+
+    def __init__(self, pars, base_population):
+        self.pars = np.atleast_1d(pars)
+        self.base_population = base_population
+        self.base = base_population.base
+        self.ndim = len(self.base)
+        assert len(self.pars) == self.ndim
+
+    def __len__(self):
+        return len(self.base_population) + self.ndim
+
+    def initial(self):
+        return np.append(self.pars, self.base_population.initial())
+
+    def evaluate(self, theta):
+        return self.base_population.evaluate(theta[self.ndim:])
+
+    def lnprior(self, theta):
+        lp = self.base_population.lnprior(theta[self.ndim:])
+        if not np.isfinite(lp):
+            return -np.inf
+
+        grid = self.base_population._get_grid(theta[self.ndim:])
+        if grid is None:
+            return -np.inf
+
+        # Compute the bin-to-bin differences and evaluate the prior.
+        g = np.exp(grid)
+        for i, w in enumerate(theta[:self.ndim]):
+            d = np.diff(g, axis=i)
+            lp += -0.5 * np.sum(d**2) / np.exp(w)
+        return lp
 
     def plot(self, thetas, **kwargs):
         thetas = np.atleast_2d(thetas)

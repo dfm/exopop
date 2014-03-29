@@ -9,12 +9,13 @@ import numpy as np
 import cPickle as pickle
 from itertools import product
 import matplotlib.pyplot as pl
+import scipy.optimize as op
 
-from load_data import (transit_lnprob0, ln_period0, load_completenes_sim,
-                       load_candidates, load_petigura_bins)
-from population import (CensoringFunction, BrokenPowerLaw, Histogram,
+from load_data import transit_lnprob0, ln_period0, load_completenes_sim
+from population import (CensoringFunction, BrokenPowerLaw,
                         SeparablePopulation, NormalizedPopulation,
-                        ProbabilisticModel, Dataset)
+                        ProbabilisticModel, Dataset, Population,
+                        SmoothPopulation, BinToBinPopulation)
 
 try:
     os.makedirs("fake")
@@ -24,6 +25,7 @@ except os.error:
 # Define the box that we're going to work in.
 per_rng = np.log([5.0, 400.0])
 rp_rng = np.log([0.5, 64.0])
+truth = [11.0, 0.5, -0.2, 4.0, 0.8, -1.5, 1.0]
 
 # Load the data.
 ln_P_inj, ln_R_inj, recovered = load_completenes_sim(per_rng=per_rng,
@@ -41,13 +43,15 @@ lpb, lrb = censor.bins
 pdist = BrokenPowerLaw(lpb)
 rdist = BrokenPowerLaw(lrb)
 pop0 = SeparablePopulation([pdist, rdist])
-pop0 = NormalizedPopulation(10.8, pop0)
+pop0 = NormalizedPopulation(truth[0], pop0)
 
 # Plot the true distributions.
-truth = [10.8, 0.5, -0.2, 4.0, 0.8, -1.5, 1.0]
-figs = pop0.plot(truth, alpha=1,
+literature = [(pdist.bins, np.exp(pdist(truth[1:4]))),
+              (rdist.bins, np.exp(rdist(truth[4:])))]
+figs = pop0.plot(truth,
                  labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
-                 top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"])
+                 top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
+                 literature=literature)
 figs[0].savefig(os.path.join("fake", "true-period.png"))
 figs[1].savefig(os.path.join("fake", "true-radius.png"))
 
@@ -70,21 +74,49 @@ print("{0} entries in catalog".format(len(catalog)))
 # Plot the actual rate function.
 pl.figure()
 pl.pcolor(lpb, lrb, np.exp(censor.lncompleteness[1:-1, 1:-1].T), cmap="gray")
-# pl.pcolor(lpb, lrb, np.exp(lnrate.T), cmap="gray")
 pl.plot(catalog[:, 0], catalog[:, 1], ".r", ms=3)
 pl.colorbar()
 pl.xlim(min(lpb), max(lpb))
 pl.ylim(min(lrb), max(lrb))
 pl.savefig("fake/true-rate.png")
 
+# Run inference on a binned model.
+bins = [lpb[::8], lrb[::4]]
+print("Run inference on a grid with shape: {0}".format(map(len, bins)))
+pop = Population(bins, censor.bins)
+pop = BinToBinPopulation([0.1, 0.1], pop)
+# pop = SmoothPopulation([-2.5, 0.5, 0.5], pop)
+pop = NormalizedPopulation(truth[0], pop)
+
 # Run inference with the true population.
-model = ProbabilisticModel(dataset, pop0, censor)
-print("Initial ln-prob = {0}".format(model.lnprob(pop0.initial())))
+model = ProbabilisticModel(dataset, pop, censor)
+
+
+# Maximize the likelihood.
+def nll(p, huge=1e10):
+    ll = model(p)
+    if not np.isfinite(ll):
+        return huge
+    return -ll
+
+p0 = pop.initial()
+print("Initial ln-prob = {0}".format(model.lnprob(p0)))
+results = op.minimize(nll, p0, method="L-BFGS-B")
+print(results)
+assert results.success
+p0 = results.x
+print("Final ln-prob = {0}".format(model.lnprob(p0)))
+figs = pop.plot(p0,
+                labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
+                top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
+                literature=literature)
+figs[0].savefig(os.path.join("fake", "ml-period.png"))
+figs[1].savefig(os.path.join("fake", "ml-radius.png"))
 
 # Set up the sampler.
-p0 = pop0.initial()
-ndim, nwalkers = len(p0), 32
-pos = [p0 + 1e-8 * np.random.randn(ndim) for i in range(nwalkers)]
+ndim, nwalkers = len(p0), 100
+pos = [p0 + 1e-4 * np.random.randn(ndim) for i in range(nwalkers)]
+print("Sampling {0} dimensions with {1} walkers".format(ndim, nwalkers))
 
 # Make sure that all the initial positions have finite probability.
 finite = np.isfinite(map(model.lnprob, pos))
@@ -92,7 +124,19 @@ assert np.all(finite), "{0}".format(np.sum(finite))
 
 # Set up the sampler.
 sampler = emcee.EnsembleSampler(nwalkers, ndim, model)
-sampler.run_mcmc(pos, 5000)
+sampler.run_mcmc(pos, 10000)
+pickle.dump(sampler.chain, open("fake/samples.pkl", "w"), -1)
 
-pickle.dump((censor, dataset, pop0, sampler.chain, sampler.lnprobability),
-            open("fake/results.pkl", "wb"), -1)
+# Subsample the chain.
+burnin = 8000
+samples = sampler.chain[:, burnin:, :]
+samples = samples.reshape((-1, samples.shape[-1]))
+subsamples = samples[np.random.randint(len(samples), size=100)]
+
+# Plot the results.
+figs = pop.plot(subsamples,
+                labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
+                top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
+                literature=literature)
+figs[0].savefig(os.path.join("fake", "period.png"))
+figs[1].savefig(os.path.join("fake", "radius.png"))
