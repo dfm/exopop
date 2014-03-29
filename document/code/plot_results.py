@@ -15,20 +15,25 @@ ep = load_petigura_bins()
 # Load the MCMC results.
 bp = sys.argv[1]
 fn = os.path.join(bp, "results.pkl")
-censor, dataset, pop, sampler = pickle.load(open(fn))
+censor, dataset, pop, samples, lnprob = pickle.load(open(fn))
 
 # Remove a burn-in and flatten the chain.
 if len(sys.argv) > 2:
     burnin = int(sys.argv[2])
 else:
     burnin = 4000
-samples = sampler.chain[:, burnin:, :]
+
+# import matplotlib.pyplot as pl
+# pl.plot(samples[:, :, 0].T)
+# pl.savefig("test.png")
+# assert 0
+samples = samples[:, burnin:, :]
 samples = samples.reshape((-1, samples.shape[-1]))
 
 # Subsample the chain to get some posterior samples to display.
 subsamples = samples[np.random.randint(len(samples), size=100)]
 figs = pop.plot(subsamples,
-                ranges=[np.log([6.25, 100]), np.log([1.0, 16.0])],
+                # ranges=[np.log([6.25, 100]), np.log([1.0, 16.0])],
                 labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
                 top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
                 literature=ep)

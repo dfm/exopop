@@ -69,8 +69,14 @@ def load_candidates(censor=None, samples=0, N=10000, rp_func=np.log):
             catalogs[:, k, 1] = r[inds[:samples]]
             lnweights += lnp[inds[:samples]]
         else:
+            r = rp_func(float(cols[12]))
+            lnp = censor.get_lncompleteness([log_per, r])
+            if not np.isfinite(lnp):
+                print("Dropping candidate at R={0}".format(float(cols[12])))
+                good[k] = 0
+                continue
             catalogs[0, k, 0] = log_per
-            catalogs[0, k, 1] = rp_func(float(cols[12]))
+            catalogs[0, k, 1] = r
 
     return population.Dataset(catalogs[:, good], lnweights)
 

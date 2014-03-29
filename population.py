@@ -165,20 +165,6 @@ class Population(object):
     def lnprior(self, theta):
         return 0.0
 
-        grid = self._get_grid(theta)
-        if grid is None:
-            return -np.inf
-
-        # Compute the Gaussian process prior.
-        y = grid.flatten()
-        y -= np.mean(y)
-        d = (self.cell_coords[:, None, :] - self.cell_coords[None, :, :])**2
-        K = np.exp(theta[0] - 0.5 * np.sum(d / np.exp(theta[1:3]), axis=2))
-        K += np.diag(1e-10 * np.ones_like(y))
-        factor, flag = cho_factor(K)
-        logdet = np.sum(2*np.log(np.diag(factor)))
-        return -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
-
     def plot(self, thetas, labels=None, ranges=None, alpha=0.3,
              literature=None, top_axes=None):
         # Pre-compute the ranges and allowed ranges.
@@ -202,7 +188,7 @@ class Population(object):
                                [b[m] for b, m in izip(self.base, bm)]))
         N = len(self.base)
         for theta in thetas:
-            grid = self._get_grid(theta)[vm]
+            grid = self.evaluate(theta)[vm]
             for i, (x, m) in enumerate(izip(self.base, bm)):
                 # Compute the volumes along the marginalized axes.
                 lbw = list(lbw0)
@@ -291,6 +277,58 @@ class SeparablePopulation(Population):
                 return -np.inf
             n += len(d)
         return lp
+
+
+class SmoothPopulation(object):
+    poisson = False
+
+    def __init__(self, pars, base_population, eps=1e-10):
+        self.pars = np.atleast_1d(pars)
+        self.base_population = base_population
+        self.base = base_population.base
+        self.eps = eps
+
+        # Pre-compute the distance vectors.
+        bins = self.base_population.bins
+        coords = np.meshgrid(*[0.5*(b[1:] + b[:-1]) for b in bins],
+                             indexing="ij")
+        coords = np.vstack([c.flatten() for c in coords]).T
+        self.dvec = (coords[:, None, :] - coords[None, :, :])**2
+        self.ndim = self.dvec.shape[2] + 1
+
+        assert len(self.pars) == self.ndim
+
+    def __len__(self):
+        return len(self.base_population) + self.ndim
+
+    def initial(self):
+        return np.append(self.pars, self.base_population.initial())
+
+    def evaluate(self, theta):
+        return self.base_population.evaluate(theta[self.ndim:])
+
+    def lnprior(self, theta):
+        lp = self.base_population.lnprior(theta[self.ndim:])
+        if not np.isfinite(lp):
+            return -np.inf
+
+        grid = self.base_population._get_grid(theta[self.ndim:])
+        if grid is None:
+            return -np.inf
+
+        # Compute the Gaussian process prior.
+        y = grid.flatten()
+        y -= np.mean(y)
+        chi2 = np.sum(self.dvec/np.exp(theta[1:self.ndim]), axis=2)
+        K = np.exp(theta[0] - 0.5 * chi2)
+        K += np.diag(self.eps * np.ones_like(y))
+        factor, flag = cho_factor(K)
+        logdet = np.sum(2*np.log(np.diag(factor)))
+        return -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
+
+    def plot(self, thetas, **kwargs):
+        thetas = np.atleast_2d(thetas)
+        return self.base_population.plot(thetas[:, self.ndim:], **kwargs)
 
 
 class NormalizedPopulation(object):
@@ -423,7 +461,7 @@ class ProbabilisticModel(object):
 
         # Compute the censoring ln-probability.
         q = np.array(self.censor.lnprob)
-        q[1:-1, 1:-1] += lnrate
+        q[center] += lnrate
 
         if self.population.poisson:
             norm = np.exp(logsumexp(q[center]+self.censor.ln_cell_area))
