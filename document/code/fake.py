@@ -14,7 +14,7 @@ from load_data import (transit_lnprob0, ln_period0, load_completenes_sim,
                        load_candidates, load_petigura_bins)
 from population import (CensoringFunction, BrokenPowerLaw, Histogram,
                         SeparablePopulation, NormalizedPopulation,
-                        ProbabilisticModel)
+                        ProbabilisticModel, Dataset)
 
 try:
     os.makedirs("fake")
@@ -44,7 +44,7 @@ pop0 = SeparablePopulation([pdist, rdist])
 pop0 = NormalizedPopulation(10.8, pop0)
 
 # Plot the true distributions.
-truth = [10.8, 0.5, -0.2, 4.0, 3.0, -3.0, 1.0]
+truth = [10.8, 0.5, -0.2, 4.0, 0.8, -1.5, 1.0]
 figs = pop0.plot(truth, alpha=1,
                  labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
                  top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"])
@@ -64,10 +64,35 @@ for i, j in product(xrange(len(lpb)-1), xrange(len(lrb)-1)):
     entry = np.vstack((np.random.uniform(lpb[i], lpb[i+1], k),
                        np.random.uniform(lrb[j], lrb[j+1], k))).T
     catalog = np.concatenate((catalog, entry), axis=0)
+dataset = Dataset([catalog])
+print("{0} entries in catalog".format(len(catalog)))
 
 # Plot the actual rate function.
 pl.figure()
-pl.pcolor(lpb, lrb, np.exp(lnrate.T), cmap="gray")
+pl.pcolor(lpb, lrb, np.exp(censor.lncompleteness[1:-1, 1:-1].T), cmap="gray")
+# pl.pcolor(lpb, lrb, np.exp(lnrate.T), cmap="gray")
 pl.plot(catalog[:, 0], catalog[:, 1], ".r", ms=3)
 pl.colorbar()
+pl.xlim(min(lpb), max(lpb))
+pl.ylim(min(lrb), max(lrb))
 pl.savefig("fake/true-rate.png")
+
+# Run inference with the true population.
+model = ProbabilisticModel(dataset, pop0, censor)
+print("Initial ln-prob = {0}".format(model.lnprob(pop0.initial())))
+
+# Set up the sampler.
+p0 = pop0.initial()
+ndim, nwalkers = len(p0), 32
+pos = [p0 + 1e-8 * np.random.randn(ndim) for i in range(nwalkers)]
+
+# Make sure that all the initial positions have finite probability.
+finite = np.isfinite(map(model.lnprob, pos))
+assert np.all(finite), "{0}".format(np.sum(finite))
+
+# Set up the sampler.
+sampler = emcee.EnsembleSampler(nwalkers, ndim, model)
+sampler.run_mcmc(pos, 5000)
+
+pickle.dump((censor, dataset, pop0, sampler.chain, sampler.lnprobability),
+            open("fake/results.pkl", "wb"), -1)
