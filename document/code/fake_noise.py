@@ -23,6 +23,8 @@ except os.error:
     pass
 
 # Define the box that we're going to work in.
+# per_rng = np.log([6.25, 100.0])
+# rp_rng = np.log([1.0, 16.0])
 per_rng = np.log([5.0, 400.0])
 rp_rng = np.log([0.5, 64.0])
 truth = [11.0, 0.5, -0.2, 4.0, 0.8, -1.5, 1.0]
@@ -88,15 +90,53 @@ pl.xlim(min(lpb), max(lpb))
 pl.ylim(min(lrb), max(lrb))
 pl.savefig("fake_noise/true-rate.png")
 
-# Run inference on a binned model.
+# Build the binned model.
 bins = [lpb[::8], lrb[::4]]
 print("Run inference on a grid with shape: {0}".format(map(len, bins)))
 pop = Population(bins, censor.bins)
 pop = BinToBinPopulation([-1, -1], pop)
 pop = NormalizedPopulation(truth[0], pop)
-
-# Run inference with the true population.
 model = ProbabilisticModel(dataset, pop, censor)
+
+# Compute the vmax histogram.
+ix0 = np.digitize(np.log(catalog[:, 0]), bins[0])
+iy0 = np.digitize(np.log(catalog[:, 1]), bins[1])
+ix = np.digitize(np.log(catalog[:, 0]), lpb)
+iy = np.digitize(np.log(catalog[:, 1]), lrb)
+lp = censor.lnprob[ix, iy]
+grid = np.zeros((len(bins[0])-1, len(bins[1])-1))
+for i, j in product(range(len(bins[0])-1), range(len(bins[1])-1)):
+    v = lp[(ix0 == i) * (iy0 == j)]
+    grid[i, j] = np.sum(np.exp(-v[np.isfinite(v)]))
+grid[np.isinf(grid)] = 0.0
+
+# Plot the vmax results.
+pl.figure()
+x = bins[0]
+y = np.sum(grid, axis=1)
+y /= np.sum(y * np.diff(x))
+x = np.array(zip(x[:-1], x[1:])).flatten()
+y = np.array(zip(y, y)).flatten()
+pl.plot(x, y, "k")
+x, y = literature[0]
+pl.plot(0.5*(x[1:]+x[:-1]), y, ".r")
+pl.xlim(x[0], x[-1])
+pl.xlabel("$\ln T$")
+pl.savefig("fake_noise/vmax-period.png")
+
+pl.clf()
+x = bins[1]
+y = np.sum(grid, axis=0)
+y /= np.sum(y * np.diff(x))
+x = np.array(zip(x[:-1], x[1:])).flatten()
+y = np.array(zip(y, y)).flatten()
+pl.plot(x, y, "k")
+x, y = literature[1]
+pl.plot(0.5*(x[1:]+x[:-1]), y, ".r")
+pl.xlim(x[0], x[-1])
+pl.xlabel("$\ln R$")
+pl.savefig("fake_noise/vmax-radius.png")
+assert 0
 
 
 # Maximize the likelihood.
