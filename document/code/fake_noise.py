@@ -18,7 +18,7 @@ from population import (CensoringFunction, BrokenPowerLaw,
                         SmoothPopulation, BinToBinPopulation)
 
 try:
-    os.makedirs("fake")
+    os.makedirs("fake_noise")
 except os.error:
     pass
 
@@ -52,8 +52,8 @@ figs = pop0.plot(truth,
                  labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
                  top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
                  literature=literature)
-figs[0].savefig(os.path.join("fake", "true-period.png"))
-figs[1].savefig(os.path.join("fake", "true-radius.png"))
+figs[0].savefig(os.path.join("fake_noise", "true-period.png"))
+figs[1].savefig(os.path.join("fake_noise", "true-radius.png"))
 
 # Sample from this censored population.
 lnrate = np.array(censor.lnprob[1:-1, 1:-1])
@@ -68,23 +68,31 @@ for i, j in product(xrange(len(lpb)-1), xrange(len(lrb)-1)):
     entry = np.vstack((np.random.uniform(lpb[i], lpb[i+1], k),
                        np.random.uniform(lrb[j], lrb[j+1], k))).T
     catalog = np.concatenate((catalog, entry), axis=0)
-dataset = Dataset([catalog])
+
+# Add in some observational uncertainties.
+catalog = np.exp(catalog)
+err = np.vstack([np.zeros(len(catalog)), 0.33 * catalog[:, 1]]).T
+catalog += err * np.random.randn(*(err.shape))
+
+dataset = Dataset.sample(catalog, err, samples=100, censor=censor,
+                         functions=[np.log, np.log])
 print("{0} entries in catalog".format(len(catalog)))
 
 # Plot the actual rate function.
 pl.figure()
 pl.pcolor(lpb, lrb, np.exp(censor.lncompleteness[1:-1, 1:-1].T), cmap="gray")
-pl.plot(catalog[:, 0], catalog[:, 1], ".r", ms=3)
+pl.plot(dataset.catalogs[:, :, 0], dataset.catalogs[:, :, 1], ".r", ms=3,
+        alpha=0.3)
 pl.colorbar()
 pl.xlim(min(lpb), max(lpb))
 pl.ylim(min(lrb), max(lrb))
-pl.savefig("fake/true-rate.png")
+pl.savefig("fake_noise/true-rate.png")
 
 # Run inference on a binned model.
 bins = [lpb[::8], lrb[::4]]
 print("Run inference on a grid with shape: {0}".format(map(len, bins)))
 pop = Population(bins, censor.bins)
-pop = BinToBinPopulation([-4, -4], pop)
+pop = BinToBinPopulation([-1, -1], pop)
 pop = NormalizedPopulation(truth[0], pop)
 
 # Run inference with the true population.
@@ -100,17 +108,17 @@ def nll(p, huge=1e10):
 
 p0 = pop.initial()
 print("Initial ln-prob = {0}".format(model.lnprob(p0)))
-results = op.minimize(nll, p0, method="L-BFGS-B")
+results = op.minimize(nll, p0)
 print(results)
-assert results.success
 p0 = results.x
 print("Final ln-prob = {0}".format(model.lnprob(p0)))
 figs = pop.plot(p0,
                 labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
                 top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
                 literature=literature)
-figs[0].savefig(os.path.join("fake", "ml-period.png"))
-figs[1].savefig(os.path.join("fake", "ml-radius.png"))
+figs[0].savefig(os.path.join("fake_noise", "ml-period.png"))
+figs[1].savefig(os.path.join("fake_noise", "ml-radius.png"))
+# assert results.success
 
 # Set up the sampler.
 ndim, nwalkers = len(p0), 100
@@ -124,7 +132,7 @@ assert np.all(finite), "{0}".format(np.sum(finite))
 # Set up the sampler.
 sampler = emcee.EnsembleSampler(nwalkers, ndim, model)
 sampler.run_mcmc(pos, 10000)
-pickle.dump(sampler.chain, open("fake/samples.pkl", "w"), -1)
+pickle.dump(sampler.chain, open("fake_noise/samples.pkl", "w"), -1)
 
 # Subsample the chain.
 burnin = 8000
@@ -137,5 +145,5 @@ figs = pop.plot(subsamples,
                 labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
                 top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
                 literature=literature)
-figs[0].savefig(os.path.join("fake", "period.png"))
-figs[1].savefig(os.path.join("fake", "radius.png"))
+figs[0].savefig(os.path.join("fake_noise", "period.png"))
+figs[1].savefig(os.path.join("fake_noise", "radius.png"))
