@@ -85,6 +85,7 @@ pl.figure()
 pl.pcolor(lpb, lrb, np.exp(censor.lncompleteness[1:-1, 1:-1].T), cmap="gray")
 pl.plot(dataset.catalogs[:, :, 0], dataset.catalogs[:, :, 1], ".r", ms=3,
         alpha=0.3)
+pl.plot(np.log(catalog[:, 0]), np.log(catalog[:, 1]), ".b", ms=5)
 pl.colorbar()
 pl.xlim(min(lpb), max(lpb))
 pl.ylim(min(lrb), max(lrb))
@@ -106,7 +107,7 @@ iy = np.digitize(np.log(catalog[:, 1]), lrb)
 lp = censor.lnprob[ix, iy]
 grid = np.zeros((len(bins[0])-1, len(bins[1])-1))
 for i, j in product(range(len(bins[0])-1), range(len(bins[1])-1)):
-    v = lp[(ix0 == i) * (iy0 == j)]
+    v = lp[(ix0 == i+1) * (iy0 == j+1)]
     grid[i, j] = np.sum(np.exp(-v[np.isfinite(v)]))
 grid[np.isinf(grid)] = 0.0
 
@@ -136,6 +137,13 @@ pl.plot(0.5*(x[1:]+x[:-1]), y, ".r")
 pl.xlim(x[0], x[-1])
 pl.xlabel("$\ln R$")
 pl.savefig("fake_noise/vmax-radius.png")
+
+pl.clf()
+pl.pcolor(bins[0], bins[1], grid.T, cmap="gray")
+pl.colorbar()
+pl.xlim(min(lpb), max(lpb))
+pl.ylim(min(lrb), max(lrb))
+pl.savefig("fake_noise/vmax-grid.png")
 assert 0
 
 
