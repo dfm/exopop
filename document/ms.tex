@@ -1,4 +1,16 @@
+%
+%  RULES OF THE GAME
+%
+%  * 80 characters
+%  * line breaks at the ends of sentences
+%  * eqnarrys ONLY
+%  * ALWAYS cite inside parens () and use \citealt{}; no in-line cites
+%  * that is all.
+%
+
 \documentclass[12pt,preprint]{aastex}
+
+\include{vc}
 
 \usepackage{color,hyperref}
 \definecolor{linkcolor}{rgb}{0,0,0.5}
@@ -57,16 +69,6 @@
 \newcommand{\catalog}{{\ensuremath{\bvec{\entry}}}}
 
 \newcommand{\interim}{{\ensuremath{\bvec{\alpha}}}}
-
-%
-%  RULES OF THE GAME, MOTHAFUCKERS.
-%
-%  * 80 characters
-%  * line breaks at the ends of sentences
-%  * eqnarrys ONLY
-%  * ALWAYS cite inside parens () and use \citealt{}; no in-line cites
-%  * that is all.
-%
 
 \begin{document}
 
@@ -374,6 +376,30 @@ and, more specifically, we model the period distribution as a broken power law
 and the radius distribution as a piecewise constant function (or histogram)
 where the parameters are the bin heights.
 
+\begin{figure}
+\begin{center}
+\includegraphics{figures/separable-radius.pdf}
+\end{center}
+\caption{%
+The inferred distribution of exoplanet radii assuming a separable rate
+function.
+The black lines are draws from the posterior probability distribution of bin
+heights and the red points are previous measurements based on the same
+dataset (\citealt{petigura}).
+\figlabel{separable-radius}}
+\end{figure}
+
+\section{General distribution}
+
+It has been shown that the joint period--radius distribution for exoplanets is
+not separable (\dfmtodo{CITE}).
+In this section, we discuss non-separable model in our analysis framework.
+
+We model the rate function $\rate(\period,\,\radius)$ as a piecewise constant
+function in rectangular bins in $\ln\period$ and $\ln\radius$.
+The parameters \ratepars\ that we're fitting are the values of each of these
+bins (subject to a normalization constraint).
+
 \section{Discussion}
 
 We have made the first measurement of the Earth-like exoplanet population that
@@ -417,6 +443,12 @@ intrinsic stellar variability that take account of frequency structure
 If any (or all) of these deliver substantial improvements for \kepler\
 archival data reanalyses, it's Nobel Prize time!  (Or at least \textsl{The
 Colbert Report}?)
+
+All of the code used in this project is available from
+\url{http://github.com/dfm/exopop} under the MIT open-source software license.
+This code (plus some dependencies) can be run to re-generate all of the
+figures and results in this \paper; this version of the paper was generated
+with git commit \texttt{\githash} (\gitdate).
 
 \acknowledgments
 It is a pleasure to thank
