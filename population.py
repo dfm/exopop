@@ -141,7 +141,11 @@ class Population(object):
     def compute_grid(self, theta):
         # Compute the integral over the first N-1 cells.
         norm = logsumexp(theta + self.ln_cell_area[:-1])
-        if norm >= 0.0:
+        if not np.isfinite(norm):
+            print(norm)
+            print(theta)
+            return None
+        if norm > 0.0:
             return None
 
         # Compute the height of the last cell and cache the heights.
@@ -384,6 +388,9 @@ class NormalizedPopulation(object):
 
     def __len__(self):
         return len(self.base_population) + 1
+
+    def _get_grid(self, theta):
+        return self.base_population._get_grid(theta[1:])
 
     def initial(self):
         return np.append(self.ln_norm, self.base_population.initial())
