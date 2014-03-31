@@ -366,7 +366,7 @@ class BinToBinPopulation(object):
         g = np.exp(grid)
         for i, w in enumerate(theta[:self.ndim]):
             d = np.diff(g, axis=i)
-            lp += -0.5 * np.sum(d**2) / np.exp(w)
+            lp += -0.5 * (np.sum(d**2) / np.exp(w) + w)
         return lp
 
     def plot(self, thetas, **kwargs):
@@ -418,6 +418,50 @@ class Dataset(object):
         else:
             self.lnweights = np.atleast_1d(lnweights)
         assert len(self.lnweights) == self.ncatalogs
+
+    @classmethod
+    def sample(cls, values, uncertainties, samples=64, functions=None,
+               censor=None, tot=10000):
+        values = np.atleast_2d(values)
+        uncertainties = np.atleast_2d(uncertainties)
+        K, N = values.shape
+        good = np.ones(K, dtype=bool)
+        catalogs = np.empty((samples, K, N))
+        lnweights = np.zeros(samples)
+        for k, (m, s) in enumerate(izip(values, uncertainties)):
+            # Directly sample from the Gaussians.
+            if censor is None:
+                v = m[None, :] + s[None, :] * np.random.randn(samples, N)
+                if functions is not None:
+                    for n, f in enumerate(functions):
+                        if f is None:
+                            continue
+                        v[:, n] = f(v[:, n])
+                catalogs[:, k, :] = v
+                continue
+
+            # Use rejection sampling to sample from the joint posterior.
+            v = m[None, :] + s[None, :] * np.random.randn(tot, N)
+            if functions is not None:
+                for n, f in enumerate(functions):
+                    if f is None:
+                        continue
+                    v[:, n] = f(v[:, n])
+
+            # Compute the acceptance mask.
+            lnp = censor.get_lncompleteness(v)
+            mask = np.random.rand(len(lnp)) < np.exp(lnp)
+
+            # Make sure that we're getting enough samples for each object.
+            if np.sum(mask) < samples:
+                print("Dropping candidate at {0}".format(m))
+                good[k] = 0
+                continue
+
+            inds = np.arange(len(lnp))[mask]
+            catalogs[:, k, :] = v[inds[:samples]]
+            lnweights += lnp[inds[:samples]]
+        return cls(catalogs[:, good], lnweights)
 
 
 class CensoringFunction(object):
