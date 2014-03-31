@@ -18,6 +18,7 @@
             filecolor=linkcolor,urlcolor=linkcolor}
 \usepackage{url}
 \usepackage{amssymb,amsmath}
+\usepackage{subfigure}
 
 \newcommand{\project}[1]{{\sffamily #1}}
 \newcommand{\emcee}{\project{emcee}}
@@ -351,6 +352,11 @@ interim prior and, in particular, it is useful to include the completeness
 function.
 \dfmtodo{BLAH BLAH BLAH.}
 
+\dfmtodo{Discuss binned model and choice of priors.}
+
+\dfmtodo{Show where the normalization comes in and describe how it acts
+qualitatively.}
+
 \section{The completeness function \& dataset}
 
 \dfmtodo{%
@@ -358,6 +364,58 @@ Describe Erik's data products and our model of the completeness in boxes
 extended artificially beyond the original range.
 Also describe the re-sampling procedure for the candidate parameters.
 }
+
+\section{Synthetic catalogs}
+
+The likelihood function in \eq{true-like} provides a \emph{probability
+distribution over catalogs} conditioned on the parameters of the rate
+function.
+Therefore, it is also the description of a \emph{generative process} for
+synthetic catalogs.
+To demonstrate the effectiveness of our model, we generate synthetic catalogs
+from known distributions in period and radius, and test the performance of our
+method on the resulting data.
+For comparison, we also implement the one-over-efficiency weighting procedure
+(see, for example, \citealt{howard, dressing, petigura}) and apply it to the
+same datasets.
+
+\paragraph{The generative process}
+The variable rate Poisson likelihood function in \eq{true-like} can be sampled
+generally for arbitrary forms of the rate function using a procedure called
+``thinning'' (\citealt{poisson}).
+In this \paper, however, we will only consider binned representations of
+\rate, greatly simplifying the generative process.
+Conditioned on a set of rate function parameters and a given completeness
+function (here we'll use the injections from \citealt{petigura}), we compute
+the observable rate grid from \eq{obs-rate}.
+Then in each bin, we sample $J$ candidates uniformly in period and
+radius (as defined by the bin edges) where $J$ is a Poisson random variable
+sampled with the rate given by the observable rate in this bin.
+\dfmtodo{Make this description not be the most confusing thing ever.}
+Then, we add 30\% measurement uncertainties to the radius measurements where
+30\% was chosen to match to properties of the real catalog
+(\citealt{petigura}).
+
+\paragraph{Results}
+See \fig{synthetic-radius}.
+As expected, the forward model is a much lower variance estimator.
+
+\begin{figure}[htbp]
+\begin{center}
+\subfigure[one-over-efficiency]{%
+\includegraphics[width=0.45\textwidth]{figures/synthetic-vmax-radius.pdf}
+}
+\subfigure[fully-marginalized forward model]{%
+\includegraphics[width=0.45\textwidth]{figures/synthetic-radius.pdf}
+}
+\end{center}
+\caption{%
+The inferred distribution of exoplanet radii based on a noisy observation of a
+synthetic catalog.
+The red dotted line shows the true distribution function and the black
+histograms are the constraints from the different inference techniques.
+\figlabel{synthetic-radius}}
+\end{figure}
 
 \section{Separable distribution}
 
@@ -376,7 +434,7 @@ and, more specifically, we model the period distribution as a broken power law
 and the radius distribution as a piecewise constant function (or histogram)
 where the parameters are the bin heights.
 
-\begin{figure}
+\begin{figure}[htbp]
 \begin{center}
 \includegraphics{figures/separable-radius.pdf}
 \end{center}
@@ -470,14 +528,30 @@ Carter, J.~A., \& Winn, J.~N.\ 2009, \apj, 704, 51 (\arxiv{0909.0747})
 \bibitem[Dong \& Zhu(2013)]{dong}
 Dong, S., \& Zhu, Z.\ 2013, \apj, 778, 53 (\arxiv{1212.4853})
 
+\bibitem[Dressing  \& Charbonneau(2013)]{dressing}
+Dressing, C.~D., \& Charbonneau, D.\ 2013, \apj, 767, 95 (\arxiv{1302.1647})
+
 \bibitem[Hogg \etal(2013)]{hoggwhitepaper}
 Hogg, D.~W., Angus, R., Barclay, T., et al.\ 2013, \arxiv{1309.0653}
 
 \bibitem[Hogg \etal(2010)]{hogge}
-Hogg, D.~W., Myers, A.~D., \& Bovy, J.\ 2010, \apj, 725, 2166 (\arxiv{1008.4146})
+Hogg, D.~W., Myers, A.~D., \& Bovy, J.\ 2010, \apj, 725, 2166
+(\arxiv{1008.4146})
 
-\bibitem[Petigura \etal(2013)]{petigura}
-Petigura, E.~A., Howard, A.~W., \& Marcy, G.~W.\ 2013,
+\bibitem[Howard \etal(2012)]{howard}
+Howard, A.~W., Marcy, G.~W., Bryson, S.~T., et al.\ 2012, \apjs, 201, 15
+(\arxiv{1103.2541})
+
+\bibitem[Lewis \& Shedler(1979)]{poisson}
+Lewis, P.~A.~W., \& Shedler, G.~S.\ 1979, Naval Research Logistics Quarterly,
+26, 403
+
+\bibitem[Petigura \etal(2013a)]{petigura-a}
+Petigura, E.~A., Marcy, G.~W., \& Howard, A.~W.\ 2013a, \apj, 770, 69
+(\arxiv{1304.0460})
+
+\bibitem[Petigura \etal(2013b)]{petigura}
+Petigura, E.~A., Howard, A.~W., \& Marcy, G.~W.\ 2013b,
 Proceedings of the National Academy of Science, 110, 19273 (\arxiv{1311.6806})
 
 \bibitem[Roberts \etal(2013)]{roberts}
