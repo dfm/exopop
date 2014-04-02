@@ -347,49 +347,72 @@ Each entry $\entry_k$ can be sampled independently and then the catalog
 samples $\catalog^{(n)}$ are given by the outer product of the independent
 sample lists.
 
-The quantity that we need to compute is the \emph{marginalized likelihood} of
-the data \obs{\catalog}\ given a particular setting of the rate function
-parameters \ratepars.
-This is achieved by marginalizing over the true periods and radii
-\begin{eqnarray}
+Now that we have a representation of the catalog, we want to infer constraints
+on the occurrence rate of exoplanets conditioned on all the data.
+To perform this inference, we need to compute the  \emph{marginalized
+likelihood}
+\begin{eqnarray}\eqlabel{marg-likelihood}
 p(\obs{\catalog}\,|\,\ratepars) &=&
-\int p(\catalog,\,\obs{\catalog}\,|\,\ratepars) \dd\catalog \\
-&=&
-\int p(\catalog\,|\,\ratepars)\,p(\obs{\catalog}\,|\,\catalog) \dd\catalog
+\int p(\catalog,\,\obs{\catalog}\,|\,\ratepars) \dd\catalog \quad.
 \end{eqnarray}
-where the second line is true because the rate function is defined on the true
-parameters.
-This integral can then be written in terms of the sampling under interim
-priors
+The marginalized likelihood measures the probability of all the \kepler\ light
+curves given a particular setting of the occurrence rate parameters.
+If we can efficiently compute this then we can optimize to find the
+maximum likelihood occurrence rate or we can apply priors $p(\ratepars)$ and
+sample to find posterior constraints on the occurrence rate.
+Note that any results obtained through \eq{marg-likelihood} will
+\emph{correctly account for all the measurement uncertainties}.
+
+The integral in \eq{marg-likelihood} cannot be computed analytically and, in
+fact, it will generally be extremely computationally expensive to evaluate
+numerically (\dfmtodo{CITE}).
+In our case, however, we only need to evaluate this integral up to a constant
+and there is a simple approximation---using the sampling representation of the
+catalog---that can be sufficiently accurate for our purposes.
+To derive this approximation, first recall that the joint distribution inside
+the integral in \eq{marg-likelihood} factorizes as
 \begin{eqnarray}
-p(\obs{\catalog}\,|\,\ratepars)
-&=&
-\int p(\catalog\,|\,\ratepars)\,p(\obs{\catalog}\,|\,\catalog)\,
+p(\catalog,\,\obs{\catalog}\,|\,\ratepars) &=&
+p(\catalog\,|\,\ratepars)\,p(\obs{\catalog}\,|\,\catalog)
+\end{eqnarray}
+because the occurrence rate generates the \emph{true} distribution of periods
+and radii.
+Then, we can multiply the integrand by
+\begin{eqnarray}
 \frac{p(\catalog\,|\,\obs{\catalog},\,\interim)}
      {p(\catalog\,|\,\obs{\catalog},\,\interim)}
-\dd\catalog
-\\
+\end{eqnarray}
+and simplify to find
+\begin{eqnarray}
+\frac{p(\obs{\catalog}\,|\,\ratepars)}
+     {p(\obs{\catalog}\,|\,\interim)}
 &=&
-p(\obs{\catalog}\,|\,\interim)\,
 \int \frac{p(\catalog\,|\,\ratepars)}{p(\catalog\,|\,\interim)}\,
 p(\catalog\,|\,\obs{\catalog},\,\interim)
 \dd\catalog \quad.
 \end{eqnarray}
-We can approximate this integral using the samples $\catalog^{(n)}$ defined
-above and find the marginalized likelihood up to an unimportant normalization
-constant
-\begin{eqnarray}\eqlabel{marg-like}
+Using the samples over catalogs $\catalog^{(n)}$ as defined above, we can
+approximate this integral---up to an irrelevant normalization constant---as
+\begin{eqnarray}\eqlabel{approx-marg-likelihood}
 p(\obs{\catalog}\,|\,\ratepars) &\appropto&
 \sum_{n=1}^N
 \frac{p(\catalog^{(n)}\,|\,\ratepars)}{p(\catalog^{(n)}\,|\,\interim)}
 \end{eqnarray}
 where the numerator inside the sum is given by \eq{true-like} and the
-denominator is the interim prior evaluated at the samples.
+denominator is the interim prior evaluated at the coordinates of the samples.
 
-In practice, the variance of this approximation depends on the choice of
-interim prior and, in particular, it is useful to include the completeness
-function.
-\dfmtodo{BLAH BLAH BLAH.}
+This is a generalization of the approximation presented previously in the
+exoplanet literature (\citealt{hogge}) but in this case, the likelihood
+function \eq{true-like} doesn't factorize over entries in the catalog.
+As a result, the variance of \eq{approx-marg-likelihood} is more sensitive to
+the choice of interim prior.
+In practice, we have found that including the completeness function
+$\completeness(\entry)$ in $p(\entry\,|\,\interim)$ greatly improves
+performance.
+This term can be incorporated into existing samplings---generated using less
+informative priors---using rejection sampling.
+
+\section{Parameterization of the occurrence rate}
 
 \dfmtodo{Discuss binned model and choice of priors.}
 
