@@ -444,12 +444,13 @@ Instead, we'll simply choose small bins and add a term to the likelihood
 function that penalizes large changes between neighboring bins.
 Specifically, we choose a term of the form
 \begin{eqnarray}
-\ln p(\binheights\,|\,\smoothreg_\period,\,\smoothreg_\radius) &=&
--\frac{1}{2}\sum_{i=2}^{N_\period}
-\frac{|\binheights_{i,\cdot} - \binheights_{i-1,\cdot}|^2}{\smoothreg_\period}
--\frac{1}{2}\sum_{j=2}^{N_\radius}
-\frac{|\binheights_{\cdot,j} - \binheights_{\cdot,j-1}|^2}{\smoothreg_\radius}
--\frac{1}{2}\ln (\smoothreg_\period\,\smoothreg_\radius)
+\ln p(\Delta\binheights\,|\,\smoothreg_\period,\,\smoothreg_\radius) &=&
+-\frac{1}{2}\sum_{i=1}^{N_\period-1}\sum_{j=1}^{N_\radius-1} \left [
+\frac{[\Delta_\period\binheights_{ij}]^2}{\smoothreg_\period}
+\frac{[\Delta_\radius\binheights_{ij}]^2}{\smoothreg_\radius}
+\right] \\
+&& -\frac{1}{2}\,(N_\period-1)\,(N_\radius-1)\,
+\ln (\smoothreg_\period\,\smoothreg_\radius)
 \quad.
 \end{eqnarray}
 In our final analysis, we'll marginalize over the regularization strengths
