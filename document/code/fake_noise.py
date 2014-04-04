@@ -21,9 +21,9 @@ from scipy.misc import logsumexp
 
 from load_data import transit_lnprob0, ln_period0, load_completenes_sim
 from population import (CensoringFunction, BrokenPowerLaw,
-                        SeparablePopulation, NormalizedPopulation,
+                        SeparablePopulation,
                         ProbabilisticModel, Dataset, Population,
-                        BinToBinPopulation)
+                        SmoothPopulation)
 
 
 def main(args, state=None):
@@ -55,7 +55,7 @@ def main(args, state=None):
 
     # Set up the censoring function.
     censor = CensoringFunction(np.vstack((ln_P_inj, ln_R_inj)).T, recovered,
-                               bins=(32, 36),
+                               bins=(32, 40),
                                range=[per_rng, rp_rng],
                                transit_lnprob_function=tlp)
 
@@ -63,8 +63,7 @@ def main(args, state=None):
     lpb, lrb = censor.bins
     pdist = BrokenPowerLaw(lpb)
     rdist = BrokenPowerLaw(lrb)
-    pop0 = SeparablePopulation([pdist, rdist])
-    pop0 = NormalizedPopulation(truth[0], pop0)
+    pop0 = SeparablePopulation([pdist, rdist], lnnorm=truth[0])
 
     # Plot the true distributions.
     literature = [(pdist.bins, np.exp(pdist(truth[1:4]))),
@@ -119,10 +118,11 @@ def main(args, state=None):
     pl.savefig(os.path.join(bp, "true-rate.pdf"))
 
     # Build the binned model.
-    bins = [lpb[::8], lrb[::4]]
-    print("Run inference on a grid with shape: {0}".format(map(len, bins)))
-    pop = Population(bins, censor.bins)
-    pop = NormalizedPopulation(truth[0], pop)
+    bins = [lpb[::4], lrb[::4]]
+    print("Run inference on a grid with shape: {0}"
+          .format([len(b)-1 for b in bins]))
+    pop = Population(bins, censor.bins, lnnorm=truth[0])
+    pop = SmoothPopulation([7.0, 0.2, 0.0, 0.2], pop)
     model = ProbabilisticModel(dataset, pop, censor)
 
     # Compute the vmax histogram.
@@ -143,15 +143,11 @@ def main(args, state=None):
     grid[np.isinf(grid)] = 0.0
 
     # Turn the vmax numbers into something that we can plot.
-    a = map(np.diff, bins)
     lg = np.log(grid)
-    areas = np.log(a[0][:, None] * a[1][None, :])
-    norm = logsumexp(lg + areas)
-    print("norm = {0}".format(norm))
-    v = np.append(norm, lg.flatten()[:-1] - norm)
+    v = pop.initial()
+    v[-len(lg.flatten()):] = lg.flatten()
     if pop.evaluate(v) is None:
-        print("********** failed: {0}"
-              .format(logsumexp(v[1:] + areas.flatten()[:-1])))
+        print("********** failed")
         return
 
     figs = pop.plot(v,
@@ -180,26 +176,21 @@ def main(args, state=None):
 
     p0 = pop.initial()
     print("Initial ln-prob = {0}".format(model.lnprob(p0)))
-    results = op.minimize(nll, p0, method="L-BFGS-B", jac=False)
-    print(results)
-    p0 = results.x
-    print("Final ln-prob = {0}".format(model.lnprob(p0)))
-    figs = pop.plot(p0,
-                    labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
-                    top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
-                    literature=literature)
-    figs[0].savefig(os.path.join(bp, "ml-period.png"))
-    figs[0].savefig(os.path.join(bp, "ml-period.pdf"))
-    figs[1].savefig(os.path.join(bp, "ml-radius.png"))
-    figs[1].savefig(os.path.join(bp, "ml-radius.pdf"))
-
-    # Update the model with a smoothness prior.
-    p0 = np.append([-4, -4], p0)
-    pop = BinToBinPopulation([-4, -4], pop)
-    model = ProbabilisticModel(dataset, pop, censor)
+    # results = op.minimize(nll, p0, method="L-BFGS-B", jac=False)
+    # print(results)
+    # p0 = results.x
+    # print("Final ln-prob = {0}".format(model.lnprob(p0)))
+    # figs = pop.plot(p0,
+    #                 labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
+    #                 top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
+    #                 literature=literature)
+    # figs[0].savefig(os.path.join(bp, "ml-period.png"))
+    # figs[0].savefig(os.path.join(bp, "ml-period.pdf"))
+    # figs[1].savefig(os.path.join(bp, "ml-radius.png"))
+    # figs[1].savefig(os.path.join(bp, "ml-radius.pdf"))
 
     # Set up the sampler.
-    ndim, nwalkers = len(p0), 100
+    ndim, nwalkers = len(p0), 200
     pos = [p0 + 1e-4 * np.random.randn(ndim) for i in range(nwalkers)]
     print("Sampling {0} dimensions with {1} walkers".format(ndim, nwalkers))
 

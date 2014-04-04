@@ -96,14 +96,14 @@ class Histogram(object):
 
 
 class Population(object):
-    poisson = False
 
-    def __init__(self, bins, base=None):
+    def __init__(self, bins, base=None, lnnorm=0.0):
         self.bins = bins
         if base is None:
             base = bins
         self.base = base
         self.shape = np.array(map(len, bins)) - 1
+        self.lnnorm = lnnorm
 
         # Make sure that the resampling is sane.
         assert all([b1[0] == b2[0] for b1, b2 in izip(bins, base)])
@@ -130,27 +130,15 @@ class Population(object):
         self._cache_val = None
 
     def __len__(self):
-        return self.ncells - 1
+        return self.ncells
 
     def initial(self):
         v = np.zeros(self.ncells)
-        v -= logsumexp(v + self.ln_cell_area)
-        # v[:3] = [0.5, -3.0, -3.0]
-        return v[:-1]
+        v += self.lnnorm - logsumexp(v + self.ln_cell_area)
+        return v
 
     def compute_grid(self, theta):
-        # Compute the integral over the first N-1 cells.
-        norm = logsumexp(theta + self.ln_cell_area[:-1])
-        if not np.isfinite(norm):
-            print(norm)
-            print(theta)
-            return None
-        if norm > 0.0:
-            return None
-
-        # Compute the height of the last cell and cache the heights.
-        v = np.log(1.0 - np.exp(norm)) - self.ln_cell_area[-1]
-        return np.append(theta, v).reshape(self.shape)
+        return theta.reshape(self.shape)
 
     def _get_grid(self, theta):
         k = tuple(theta)
@@ -251,32 +239,32 @@ class Population(object):
 
 
 class SeparablePopulation(Population):
-    poisson = False
 
-    def __init__(self, distributions):
+    def __init__(self, distributions, lnnorm=0.0):
         self.distributions = distributions
-        self.npars = sum(map(len, distributions))
+        self.npars = sum(map(len, distributions)) + 1
         super(SeparablePopulation, self).__init__(
-            [d.base for d in distributions])
+            [d.base for d in distributions], lnnorm=lnnorm)
 
     def __len__(self):
         return self.npars
 
     def initial(self):
-        return np.concatenate([d.initial() for d in self.distributions])
+        return np.concatenate([self.lnnorm]
+                              + [d.initial() for d in self.distributions])
 
     def compute_grid(self, theta):
-        n = 0
+        n = 1
         axes = []
         for d in self.distributions:
             axes.append(d(theta[n:n+len(d)]))
             if axes[-1] is None:
                 return None
             n += len(d)
-        return reduce(np.add, np.ix_(*axes))
+        return theta[0] + reduce(np.add, np.ix_(*axes))
 
     def lnprior(self, theta):
-        n = 0
+        n = 1
         lp = 0.0
         for d in self.distributions:
             lp += d.lnprior(theta[n:n+len(d)])
@@ -287,7 +275,6 @@ class SeparablePopulation(Population):
 
 
 class SmoothPopulation(object):
-    poisson = False
 
     def __init__(self, pars, base_population, eps=1e-10):
         self.pars = np.atleast_1d(pars)
@@ -301,7 +288,7 @@ class SmoothPopulation(object):
                              indexing="ij")
         coords = np.vstack([c.flatten() for c in coords]).T
         self.dvec = (coords[:, None, :] - coords[None, :, :])**2
-        self.ndim = self.dvec.shape[2] + 1
+        self.ndim = self.dvec.shape[2] + 2
 
         assert len(self.pars) == self.ndim
 
@@ -324,10 +311,9 @@ class SmoothPopulation(object):
             return -np.inf
 
         # Compute the Gaussian process prior.
-        y = np.exp(grid.flatten())
-        # y -= np.mean(y)
-        chi2 = np.sum(self.dvec/np.exp(theta[1:self.ndim]), axis=2)
-        K = np.exp(theta[0] - 0.5 * chi2)
+        y = grid.flatten() - theta[0]
+        chi2 = np.sum(self.dvec/np.exp(theta[2:self.ndim]), axis=2)
+        K = np.exp(theta[1] - 0.5 * chi2)
         K += np.diag(self.eps * np.ones_like(y))
         factor, flag = cho_factor(K)
         logdet = np.sum(2*np.log(np.diag(factor)))
@@ -336,77 +322,6 @@ class SmoothPopulation(object):
     def plot(self, thetas, **kwargs):
         thetas = np.atleast_2d(thetas)
         return self.base_population.plot(thetas[:, self.ndim:], **kwargs)
-
-
-class BinToBinPopulation(object):
-    poisson = False
-
-    def __init__(self, pars, base_population):
-        self.pars = np.atleast_1d(pars)
-        self.base_population = base_population
-        self.base = base_population.base
-        self.ndim = len(self.base)
-        assert len(self.pars) == self.ndim
-
-    def __len__(self):
-        return len(self.base_population) + self.ndim
-
-    def initial(self):
-        return np.append(self.pars, self.base_population.initial())
-
-    def evaluate(self, theta):
-        return self.base_population.evaluate(theta[self.ndim:])
-
-    def lnprior(self, theta):
-        lp = self.base_population.lnprior(theta[self.ndim:])
-        if not np.isfinite(lp):
-            return -np.inf
-
-        grid = self.base_population._get_grid(theta[self.ndim:])
-        if grid is None:
-            return -np.inf
-
-        # Compute the bin-to-bin differences and evaluate the prior.
-        g = np.exp(grid)
-        for i, w in enumerate(theta[:self.ndim]):
-            d = np.diff(g, axis=i)
-            lp += -0.5 * (np.sum(d**2) / np.exp(w) + w)
-        return lp
-
-    def plot(self, thetas, **kwargs):
-        thetas = np.atleast_2d(thetas)
-        return self.base_population.plot(thetas[:, self.ndim:], **kwargs)
-
-
-class NormalizedPopulation(object):
-    poisson = True
-
-    def __init__(self, ln_norm, base_population):
-        self.ln_norm = ln_norm
-        self.base_population = base_population
-        self.base = base_population.base
-
-    def __len__(self):
-        return len(self.base_population) + 1
-
-    def _get_grid(self, theta):
-        return self.base_population._get_grid(theta[1:])
-
-    def initial(self):
-        return np.append(self.ln_norm, self.base_population.initial())
-
-    def evaluate(self, theta):
-        v = self.base_population.evaluate(theta[1:])
-        if v is None:
-            return None
-        return theta[0] + v
-
-    def lnprior(self, theta):
-        return self.base_population.lnprior(theta[1:])
-
-    def plot(self, thetas, **kwargs):
-        thetas = np.atleast_2d(thetas)
-        return self.base_population.plot(thetas[:, 1:], **kwargs)
 
 
 class Dataset(object):
@@ -557,11 +472,7 @@ class ProbabilisticModel(object):
         q = np.array(self.censor.lnprob)
         q[center] += lnrate
 
-        if self.population.poisson:
-            norm = np.exp(logsumexp(q[center]+self.censor.ln_cell_area))
-        else:
-            lnrate -= logsumexp(q[center]+self.censor.ln_cell_area)
-            norm = 0.0
+        norm = np.exp(logsumexp(q[center]+self.censor.ln_cell_area))
 
         # If there is only one sample, we don't need to do the logsumexp.
         if self.dataset.ncatalogs == 1:
