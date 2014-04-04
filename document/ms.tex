@@ -462,11 +462,30 @@ parameters $\mu$ and $\bvec{\smooth}$ and marginalize over their values.
 
 \section{The completeness function \& dataset}
 
-\dfmtodo{%
-Describe Erik's data products and our model of the completeness in boxes
-extended artificially beyond the original range.
-Also describe the re-sampling procedure for the candidate parameters.
-}
+Erik Petigura and collaborators (\citealt{petigura-a,petigura}) heroically
+determined the empirical end-to-end completeness of their transit search
+pipeline by injecting synthetic signals of known period and radius into the
+raw aperture photometry and testing recovery rates.
+They also published a catalog of XXX small planet candidates around G type
+stars; YYY of them previously unknown.
+Given the unprecedented quality of the completeness characterization, we will
+focus on this dataset in this \paper.
+
+We use all the injected samples from \citet{petigura} to compute the mean
+(marginalized) detection efficiency in bins of $\ln\period$ and $\ln\radius$.
+In each bin, this efficiency is simply the fraction of recovered injections.
+For the purposes of this \paper, we will neglect the uncertainties introduced
+by the fact that this estimate is being made with a finite number of samples.
+
+The largest injected radius is $16\,R_\oplus$ but, because of the measurement
+uncertainties on the radii, it will be necessary for us to model the
+distribution to larger radii.
+To do this, we approximate the survey completeness for $\radius > 16\,R\oplus$
+as 1.
+
+\dfmtodo{Hopefully Erik will send us MCMC samples. If not, describe the
+re-sampling procedure that we used. Either way, we'll need to re-sample under
+the completeness probability for the purposes of the importance sampling.}
 
 \section{Synthetic catalogs}
 
