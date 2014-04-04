@@ -4,7 +4,7 @@
 from __future__ import division, print_function
 
 __all__ = ["BrokenPowerLaw", "Histogram", "Population", "SeparablePopulation",
-           "NormalizedPopulation", "Dataset", "CensoringFunction"]
+           "Dataset", "CensoringFunction"]
 
 from itertools import izip
 
@@ -74,25 +74,17 @@ class Histogram(object):
         assert np.all((self.inds >= 0) * (self.inds < len(self.bins)))
 
     def __len__(self):
-        return self.nbins - 1
+        return self.nbins
 
     def initial(self):
         v = np.zeros(self.nbins) - logsumexp(self.ln_bin_widths)
-        return v[:-1]
+        return v
 
     def lnprior(self, theta):
         return 0.0
 
     def __call__(self, theta):
-        norm = logsumexp(theta + self.ln_bin_widths[:-1])
-        if norm >= 0.0:
-            return None
-
-        # Compute the height of the last cell.
-        v = np.log(1.0 - np.exp(norm)) - self.ln_bin_widths[-1]
-        ln_heights = np.append(theta, v)
-
-        return ln_heights[self.inds]
+        return theta[self.inds]
 
 
 class Population(object):

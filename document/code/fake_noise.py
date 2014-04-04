@@ -20,7 +20,7 @@ import scipy.optimize as op
 from scipy.misc import logsumexp
 
 from load_data import transit_lnprob0, ln_period0, load_completenes_sim
-from population import (CensoringFunction, BrokenPowerLaw,
+from population import (CensoringFunction, Histogram,
                         SeparablePopulation,
                         ProbabilisticModel, Dataset, Population,
                         SmoothPopulation)
@@ -28,7 +28,8 @@ from population import (CensoringFunction, BrokenPowerLaw,
 
 def main(args, state=None):
     bp, seed = args
-    np.random.seed(seed)
+    if seed is not None:
+        np.random.seed(seed)
     try:
         os.makedirs(bp)
     except os.error:
@@ -44,9 +45,12 @@ def main(args, state=None):
     # Define the box that we're going to work in.
     # per_rng = np.log([6.25, 100.0])
     # rp_rng = np.log([1.0, 16.0])
-    per_rng = np.log([5.0, 400.0])
-    rp_rng = np.log([0.5, 64.0])
-    truth = [11.0, 0.5, -0.2, 4.0, 0.8, -1.5, 1.0]
+    # per_rng = np.log([5.0, 400.0])
+    # rp_rng = np.log([0.5, 64.0])
+
+    # Bins chosen to include EP's bins.
+    per_rng, np_bins = np.log([6.25, 400.0]), 4*6
+    rp_rng, nr_bins = np.log([0.5, 32]), 4*12
 
     # Load the data.
     ln_P_inj, ln_R_inj, recovered = load_completenes_sim(per_rng=per_rng,
@@ -55,19 +59,33 @@ def main(args, state=None):
 
     # Set up the censoring function.
     censor = CensoringFunction(np.vstack((ln_P_inj, ln_R_inj)).T, recovered,
-                               bins=(32, 40),
+                               bins=(np_bins, nr_bins),
                                range=[per_rng, rp_rng],
                                transit_lnprob_function=tlp)
 
-    # Build a synthetic population.
+    # print(np.exp(censor.bins[0][::4]))
+    # print(np.exp(censor.bins[1][::4]))
+
+    # The values from EP's paper (+some made up numbers).
     lpb, lrb = censor.bins
-    pdist = BrokenPowerLaw(lpb)
-    rdist = BrokenPowerLaw(lrb)
+    x, y = lpb[::4], lrb[::4]
+    p_vals = np.log(np.array([8.9, 13.7, 15.8, 15.2, 15., 14.8]))
+    r_vals = np.log(np.array([11, 11.5, 12, 14.2, 18.6, 5.9, 1.9, 1, 0.9, 0.7,
+                              0.5, 0.5]))
+
+    # Normalize the underlying distribution.
+    p_vals -= logsumexp(p_vals + np.log(np.diff(x)))
+    r_vals -= logsumexp(r_vals + np.log(np.diff(y)))
+
+    # Build a synthetic population.
+    truth = np.concatenate([[11.2], p_vals, r_vals])
+    pdist = Histogram(x, base=lpb)
+    rdist = Histogram(y, base=lrb)
     pop0 = SeparablePopulation([pdist, rdist], lnnorm=truth[0])
 
     # Plot the true distributions.
-    literature = [(pdist.bins, np.exp(pdist(truth[1:4]))),
-                  (rdist.bins, np.exp(rdist(truth[4:])))]
+    literature = [(pdist.base, np.exp(pdist(truth[1:1+len(p_vals)]))),
+                  (rdist.base, np.exp(rdist(truth[1+len(p_vals):])))]
     figs = pop0.plot(truth,
                      labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
                      top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
@@ -93,6 +111,7 @@ def main(args, state=None):
 
     # Add in some observational uncertainties.
     catalog = np.exp(catalog)
+    # err = np.vstack([np.zeros(len(catalog)), 0.1 * catalog[:, 1]]).T
     err = np.vstack([np.zeros(len(catalog)), 0.33 * catalog[:, 1]]).T
     catalog += err * np.random.randn(*(err.shape))
 
@@ -118,7 +137,7 @@ def main(args, state=None):
     pl.savefig(os.path.join(bp, "true-rate.pdf"))
 
     # Build the binned model.
-    bins = [lpb[::4], lrb[::4]]
+    bins = [x, y]
     print("Run inference on a grid with shape: {0}"
           .format([len(b)-1 for b in bins]))
     pop = Population(bins, censor.bins, lnnorm=truth[0])
@@ -176,18 +195,6 @@ def main(args, state=None):
 
     p0 = pop.initial()
     print("Initial ln-prob = {0}".format(model.lnprob(p0)))
-    # results = op.minimize(nll, p0, method="L-BFGS-B", jac=False)
-    # print(results)
-    # p0 = results.x
-    # print("Final ln-prob = {0}".format(model.lnprob(p0)))
-    # figs = pop.plot(p0,
-    #                 labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
-    #                 top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
-    #                 literature=literature)
-    # figs[0].savefig(os.path.join(bp, "ml-period.png"))
-    # figs[0].savefig(os.path.join(bp, "ml-period.pdf"))
-    # figs[1].savefig(os.path.join(bp, "ml-radius.png"))
-    # figs[1].savefig(os.path.join(bp, "ml-radius.pdf"))
 
     # Set up the sampler.
     ndim, nwalkers = len(p0), 200
@@ -201,6 +208,21 @@ def main(args, state=None):
     # Set up the sampler.
     sampler = emcee.EnsembleSampler(nwalkers, ndim, model)
     sampler.run_mcmc(pos, 10000)
+
+    # Restart.
+    if False:
+        print("Restarting")
+        pickle.dump(sampler,
+                    open(os.path.join(bp, "burnin.pkl"), "wb"), -1)
+        w, n = np.unravel_index(np.argmax(sampler.lnprobability),
+                                sampler.lnprobability.shape)
+        p0 = sampler.chain[w, n, :]
+        pos = [p0 + 1e-4 * np.random.randn(ndim) for i in range(nwalkers)]
+        finite = np.isfinite(map(model.lnprob, pos))
+        assert np.all(finite), "{0}".format(np.sum(finite))
+        sampler.reset()
+        sampler.run_mcmc(pos, 10000)
+
     pickle.dump((pop, dataset, censor, sampler),
                 open(os.path.join(bp, "results.pkl"), "wb"), -1)
 
@@ -223,6 +245,6 @@ def main(args, state=None):
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 2:
-        main([sys.argv[1], 1234], state=pickle.load(open(sys.argv[2])))
+        main([sys.argv[1], None], state=pickle.load(open(sys.argv[2])))
     else:
-        main([sys.argv[1], 1234])
+        main([sys.argv[1], None])
