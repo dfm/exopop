@@ -487,7 +487,23 @@ as 1.
 re-sampling procedure that we used. Either way, we'll need to re-sample under
 the completeness probability for the purposes of the importance sampling.}
 
-\section{Synthetic catalogs}
+\section{Validation using synthetic catalogs}
+
+To confirm that the probabilistic framework developed in the previous sections
+provides correct inferences about the population of exoplanets given noisy
+data, we'll start by generating synthetic catalogs and running our full
+inference pipeline on those data.
+In this section, we also demonstrate the key benefits of our method over the
+standard intuitive inverse-detection-efficiency procedure.
+
+\paragraph{Inverse-detection-efficiency}
+Authors in the exoplanet literature (for example, \citealt{howard, dressing,
+petigura}) have built population level models using this procedure.
+The basic idea is to make a histogram of planet candidates in the model where
+each sample has a weight proportional to the inverse detection efficiency.
+This method makes intuitive sense and, in the limit of infinitely precise
+measurements, it is not wrong.
+
 
 The likelihood function in \eq{true-like} provides a \emph{probability
 distribution over catalogs} conditioned on the parameters of the rate
