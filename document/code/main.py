@@ -36,7 +36,8 @@ def main():
 
     # Bins chosen to include EP's bins.
     per_rng, np_bins = np.log([6.25, 400.0]), 4*6
-    rp_rng, nr_bins = np.log([0.5, 32]), 4*12
+    rp_rng, nr_bins = np.log([1.0, 32]), 4*11
+    # rp_rng, nr_bins = np.log([0.5, 32]), 4*12
 
     # Load the data.
     ln_P_inj, ln_R_inj, recovered = load_completenes_sim(per_rng=per_rng,
@@ -53,8 +54,10 @@ def main():
     lpb, lrb = censor.bins
     x, y = lpb[::4], lrb[::4]
     p_vals = np.array([8.9, 13.7, 15.8, 15.2, 15., 14.8])
-    r_vals = np.array([11, 11.5, 12, 14.2, 18.6, 5.9, 1.9, 1, 0.9, 0.7,
+    r_vals = np.array([11.5, 12, 14.2, 18.6, 5.9, 1.9, 1, 0.9, 0.7,
                        0.5, 0.5])
+    # r_vals = np.array([11, 11.5, 12, 14.2, 18.6, 5.9, 1.9, 1, 0.9, 0.7,
+    #                    0.5, 0.5])
     literature = [(x, p_vals / np.sum(p_vals*np.diff(x))),
                   (y, r_vals / np.sum(r_vals*np.diff(y)))]
 
