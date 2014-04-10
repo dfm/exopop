@@ -11,23 +11,20 @@ else:
     monkey_patch()
 
 import os
+import h5py
 import emcee
 import numpy as np
 import cPickle as pickle
 from itertools import product
-import matplotlib.pyplot as pl
-import scipy.optimize as op
-from scipy.misc import logsumexp
 
 from load_data import (transit_lnprob0, ln_period0, load_completenes_sim,
                        load_candidates)
-from population import (CensoringFunction, Histogram,
-                        SeparablePopulation,
+from population import (CensoringFunction,
                         ProbabilisticModel, Dataset, Population,
                         SmoothPopulation)
 
 
-def main():
+def main(ep_bins=True):
     bp = "main"
     try:
         os.makedirs(bp)
@@ -35,9 +32,17 @@ def main():
         pass
 
     # Bins chosen to include EP's bins.
-    per_rng, np_bins = np.log([6.25, 400.0]), 4*6
-    rp_rng, nr_bins = np.log([1.0, 32]), 4*11
-    # rp_rng, nr_bins = np.log([0.5, 32]), 4*12
+    if ep_bins:
+        per_rng, np_bins = np.log([6.25, 100.0]), 4*4
+        rp_rng, nr_bins = np.log([1.0, 16]), 4*8
+        p_vals = np.array([8.9, 13.7, 15.8, 15.2])
+        r_vals = np.array([12, 14.2, 18.6, 5.9, 1.9, 1, 0.9, 0.7])
+    else:
+        per_rng, np_bins = np.log([6.25, 400.0]), 4*6
+        rp_rng, nr_bins = np.log([0.5, 32]), 4*12
+        p_vals = np.array([8.9, 13.7, 15.8, 15.2, 15., 14.8])
+        r_vals = np.array([11, 11.5, 12, 14.2, 18.6, 5.9, 1.9, 1, 0.9, 0.7,
+                           0.5, 0.5])
 
     # Load the data.
     ln_P_inj, ln_R_inj, recovered = load_completenes_sim(per_rng=per_rng,
@@ -53,20 +58,12 @@ def main():
     # The values from EP's paper (+some made up numbers).
     lpb, lrb = censor.bins
     x, y = lpb[::4], lrb[::4]
-    p_vals = np.array([8.9, 13.7, 15.8, 15.2, 15., 14.8])
-    r_vals = np.array([11.5, 12, 14.2, 18.6, 5.9, 1.9, 1, 0.9, 0.7,
-                       0.5, 0.5])
-    # r_vals = np.array([11, 11.5, 12, 14.2, 18.6, 5.9, 1.9, 1, 0.9, 0.7,
-    #                    0.5, 0.5])
     literature = [(x, p_vals / np.sum(p_vals*np.diff(x))),
                   (y, r_vals / np.sum(r_vals*np.diff(y)))]
 
     # Load the candidates.
     ids, catalog, err = load_candidates()
-    print(catalog)
-    print(err)
-    print(np.mean(err / catalog, axis=0))
-    dataset = Dataset.sample(catalog, err, samples=100, censor=censor,
+    dataset = Dataset.sample(catalog, err, samples=64, censor=censor,
                              functions=[np.log, np.log])
     print("{0} entries in catalog".format(len(catalog)))
 
@@ -86,6 +83,7 @@ def main():
     lp = censor.lnprob[ix, iy]
     grid = np.zeros((len(bins[0])-1, len(bins[1])-1))
     counts = np.zeros_like(grid)
+    var = np.zeros_like(grid)
     for i, j in product(range(len(bins[0])-1), range(len(bins[1])-1)):
         m = (ix0 == i+1) * (iy0 == j+1)
         counts[i, j] = np.sum(m)
@@ -93,24 +91,59 @@ def main():
             continue
         v = lp[m]
         grid[i, j] = np.sum(np.exp(-v[np.isfinite(v)]))
+        var[i, j] = np.sum(np.exp(-2*v[np.isfinite(v)]))
     grid[np.isinf(grid)] = 0.0
+    var[np.isinf(var)] = 0.0
+    std = np.sqrt(var)
 
     # Turn the vmax numbers into something that we can plot.
-    lg = np.log(grid)
     v = pop.initial()
-    v[-len(lg.flatten()):] = lg.flatten()
-    if pop.evaluate(v) is None:
-        print("********** failed")
-        return
+    samples = np.zeros((24, len(v)))
+    for i in range(samples.shape[0]):
+        lg = np.log(grid+std*np.random.randn(*(var.shape))).flatten()
+        m = np.isfinite(lg)
+        lg[~m] = 0.0
+        samples[i] = v
+        samples[i, -len(lg):] = lg
 
     # Plot the vmax results.
-    fig = pop.plot_2d(v, censor=censor, catalog=np.log(catalog),
-                      labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
-                      top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
-                      literature=literature, alpha=1)
+    labels = ["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"]
+    top_axes = ["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"]
+    fig = pop.plot_2d(samples, censor=censor, catalog=np.log(catalog),
+                      labels=labels, top_axes=top_axes, literature=literature)
     fig.savefig(os.path.join(bp, "vmax.png"))
-    assert 0
+
+    # Save the model and the other things needed for plotting the results.
+    pickle.dump((model, catalog, labels, top_axes, literature),
+                open(os.path.join(bp, "model.pkl"), "w"), -1)
+
+    # Set up the sampler.
+    p0 = pop.initial()
+    print("Initial ln-prob = {0}".format(model.lnprob(p0)))
+    ndim, nwalkers = len(p0), 200
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, model)
+
+    # Initialize the walkers.
+    pos = [p0 + 1e-4 * np.random.randn(ndim) for i in range(nwalkers)]
+    print("Sampling {0} dimensions with {1} walkers".format(ndim, nwalkers))
+
+    # Make sure that all the initial positions have finite probability.
+    finite = np.isfinite(map(model.lnprob, pos))
+    assert np.all(finite), "{0}".format(np.sum(finite))
+
+    # Run the sampler.
+    N = 1000
+    fn = os.path.join(bp, "results.h5")
+    with h5py.File(fn, "w") as f:
+        f.create_dataset("chain", shape=(nwalkers, N, ndim), dtype=np.float64)
+        f.create_dataset("lnprob", shape=(nwalkers, N), dtype=np.float64)
+    for i, (p, lp, s) in enumerate(sampler.sample(pos, iterations=N)):
+        if (i + 1) % 100 == 0:
+            print(i+1, np.max(lp))
+        with h5py.File(fn, "a") as f:
+            f["chain"][:, i, :] = p
+            f["lnprob"][:, i] = lp
 
 
 if __name__ == "__main__":
-    main()
+    main(False)

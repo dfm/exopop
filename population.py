@@ -202,14 +202,8 @@ class Population(object):
 
                 if i:
                     a.plot(y, x, "k", alpha=alpha)
-                    a.set_xlim(np.array((-0.1, 1.05))*(a.get_xlim()[1]))
-                    a.axvline(0.0, color="k", alpha=0.3)
-                    a.xaxis.set_major_locator(MaxNLocator(4))
                 else:
                     a.plot(x, y, "k", alpha=alpha)
-                    a.set_ylim(np.array((-0.1, 1.05))*(a.get_ylim()[1]))
-                    a.axhline(0.0, color="k", alpha=0.3)
-                    a.yaxis.set_major_locator(MaxNLocator(4))
 
         # Plot the completeness contours.
         if censor is not None:
@@ -253,6 +247,13 @@ class Population(object):
         ax.set_ylim(ranges[1])
         ax_top.set_xlim(ranges[0])
         ax_right.set_ylim(ranges[1])
+
+        ax_top.set_ylim(np.array((-0.1, 1.05))*(ax_top.get_ylim()[1]))
+        ax_top.axhline(0.0, color="k", alpha=0.3)
+        ax_top.yaxis.set_major_locator(MaxNLocator(4))
+        ax_right.set_xlim(np.array((-0.1, 1.05))*(ax_right.get_xlim()[1]))
+        ax_right.axvline(0.0, color="k", alpha=0.3)
+        ax_right.xaxis.set_major_locator(MaxNLocator(4))
 
         if labels is not None:
             ax.set_xlabel(labels[0])
