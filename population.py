@@ -14,6 +14,7 @@ from scipy.misc import logsumexp
 from scipy.linalg import cho_factor, cho_solve
 
 import matplotlib.pyplot as pl
+from matplotlib.ticker import MaxNLocator
 from matplotlib.ticker import ScalarFormatter
 
 
@@ -148,6 +149,138 @@ class Population(object):
 
     def lnprior(self, theta):
         return np.sum(theta)
+
+    def plot_2d(self, thetas, ranges=None, censor=None, catalog=None,
+                labels=None, top_axes=None, literature=None, lit_style={},
+                true=None, true_style={}, alpha=0.3):
+        assert len(self.base) == 2
+
+        # Pre-compute the ranges and allowed ranges.
+        if ranges is None:
+            ranges = [(b.min(), b.max()) for b in self.base]
+        bm = []
+        vm = []
+        for rng, b in izip(ranges, self.base):
+            if rng is None:
+                rng = (b.min(), b.max())
+            m = (b >= rng[0]) * (b <= rng[1])
+            bm.append(m)
+            vm.append(np.arange(len(m) - 1)[m[:-1] * m[1:]])
+        vm = np.meshgrid(*vm, indexing="ij")
+
+        # Compute the grid images.
+        thetas = np.atleast_2d(thetas)
+        grids = np.array([self.evaluate(t)[vm] for t in thetas])
+
+        fig = pl.figure(figsize=(10, 10))
+        ax = pl.axes([0.1, 0.1, 0.6, 0.6])
+
+        ax_top = pl.axes([0.1, 0.7, 0.6, 0.2])
+        ax_top.set_xticklabels([])
+        ax_right = pl.axes([0.7, 0.1, 0.2, 0.6])
+        ax_right.set_yticklabels([])
+
+        # Plot the occurence image.
+        img = np.median(grids, axis=0).T
+        ax.pcolor(self.base[0], self.base[1], np.exp(img),
+                  cmap="gray", alpha=0.8)
+
+        # Plot the occurence histograms.
+        ys = [logsumexp(grids
+                        + np.log(np.diff(self.base[1][bm[1]]))[None, None, :],
+                        axis=2),
+              logsumexp(grids
+                        + np.log(np.diff(self.base[0][bm[0]]))[None, :, None],
+                        axis=1)]
+        for i, a in enumerate([ax_top, ax_right]):
+            x0 = self.base[i][bm[i]]
+            x = np.array(zip(x0[:-1], x0[1:])).flatten()
+
+            for y in ys[i]:
+                y -= logsumexp(y + np.log(np.diff(x0))[None, :], axis=1)
+                y = np.exp(np.array(zip(y, y)).flatten())
+
+                if i:
+                    a.plot(y, x, "k", alpha=alpha)
+                    a.set_xlim(np.array((-0.1, 1.05))*(a.get_xlim()[1]))
+                    a.axvline(0.0, color="k", alpha=0.3)
+                    a.xaxis.set_major_locator(MaxNLocator(4))
+                else:
+                    a.plot(x, y, "k", alpha=alpha)
+                    a.set_ylim(np.array((-0.1, 1.05))*(a.get_ylim()[1]))
+                    a.axhline(0.0, color="k", alpha=0.3)
+                    a.yaxis.set_major_locator(MaxNLocator(4))
+
+        # Plot the completeness contours.
+        if censor is not None:
+            x, y = censor.bins
+            z = np.exp(censor.lncompleteness[1:-1, 1:-1])
+            ax.contour(x[:-1]+0.5*np.diff(x), y[:-1]+0.5*np.diff(y), z.T, 3,
+                       colors="k", linewidths=2)
+
+        # Plot the data.
+        if catalog is not None:
+            ax.plot(catalog[:, 0], catalog[:, 1], ".r")
+
+        # Plot literature values.
+        lit_style["marker"] = lit_style.get("marker", ".")
+        lit_style["color"] = lit_style.get("color", "r")
+        lit_style["ls"] = lit_style.get("ls", "None")
+        if literature is not None:
+            x, y = literature[0]
+            ax_top.plot(0.5*(x[1:]+x[:-1]), y, **lit_style)
+
+            x, y = literature[1]
+            ax_right.plot(y, 0.5*(x[1:]+x[:-1]), **lit_style)
+
+        # Plot true values.
+        true_style["color"] = true_style.get("color", "r")
+        true_style["ls"] = true_style.get("ls", "dashed")
+        true_style["lw"] = true_style.get("lw", 2)
+        if true is not None:
+            x, y = true[0]
+            x = np.array(zip(x[:-1], x[1:])).flatten()
+            y = np.array(zip(y, y)).flatten()
+            ax_top.plot(x, y, **true_style)
+
+            x, y = true[1]
+            x = np.array(zip(x[:-1], x[1:])).flatten()
+            y = np.array(zip(y, y)).flatten()
+            ax_right.plot(y, x, **true_style)
+
+        # Set the axes limits.
+        ax.set_xlim(ranges[0])
+        ax.set_ylim(ranges[1])
+        ax_top.set_xlim(ranges[0])
+        ax_right.set_ylim(ranges[1])
+
+        if labels is not None:
+            ax.set_xlabel(labels[0])
+            ax.set_ylabel(labels[1])
+            ax_top.set_ylabel("$p(${0}$)$".format(labels[0]))
+            ax_right.set_xlabel("$p(${0}$)$".format(labels[1]))
+
+        # Add the linear axes along the top if requested.
+        if top_axes is not None:
+            a2 = ax_top.twiny()
+            a2.set_xlim(np.exp(ax_top.get_xlim()))
+            a2.set_xscale("log")
+            a2.xaxis.set_major_formatter(ScalarFormatter())
+            a2.set_xlabel(top_axes[0])
+            a2.xaxis.set_label_coords(0.5, 1.2)
+
+            a2 = ax_right.twinx()
+            a2.set_ylim(np.exp(ax_right.get_ylim()))
+            a2.set_yscale("log")
+            a2.yaxis.set_major_formatter(ScalarFormatter())
+            a2.set_ylabel(top_axes[1], rotation=-90)
+            a2.yaxis.set_label_coords(1.3, 0.5)
+
+        for a in [ax, ax_top, ax_right]:
+            a.xaxis.set_label_coords(0.5, -0.07)
+            a.yaxis.set_label_coords(-0.08, 0.5)
+
+        return fig
 
     def plot(self, thetas, labels=None, ranges=None, alpha=0.3,
              literature=None, lit_style={}, top_axes=None):
@@ -310,6 +443,11 @@ class SmoothPopulation(object):
         factor, flag = cho_factor(K)
         logdet = np.sum(2*np.log(np.diag(factor)))
         return -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
+
+    def plot_2d(self, thetas, *args, **kwargs):
+        thetas = np.atleast_2d(thetas)
+        return self.base_population.plot_2d(thetas[:, self.ndim:], *args,
+                                            **kwargs)
 
     def plot(self, thetas, **kwargs):
         thetas = np.atleast_2d(thetas)

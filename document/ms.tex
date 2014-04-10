@@ -453,10 +453,8 @@ and $\bvec{K}$ is the kernel matrix evaluated \emph{at the bin centers}
 $\bincenter_i$
 \begin{eqnarray}
 K_{ij}(\bvec{\smooth}) &\equiv& \smooth_0^2\,\exp \left(
--\frac{1}{2}[\bincenter_i-\bincenter_j]^\mathrm{T}
-\left[\begin{array}{cc}
-1/\smooth_1 & 0 \\ 0 & 1/\smooth_2
-\end{array}\right]
+-\frac{1}{2}[\bincenter_i-\bincenter_j]^\mathrm{T}\,
+\mathrm{diag}(1/\smooth_k^2)\,
 [\bincenter_i-\bincenter_j] \right) \quad.
 \end{eqnarray}
 
@@ -507,6 +505,10 @@ The basic idea is to make a histogram of planet candidates in the model where
 each sample has a weight proportional to the inverse detection efficiency.
 This method makes intuitive sense and, in the limit of infinitely precise
 measurements, it is not wrong.
+Even in this limit, this estimator of the occurrence distributions will have
+large variance; especially as the detection efficiency becomes low.
+In the presence of observational uncertainties, the inferred distributions
+will be biased.
 
 The likelihood function in \eq{true-like} provides a \emph{probability
 distribution over catalogs} conditioned on the parameters of the rate

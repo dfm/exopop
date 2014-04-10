@@ -40,45 +40,13 @@ def load_completenes_sim(rp_func=np.log, per_rng=np.log([5, 400]),
     return x, y, z
 
 
-def load_candidates(censor=None, samples=0, N=10000, rp_func=np.log):
+def load_candidates():
     lines = open(os.path.join(bp, "table_ekoi836.tex")).readlines()
-    K = len(lines)
-    good = np.ones(K, dtype=bool)
-    catalogs = np.empty((max(samples, 1), K, 2))
-    lnweights = np.zeros(max(samples, 1))
-    for k, line in enumerate(lines):
-        cols = line.split("&")
-        log_per = np.log(float(cols[2]))
-
-        if samples > 0:
-            m, s = map(float, cols[12:14])
-            catalogs[:, k, 0] = log_per
-            if censor is None:
-                catalogs[:, k, 1] = rp_func(m+s*np.random.randn(samples))
-                continue
-            r = m + s*np.random.randn(N)
-            r = rp_func(r[r > 0.0])
-            v = np.vstack([log_per+np.zeros_like(r), r]).T
-            lnp = censor.get_lncompleteness(v)
-            mask = np.random.rand(len(lnp)) < np.exp(lnp)
-            if np.sum(mask) < samples:
-                print("Dropping candidate at R={0}".format(m))
-                good[k] = 0
-                continue
-            inds = np.arange(len(lnp))[mask]
-            catalogs[:, k, 1] = r[inds[:samples]]
-            lnweights += lnp[inds[:samples]]
-        else:
-            r = rp_func(float(cols[12]))
-            lnp = censor.get_lncompleteness([log_per, r])
-            if not np.isfinite(lnp):
-                print("Dropping candidate at R={0}".format(float(cols[12])))
-                good[k] = 0
-                continue
-            catalogs[0, k, 0] = log_per
-            catalogs[0, k, 1] = r
-
-    return population.Dataset(catalogs[:, good], lnweights)
+    data = np.array([[l.split("&")[i] for i in (0, 2, 12, 13)] for l in lines
+                     if l.split("&")[4].strip() == "P"],
+                    dtype=float)
+    return (np.array(data[:, 0], dtype=int), data[:, 1:3],
+            np.vstack([np.zeros(len(data)), data[:, 3]]).T)
 
 
 def load_petigura_bins(mylog=np.log):

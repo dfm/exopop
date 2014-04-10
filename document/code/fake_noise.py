@@ -86,14 +86,14 @@ def main(args, state=None):
     # Plot the true distributions.
     literature = [(pdist.base, np.exp(pdist(truth[1:1+len(p_vals)]))),
                   (rdist.base, np.exp(rdist(truth[1+len(p_vals):])))]
-    figs = pop0.plot(truth,
-                     labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
-                     top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
-                     literature=literature)
-    figs[0].savefig(os.path.join(bp, "true-period.png"))
-    figs[0].savefig(os.path.join(bp, "true-period.pdf"))
-    figs[1].savefig(os.path.join(bp, "true-radius.png"))
-    figs[1].savefig(os.path.join(bp, "true-radius.pdf"))
+    # figs = pop0.plot(truth,
+    #                  labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
+    #                  top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
+    #                  literature=literature)
+    # figs[0].savefig(os.path.join(bp, "true-period.png"))
+    # figs[0].savefig(os.path.join(bp, "true-period.pdf"))
+    # figs[1].savefig(os.path.join(bp, "true-radius.png"))
+    # figs[1].savefig(os.path.join(bp, "true-radius.pdf"))
 
     # Sample from this censored population.
     lnrate = np.array(censor.lnprob[1:-1, 1:-1])
@@ -122,6 +122,13 @@ def main(args, state=None):
     dataset = Dataset.sample(catalog, err, samples=100, censor=censor,
                              functions=[np.log, np.log])
     print("{0} entries in catalog".format(len(catalog)))
+
+    # Plot the initial population.
+    fig = pop0.plot_2d(truth, censor=censor, catalog=np.log(catalog),
+                       labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
+                       top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
+                       true=literature, alpha=1)
+    fig.savefig(os.path.join(bp, "initial.png"))
 
     # Plot the actual rate function.
     pl.figure()
@@ -169,14 +176,22 @@ def main(args, state=None):
         print("********** failed")
         return
 
-    figs = pop.plot(v,
-                    labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
-                    top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
-                    literature=literature)
-    figs[0].savefig(os.path.join(bp, "vmax-period.png"))
-    figs[0].savefig(os.path.join(bp, "vmax-period.pdf"))
-    figs[1].savefig(os.path.join(bp, "vmax-radius.png"))
-    figs[1].savefig(os.path.join(bp, "vmax-radius.pdf"))
+    # Plot the vmax results.
+    fig = pop.plot_2d(v, censor=censor, catalog=np.log(catalog),
+                      labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
+                      top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
+                      true=literature, alpha=1)
+    fig.savefig(os.path.join(bp, "vmax.png"))
+    assert 0
+
+    # figs = pop.plot(v,
+    #                 labels=["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"],
+    #                 top_axes=["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"],
+    #                 literature=literature)
+    # figs[0].savefig(os.path.join(bp, "vmax-period.png"))
+    # figs[0].savefig(os.path.join(bp, "vmax-period.pdf"))
+    # figs[1].savefig(os.path.join(bp, "vmax-radius.png"))
+    # figs[1].savefig(os.path.join(bp, "vmax-radius.pdf"))
 
     pl.clf()
     pl.pcolor(bins[0], bins[1], grid.T, cmap="gray")
