@@ -132,7 +132,7 @@ def main(ep_bins=True):
     assert np.all(finite), "{0}".format(np.sum(finite))
 
     # Run the sampler.
-    N = 1000
+    N = 50000
     fn = os.path.join(bp, "results.h5")
     with h5py.File(fn, "w") as f:
         f.create_dataset("chain", shape=(nwalkers, N, ndim), dtype=np.float64)
