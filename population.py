@@ -152,8 +152,8 @@ class Population(object):
         # return np.sum(theta)
 
     def plot_2d(self, thetas, ranges=None, censor=None, catalog=None,
-                labels=None, top_axes=None, literature=None, lit_style={},
-                true=None, true_style={}, alpha=0.3):
+                err=None, labels=None, top_axes=None, literature=None,
+                lit_style={}, true=None, true_style={}, alpha=0.2):
         assert len(self.base) == 2
 
         # Pre-compute the ranges and allowed ranges.
@@ -184,7 +184,7 @@ class Population(object):
         # Plot the occurence image.
         img = np.median(grids, axis=0).T
         ax.pcolor(self.base[0], self.base[1], np.exp(img),
-                  cmap="gray", alpha=0.8)
+                  cmap="gray", alpha=0.6)
 
         # Plot the occurence histograms.
         ys = [logsumexp(grids
@@ -211,15 +211,20 @@ class Population(object):
             x, y = censor.bins
             z = np.exp(censor.lncompleteness[1:-1, 1:-1])
             ax.contour(x[:-1]+0.5*np.diff(x), y[:-1]+0.5*np.diff(y), z.T, 3,
-                       colors="k", linewidths=2)
+                       colors="k", linewidths=1, alpha=0.6)
 
         # Plot the data.
         if catalog is not None:
-            ax.plot(catalog[:, 0], catalog[:, 1], ".r")
+            if err is not None:
+                ax.errorbar(catalog[:, 0], catalog[:, 1],
+                            xerr=err[0], yerr=err[1], fmt=".k",
+                            capsize=0, alpha=0.3, ms=0)
+            ax.plot(catalog[:, 0], catalog[:, 1], ".k", ms=5)
 
         # Plot literature values.
         lit_style["marker"] = lit_style.get("marker", ".")
-        lit_style["color"] = lit_style.get("color", "r")
+        lit_style["ms"] = lit_style.get("ms", 8)
+        lit_style["color"] = lit_style.get("color", "k")
         lit_style["ls"] = lit_style.get("ls", "None")
         if literature is not None:
             x, y = literature[0]
