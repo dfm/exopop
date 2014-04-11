@@ -222,16 +222,16 @@ class Population(object):
             ax.plot(catalog[:, 0], catalog[:, 1], ".k", ms=5)
 
         # Plot literature values.
-        lit_style["marker"] = lit_style.get("marker", ".")
-        lit_style["ms"] = lit_style.get("ms", 8)
+        lit_style["fmt"] = lit_style.get("fmt", ".")
+        lit_style["ms"] = lit_style.get("ms", 10)
         lit_style["color"] = lit_style.get("color", "k")
-        lit_style["ls"] = lit_style.get("ls", "None")
+        lit_style["capsize"] = lit_style.get("capsize", 0)
         if literature is not None:
-            x, y = literature[0]
-            ax_top.plot(0.5*(x[1:]+x[:-1]), y, **lit_style)
+            x, y, yerr = literature[0]
+            ax_top.errorbar(0.5*(x[1:]+x[:-1]), y, yerr=yerr, **lit_style)
 
-            x, y = literature[1]
-            ax_right.plot(y, 0.5*(x[1:]+x[:-1]), **lit_style)
+            x, y, yerr = literature[1]
+            ax_right.errorbar(y, 0.5*(x[1:]+x[:-1]), xerr=yerr, **lit_style)
 
         # Plot true values.
         true_style["color"] = true_style.get("color", "r")

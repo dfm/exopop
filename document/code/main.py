@@ -16,6 +16,7 @@ import emcee
 import numpy as np
 import cPickle as pickle
 from itertools import product
+from scipy.misc import logsumexp
 
 from load_data import (transit_lnprob0, ln_period0, load_completenes_sim,
                        load_candidates)
@@ -24,8 +25,7 @@ from population import (CensoringFunction,
                         SmoothPopulation)
 
 
-def main(ep_bins=True):
-    bp = "main"
+def main(bp, real_data, ep_bins=False):
     try:
         os.makedirs(bp)
     except os.error:
@@ -62,10 +62,15 @@ def main(ep_bins=True):
                   (y, r_vals / np.sum(r_vals*np.diff(y)))]
 
     # Load the candidates.
-    ids, catalog, err = load_candidates()
+    if real_data:
+        ids, catalog, err = load_candidates()
+        truth = None
+    else:
+        catalog, err, truth = \
+            pickle.load(open(os.path.join(bp, "catalog.pkl")))
     dataset = Dataset.sample(catalog, err, samples=64, censor=censor,
                              functions=[np.log, np.log])
-    print("{0} entries in catalog".format(len(catalog)))
+    print("{0} entries in catalog".format(dataset.catalogs.shape[1]))
 
     # Build the binned model.
     bins = [x, y]
@@ -94,31 +99,46 @@ def main(ep_bins=True):
         var[i, j] = np.sum(np.exp(-2*v[np.isfinite(v)]))
     grid[np.isinf(grid)] = 0.0
     var[np.isinf(var)] = 0.0
-    std = np.sqrt(var)
+
+    # Compute the Vmax points and errorbars.
+    a = np.sum(grid / np.diff(bins[1])[None, :], axis=1)
+    norm = np.sum(a * np.diff(bins[0]))
+    a /= norm
+    ae = np.sum(var / (np.diff(bins[1]) ** 2)[None, :], axis=1)
+    ae /= norm ** 2
+
+    b = np.sum(grid / np.diff(bins[0])[:, None], axis=0)
+    norm = np.sum(b * np.diff(bins[1]))
+    b /= norm
+    be = np.sum(var / (np.diff(bins[0]) ** 2)[:, None], axis=0)
+    be /= norm ** 2
+
+    literature = [
+        (bins[0], a, np.sqrt(ae)),
+        (bins[1], b, np.sqrt(be)),
+    ]
 
     # Turn the vmax numbers into something that we can plot.
     v = pop.initial()
-    samples = np.zeros((24, len(v)))
-    for i in range(samples.shape[0]):
-        lg = np.log(grid+std*np.random.randn(*(var.shape))).flatten()
-        m = np.isfinite(lg)
-        lg[~m] = 0.0
-        samples[i] = v
-        samples[i, -len(lg):] = lg
+    lg = np.log(grid).flatten()
+    m = np.isfinite(lg)
+    lg[~m] = 0.0
+    v[-len(lg):] = lg
 
     # Plot the vmax results.
     rerr = [np.log(catalog[:, 1]) - np.log(catalog[:, 1]-err[:, 1]),
             np.log(catalog[:, 1]+err[:, 1]) - np.log(catalog[:, 1])]
     labels = ["$\ln T/\mathrm{day}$", "$\ln R/R_\oplus$"]
     top_axes = ["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"]
-    fig = pop.plot_2d(samples, censor=censor, catalog=np.log(catalog),
-                      err=[0, rerr],
+    fig = pop.plot_2d(v, censor=censor, catalog=np.log(catalog),
+                      err=[0, rerr], true=truth,
                       labels=labels, top_axes=top_axes, literature=literature)
     fig.savefig(os.path.join(bp, "vmax.png"))
 
     # Save the model and the other things needed for plotting the results.
     pickle.dump((model, catalog, [0, rerr], labels, top_axes, literature),
                 open(os.path.join(bp, "model.pkl"), "w"), -1)
+    assert 0
 
     # Set up the sampler.
     p0 = pop.initial()
@@ -149,4 +169,8 @@ def main(ep_bins=True):
 
 
 if __name__ == "__main__":
-    main(False)
+    import sys
+    if len(sys.argv) > 1:
+        main(sys.argv[1], False)
+    else:
+        main("main", True)
