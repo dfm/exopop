@@ -138,7 +138,6 @@ def main(bp, real_data, ep_bins=False):
     # Save the model and the other things needed for plotting the results.
     pickle.dump((model, catalog, [0, rerr], labels, top_axes, literature),
                 open(os.path.join(bp, "model.pkl"), "w"), -1)
-    assert 0
 
     # Set up the sampler.
     p0 = pop.initial()
