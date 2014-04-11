@@ -107,11 +107,15 @@ def main(ep_bins=True):
         samples[i, -len(lg):] = lg
 
     # Plot the vmax results.
-    labels = ["$\ln T/\mathrm{days}$", "$\ln R/R_\oplus$"]
+    rerr = [np.log(catalog[:, 1]) - np.log(catalog[:, 1]-err[:, 1]),
+            np.log(catalog[:, 1]+err[:, 1]) - np.log(catalog[:, 1])]
+    labels = ["$\ln T/\mathrm{day}$", "$\ln R/R_\oplus$"]
     top_axes = ["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"]
     fig = pop.plot_2d(samples, censor=censor, catalog=np.log(catalog),
+                      err=[0, rerr],
                       labels=labels, top_axes=top_axes, literature=literature)
     fig.savefig(os.path.join(bp, "vmax.png"))
+    assert 0
 
     # Save the model and the other things needed for plotting the results.
     pickle.dump((model, catalog, labels, top_axes, literature),
