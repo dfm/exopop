@@ -115,11 +115,12 @@ def main(ep_bins=True):
                       err=[0, rerr],
                       labels=labels, top_axes=top_axes, literature=literature)
     fig.savefig(os.path.join(bp, "vmax.png"))
-    assert 0
 
     # Save the model and the other things needed for plotting the results.
-    pickle.dump((model, catalog, labels, top_axes, literature),
+    pickle.dump((model, catalog, [0, rerr], labels, top_axes, literature),
                 open(os.path.join(bp, "model.pkl"), "w"), -1)
+
+    assert 0
 
     # Set up the sampler.
     p0 = pop.initial()
