@@ -148,7 +148,8 @@ class Population(object):
         return grid[self.inds]
 
     def lnprior(self, theta):
-        return np.sum(theta)
+        return 0.0
+        # return np.sum(theta)
 
     def plot_2d(self, thetas, ranges=None, censor=None, catalog=None,
                 labels=None, top_axes=None, literature=None, lit_style={},
