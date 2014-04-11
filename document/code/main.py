@@ -120,8 +120,6 @@ def main(ep_bins=True):
     pickle.dump((model, catalog, [0, rerr], labels, top_axes, literature),
                 open(os.path.join(bp, "model.pkl"), "w"), -1)
 
-    assert 0
-
     # Set up the sampler.
     p0 = pop.initial()
     print("Initial ln-prob = {0}".format(model.lnprob(p0)))
@@ -137,7 +135,7 @@ def main(ep_bins=True):
     assert np.all(finite), "{0}".format(np.sum(finite))
 
     # Run the sampler.
-    N = 50000
+    N = 100000
     fn = os.path.join(bp, "results.h5")
     with h5py.File(fn, "w") as f:
         f.create_dataset("chain", shape=(nwalkers, N, ndim), dtype=np.float64)
