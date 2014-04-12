@@ -16,7 +16,6 @@ import emcee
 import numpy as np
 import cPickle as pickle
 from itertools import product
-from scipy.misc import logsumexp
 
 from load_data import (transit_lnprob0, ln_period0, load_completenes_sim,
                        load_candidates)
@@ -136,7 +135,8 @@ def main(bp, real_data, ep_bins=False):
     fig.savefig(os.path.join(bp, "vmax.png"))
 
     # Save the model and the other things needed for plotting the results.
-    pickle.dump((model, catalog, [0, rerr], labels, top_axes, literature),
+    pickle.dump((model, catalog, [0, rerr], truth, labels, top_axes,
+                 literature),
                 open(os.path.join(bp, "model.pkl"), "w"), -1)
 
     # Set up the sampler.
@@ -172,4 +172,4 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         main(sys.argv[1], False)
     else:
-        main("main", True)
+        main("main2", True)

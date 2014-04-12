@@ -147,9 +147,18 @@ class Population(object):
             return None
         return grid[self.inds]
 
+    def index(self, samples):
+        return [np.digitize(x, b)
+                for x, b in izip(np.atleast_2d(samples).T, self.bins)]
+
+    def get_lnrate(self, thetas, pos):
+        thetas = np.atleast_2d(thetas)
+        i = [np.digitize([x], b)[0] - 1 for x, b in izip(pos, self.bins)]
+        return [self._get_grid(t)[tuple(i)] for t in thetas]
+
     def lnprior(self, theta):
-        return 0.0
-        # return np.sum(theta)
+        # return 0.0
+        return np.sum(theta)
 
     def plot_2d(self, thetas, ranges=None, censor=None, catalog=None,
                 err=None, labels=None, top_axes=None, literature=None,
@@ -432,6 +441,10 @@ class SmoothPopulation(object):
 
     def evaluate(self, theta):
         return self.base_population.evaluate(theta[self.ndim:])
+
+    def get_lnrate(self, thetas, pos):
+        thetas = np.atleast_2d(thetas)
+        return self.base_population.get_lnrate(thetas[:, self.ndim:], pos)
 
     def lnprior(self, theta):
         lp = self.base_population.lnprior(theta[self.ndim:])
