@@ -100,16 +100,16 @@ def main(bp, real_data, ep_bins=False):
     var[np.isinf(var)] = 0.0
 
     # Compute the Vmax points and errorbars.
-    a = np.sum(grid / np.diff(bins[1])[None, :], axis=1)
+    a = np.sum(grid, axis=1)
     norm = np.sum(a * np.diff(bins[0]))
     a /= norm
-    ae = np.sum(var / (np.diff(bins[1]) ** 2)[None, :], axis=1)
+    ae = np.sum(var, axis=1)
     ae /= norm ** 2
 
-    b = np.sum(grid / np.diff(bins[0])[:, None], axis=0)
+    b = np.sum(grid, axis=0)
     norm = np.sum(b * np.diff(bins[1]))
     b /= norm
-    be = np.sum(var / (np.diff(bins[0]) ** 2)[:, None], axis=0)
+    be = np.sum(var, axis=0)
     be /= norm ** 2
 
     literature = [
@@ -133,6 +133,8 @@ def main(bp, real_data, ep_bins=False):
                       err=[0, rerr], true=truth,
                       labels=labels, top_axes=top_axes, literature=literature)
     fig.savefig(os.path.join(bp, "vmax.png"))
+    fig.savefig(os.path.join(bp, "vmax.pdf"))
+    assert 0
 
     # Save the model and the other things needed for plotting the results.
     pickle.dump((model, catalog, [0, rerr], truth, labels, top_axes,
@@ -172,4 +174,4 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         main(sys.argv[1], False)
     else:
-        main("main2", True)
+        main("main", True)

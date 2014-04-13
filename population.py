@@ -15,7 +15,7 @@ from scipy.linalg import cho_factor, cho_solve
 
 import matplotlib.pyplot as pl
 from matplotlib.ticker import MaxNLocator
-from matplotlib.ticker import ScalarFormatter
+from matplotlib.ticker import FormatStrFormatter
 
 
 class BrokenPowerLaw(object):
@@ -157,8 +157,8 @@ class Population(object):
         return [self._get_grid(t)[tuple(i)] for t in thetas]
 
     def lnprior(self, theta):
-        # return 0.0
-        return np.sum(theta)
+        return 0.0
+        # return np.sum(theta)
 
     def plot_2d(self, thetas, ranges=None, censor=None, catalog=None,
                 err=None, labels=None, top_axes=None, literature=None,
@@ -281,14 +281,14 @@ class Population(object):
             a2 = ax_top.twiny()
             a2.set_xlim(np.exp(ax_top.get_xlim()))
             a2.set_xscale("log")
-            a2.xaxis.set_major_formatter(ScalarFormatter())
+            a2.xaxis.set_major_formatter(FormatStrFormatter("%.0f"))
             a2.set_xlabel(top_axes[0])
             a2.xaxis.set_label_coords(0.5, 1.2)
 
             a2 = ax_right.twinx()
             a2.set_ylim(np.exp(ax_right.get_ylim()))
             a2.set_yscale("log")
-            a2.yaxis.set_major_formatter(ScalarFormatter())
+            a2.yaxis.set_major_formatter(FormatStrFormatter("%.0f"))
             a2.set_ylabel(top_axes[1], rotation=-90)
             a2.yaxis.set_label_coords(1.3, 0.5)
 
@@ -369,7 +369,7 @@ class Population(object):
                 a2 = ax.twiny()
                 a2.set_xlim(np.exp(ax.get_xlim()))
                 a2.set_xscale("log")
-                a2.xaxis.set_major_formatter(ScalarFormatter())
+                a2.xaxis.set_major_formatter(FormatStrFormatter("%.0f"))
                 a2.set_xlabel(t)
 
         # Format the figures.
