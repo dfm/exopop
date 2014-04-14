@@ -26,10 +26,17 @@ model, catalog, err, truth, labels, top_axes, literature = \
 pop = model.population
 
 with h5py.File(os.path.join(bp, "results.h5")) as f:
-    chain = f["chain"][...]
-    lnprob = f["lnprob"][...]
+    i = int(f.attrs["iteration"])
+    samples = f["samples"][:i, :]
+    hyper = f["hyper"][:i, :]
+    lnprob = f["lnprob"][:i]
 
-samples = chain[:, -5000:, :].reshape((-1, chain.shape[2]))
+for i in range(hyper.shape[1]):
+    pl.clf()
+    pl.plot(hyper[:, i])
+    pl.savefig(os.path.join(bp, "time-hyper-{0:03d}.png".format(i)))
+
+samples = samples[-20000:, :][::100, :]
 
 # Compute and plot gamma_earth.
 rates = np.exp(pop.get_lnrate(samples, [np.log(365.), np.log(1.0)]))
@@ -46,4 +53,4 @@ fig = pop.plot_2d(somesamples, censor=model.censor, catalog=np.log(catalog),
                   err=err, true=truth, labels=labels, top_axes=top_axes,
                   literature=literature)
 fig.savefig(os.path.join(bp, "results.png"))
-fig.savefig(os.path.join(bp, "results.pdf"))
+# fig.savefig(os.path.join(bp, "results.pdf"))
