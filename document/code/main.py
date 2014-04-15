@@ -63,11 +63,17 @@ def main(bp, real_data, ep_bins=False):
     # Load the candidates.
     if real_data:
         ids, catalog, err = load_candidates()
+
+        # # FIXME!
+        # err = np.zeros_like(err)
+
         truth = None
     else:
         catalog, err, truth = \
             pickle.load(open(os.path.join(bp, "catalog.pkl")))
-    dataset = Dataset.sample(catalog, err, samples=64, censor=censor,
+    # dataset = Dataset.sample(catalog, err, samples=1, censor=censor,
+    #                          functions=[np.log, np.log])
+    dataset = Dataset.sample(catalog, err, samples=72, censor=censor,
                              functions=[np.log, np.log])
     print("{0} entries in catalog".format(dataset.catalogs.shape[1]))
 
@@ -134,7 +140,6 @@ def main(bp, real_data, ep_bins=False):
                       labels=labels, top_axes=top_axes, literature=literature)
     fig.savefig(os.path.join(bp, "vmax.png"))
     fig.savefig(os.path.join(bp, "vmax.pdf"))
-    assert 0
 
     # Save the model and the other things needed for plotting the results.
     pickle.dump((model, catalog, [0, rerr], truth, labels, top_axes,
@@ -156,7 +161,7 @@ def main(bp, real_data, ep_bins=False):
     assert np.all(finite), "{0}".format(np.sum(finite))
 
     # Run the sampler.
-    N = 100000
+    N = 500000
     fn = os.path.join(bp, "results.h5")
     with h5py.File(fn, "w") as f:
         f.create_dataset("chain", shape=(nwalkers, N, ndim), dtype=np.float64)
