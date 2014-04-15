@@ -74,7 +74,9 @@ def main(args, state=None, smooth=False):
         pdist = Histogram(x, base=lpb)
         rdist = Histogram(y, base=lrb)
     pop0 = SeparablePopulation([pdist, rdist], lnnorm=truth[0])
-    print(np.exp(pop0.get_lnrate(truth, [np.log(365), 0.0])) / 42557.0)
+    open(os.path.join(bp, "gamma.txt"), "w").write(
+        "{0}".format(pop0.get_lnrate(truth, [np.log(365), 0.0])[0]))
+    assert 0
 
     # Sample from this censored population.
     lnrate = np.array(censor.lnprob[1:-1, 1:-1])

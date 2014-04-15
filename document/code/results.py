@@ -36,21 +36,31 @@ for i in range(hyper.shape[1]):
     pl.plot(hyper[:, i])
     pl.savefig(os.path.join(bp, "time-hyper-{0:03d}.png".format(i)))
 
-samples = samples[-20000:, :][::100, :]
-print(np.sqrt(np.diag(np.cov(hyper.T))))
-print(np.median(hyper, axis=0))
+samples = samples[-200000:, :][::50, :]
+
+# Load the true gamma earth if it exists.
+fn = os.path.join(bp, "gamma.txt")
+if os.path.exists(fn):
+    gamma = [np.exp(float(open(fn).read())) / 42557.0, 0, 0]
+else:
+    gamma = [5.7 / 100, 1.7 / 100, 2.2 / 100]
 
 # Compute and plot gamma_earth.
-rates = 100 * np.exp(pop.get_lnrate(samples, [np.log(365.), np.log(1.0)]))
-# fracs = rates / 42557.0
-fracs = rates / 42557.0*(np.log(2) - np.log(1)) * (np.log(400) - np.log(200))
+rates = pop.get_lnrate(samples, [np.log(365.), np.log(1.0)])
+fracs = rates - np.log(42557.0)
 a, b, c = triangle.quantile(fracs, [0.16, 0.5, 0.84])
 print("{0}^{{+{1}}}_{{-{2}}}".format(b, c-b, b-a))
-pl.hist(fracs, 100, range=(0, 10), color="k", histtype="step")
-pl.gca().axvline(5.7, color="k")
-pl.gca().axvline(5.7+1.7, color="k", ls="dashed")
-pl.gca().axvline(5.7-2.2, color="k", ls="dashed")
-pl.xlim(0, 10)
+pl.clf()
+pl.hist(fracs, 50, color="k", histtype="step", normed=True)
+
+pl.gca().axvline(np.log(gamma[0]+gamma[1]), color="r", ls="dashed")
+pl.gca().axvline(np.log(gamma[0]-gamma[2]), color="r", ls="dashed")
+pl.gca().axvline(np.log(gamma[0]), color="r")
+
+pl.gca().axvline(b, color="k")
+pl.gca().axvline(c, color="k", ls="dashed")
+pl.gca().axvline(a, color="k", ls="dashed")
+
 pl.savefig(os.path.join(bp, "rate.png"))
 
 # Plot some posterior samples of the rate function.

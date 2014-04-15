@@ -75,8 +75,8 @@ def main(bp, real_data, ep_bins=False):
     print("Run inference on a grid with shape: {0}"
           .format([len(b)-1 for b in bins]))
     pop = Population(bins, censor.bins, 11.0)
-    model = ProbabilisticModel(dataset, pop, censor, [3.6, 2.6, 1.6, 0.75],
-                               [2.0, 0.5, 0.3, 0.3])
+    model = ProbabilisticModel(dataset, pop, censor, [3.6, 2.6, 1.6, 0.0],
+                               np.array([2.0, 0.5, 0.3, 0.3]) / 2.4)
 
     # Compute the vmax histogram.
     ix0 = np.digitize(np.log(catalog[:, 0]), bins[0])
@@ -141,7 +141,7 @@ def main(bp, real_data, ep_bins=False):
 
     # Set up the output files.
     nblock = 500
-    N, ndim, nhyper = 200 * nblock, len(pop), 4
+    N, ndim, nhyper = 1000 * nblock, len(pop), 4
 
     samples = np.empty((nblock, ndim))
     hyper = np.empty((nblock, nhyper))

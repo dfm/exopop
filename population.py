@@ -578,7 +578,7 @@ class CensoringFunction(object):
 class ProbabilisticModel(object):
 
     def __init__(self, dataset, population, censor, smooth, step,
-                 randomize=True):
+                 randomize=False):
         self.dataset = dataset
         self.population = population
         self.censor = censor
@@ -681,10 +681,10 @@ class ProbabilisticModel(object):
 
         while True:
             h, ll = self._ess_step(h, ll, cov)
-            hyper, lp, cov, a = self._metropolis_step(hyper, h)
+            # hyper, lp, cov, a = self._metropolis_step(hyper, h)
 
             # Update the stats.
-            accepted += int(a)
+            accepted += 1  # int(a)
             total += 1
 
             yield h, hyper, ll + lp, accepted / total
