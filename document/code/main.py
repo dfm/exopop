@@ -12,6 +12,7 @@ else:
 
 import os
 import h5py
+import triangle
 import numpy as np
 import cPickle as pickle
 from itertools import product
@@ -21,6 +22,69 @@ from load_data import (transit_lnprob0, ln_period0, load_completenes_sim,
                        load_candidates)
 from population import (CensoringFunction,
                         ProbabilisticModel, Dataset, Population)
+
+
+def inverse_detection_efficiency(pop, censor, catalog, err, truth=None):
+    c = np.log(catalog)
+    ind = [np.digitize(x, b) for x, b in zip(c.T, censor.bins)]
+    weights = np.exp(-censor.lnprob[ind])
+    val, x, y = np.histogram2d(c[:, 0], c[:, 1], pop.bins, weights=weights)
+    var, x, y = np.histogram2d(c[:, 0], c[:, 1], pop.bins, weights=weights**2)
+
+    # Build the model for plotting.
+    v = pop.initial()
+    lg = np.log(val).flatten()
+    m = np.isfinite(lg)
+    lg[~m] = 0.0
+    v[-len(lg):] = lg
+
+    # Compute the marginalized errorbars.
+    marg = [np.sum(val, axis=(i+1) % 2) for i in range(2)]
+    norm = [np.sum(a * np.diff(pop.bins[i])) for i, a in enumerate(marg)]
+    literature = [(pop.bins[i], a/norm[i],
+                   np.sqrt(np.sum(var, axis=(i+1) % 2))/norm[i])
+                  for i, a in enumerate(marg)]
+
+    # Plot the results.
+    rerr = [np.log(catalog[:, 1]) - np.log(catalog[:, 1]-err[:, 1]),
+            np.log(catalog[:, 1]+err[:, 1]) - np.log(catalog[:, 1])]
+    labels = ["$\ln T/\mathrm{day}$", "$\ln R/R_\oplus$"]
+    top_axes = ["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"]
+    fig = pop.plot_2d(v, censor=censor, catalog=np.log(catalog),
+                      err=[0, rerr], true=truth, labels=labels,
+                      top_axes=top_axes, literature=literature)
+
+    # Extrapolate to the Earth.
+    o = np.argsort(c[:, 0])
+    s = c[o, :]
+    ws = weights[o]
+    m = np.isfinite(ws) * (s[:, 1] <= np.log(2)) * (s[:, 1] >= np.log(1))
+    cs = np.cumsum(ws[m])
+    cs_var = np.cumsum(ws[m] ** 2)
+    i = s[m, 0] > np.log(50)
+
+    # Do the linear fit.
+    A = np.vander(s[m, 0][i], 2)
+    Cinv = np.diag(1.0 / cs_var[i])
+    S = np.linalg.inv(np.dot(A.T, np.dot(Cinv, A)))
+    mu = np.dot(S, np.dot(A.T, np.dot(Cinv, cs[i])))
+
+    # Compute the predictive value.
+    ys = np.dot(np.array([[np.log(200), 1],
+                          [np.log(400), 1]]),
+                np.random.multivariate_normal(mu, S, 5000).T)
+    frac = np.diff(ys, axis=0)
+    q = triangle.quantile(frac, [0.16, 0.5, 0.84])
+
+    fig2 = pl.figure()
+    ax = fig2.add_subplot(111)
+    a = np.vander(np.linspace(np.log(50), np.log(400), 500), 2)
+    y = np.dot(a, np.random.multivariate_normal(mu, S, 50).T)
+    ax.plot(a[:, 0], y, "r", alpha=0.3)
+    ax.plot(a[:, 0], np.dot(a, mu), "--r", lw=2)
+    ax.errorbar(s[m, 0], cs, yerr=np.sqrt(cs_var), fmt="k", capsize=0)
+
+    return val, var, literature, fig, fig2, (q[1], np.diff(q))
 
 
 def main(bp, real_data, ep_bins=False):
@@ -78,66 +142,28 @@ def main(bp, real_data, ep_bins=False):
     model = ProbabilisticModel(dataset, pop, censor, [3.6, 2.6, 1.6, 0.0],
                                np.array([2.0, 0.5, 0.3, 0.3]) / 2.4)
 
-    # Compute the vmax histogram.
-    ix0 = np.digitize(np.log(catalog[:, 0]), bins[0])
-    iy0 = np.digitize(np.log(catalog[:, 1]), bins[1])
-    ix = np.digitize(np.log(catalog[:, 0]), lpb)
-    iy = np.digitize(np.log(catalog[:, 1]), lrb)
-    lp = censor.lnprob[ix, iy]
-    grid = np.zeros((len(bins[0])-1, len(bins[1])-1))
-    counts = np.zeros_like(grid)
-    var = np.zeros_like(grid)
-    for i, j in product(range(len(bins[0])-1), range(len(bins[1])-1)):
-        m = (ix0 == i+1) * (iy0 == j+1)
-        counts[i, j] = np.sum(m)
-        if counts[i, j] == 0:
-            continue
-        v = lp[m]
-        grid[i, j] = np.sum(np.exp(-v[np.isfinite(v)]))
-        var[i, j] = np.sum(np.exp(-2*v[np.isfinite(v)]))
-    grid[np.isinf(grid)] = 0.0
-    var[np.isinf(var)] = 0.0
+    # Do V-max.
+    val, var, literature, fig1, fig2, ext = \
+        inverse_detection_efficiency(pop, censor, catalog, err, truth)
 
-    # Compute the Vmax points and errorbars.
-    a = np.sum(grid, axis=1)
-    norm = np.sum(a * np.diff(bins[0]))
-    a /= norm
-    ae = np.sum(var, axis=1)
-    ae /= norm ** 2
-
-    b = np.sum(grid, axis=0)
-    norm = np.sum(b * np.diff(bins[1]))
-    b /= norm
-    be = np.sum(var, axis=0)
-    be /= norm ** 2
-
-    literature = [
-        (bins[0], a, np.sqrt(ae)),
-        (bins[1], b, np.sqrt(be)),
-    ]
-
-    # Turn the vmax numbers into something that we can plot.
-    v = pop.initial()
-    lg = np.log(grid).flatten()
-    m = np.isfinite(lg)
-    lg[~m] = 0.0
-    v[-len(lg):] = lg
+    open(os.path.join(bp, "extrap.txt"), "w").write(
+        "{0} -{1} +{2}".format(ext[0], *(ext[1])))
 
     # Plot the vmax results.
-    rerr = [np.log(catalog[:, 1]) - np.log(catalog[:, 1]-err[:, 1]),
-            np.log(catalog[:, 1]+err[:, 1]) - np.log(catalog[:, 1])]
     labels = ["$\ln T/\mathrm{day}$", "$\ln R/R_\oplus$"]
     top_axes = ["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"]
-    fig = pop.plot_2d(v, censor=censor, catalog=np.log(catalog),
-                      err=[0, rerr], true=truth,
-                      labels=labels, top_axes=top_axes, literature=literature)
-    fig.savefig(os.path.join(bp, "vmax.png"))
-    fig.savefig(os.path.join(bp, "vmax.pdf"))
+    fig1.savefig(os.path.join(bp, "vmax.png"))
+    fig1.savefig(os.path.join(bp, "vmax.pdf"))
+
+    # Plot the extrapolation.
+    fig2.savefig(os.path.join(bp, "extrapolation.png"))
+    fig2.savefig(os.path.join(bp, "extrapolation.pdf"))
 
     # Save the model and the other things needed for plotting the results.
-    pickle.dump((model, catalog, [0, rerr], truth, labels, top_axes,
+    pickle.dump((model, catalog, err, truth, labels, top_axes,
                  literature),
                 open(os.path.join(bp, "model.pkl"), "w"), -1)
+    assert 0
 
     # Set up the output files.
     nblock = 500

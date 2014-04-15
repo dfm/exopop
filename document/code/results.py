@@ -41,9 +41,13 @@ samples = samples[-200000:, :][::50, :]
 # Load the true gamma earth if it exists.
 fn = os.path.join(bp, "gamma.txt")
 if os.path.exists(fn):
-    gamma = [np.exp(float(open(fn).read())) / 42557.0, 0, 0]
+    gamma = [np.exp(float(open(fn).read())) / 42557.0]
 else:
     gamma = [5.7 / 100, 1.7 / 100, 2.2 / 100]
+
+# Load the extrapolated value.
+ext = np.array(open(os.path.join(bp, "extrap.txt"), "r").read().split(),
+               dtype=float) / 42557.0
 
 # Compute and plot gamma_earth.
 rates = pop.get_lnrate(samples, [np.log(365.), np.log(1.0)])
@@ -53,9 +57,14 @@ print("{0}^{{+{1}}}_{{-{2}}}".format(b, c-b, b-a))
 pl.clf()
 pl.hist(fracs, 50, color="k", histtype="step", normed=True)
 
-pl.gca().axvline(np.log(gamma[0]+gamma[1]), color="r", ls="dashed")
-pl.gca().axvline(np.log(gamma[0]-gamma[2]), color="r", ls="dashed")
 pl.gca().axvline(np.log(gamma[0]), color="r")
+if len(gamma) > 1:
+    pl.gca().axvline(np.log(gamma[0]+gamma[1]), color="r", ls="dashed")
+    pl.gca().axvline(np.log(gamma[0]-gamma[2]), color="r", ls="dashed")
+
+pl.gca().axvline(np.log(ext[0]+ext[1]), color="b", ls="dashed")
+pl.gca().axvline(np.log(ext[0]+ext[2]), color="b", ls="dashed")
+pl.gca().axvline(np.log(ext[0]), color="b")
 
 pl.gca().axvline(b, color="k")
 pl.gca().axvline(c, color="k", ls="dashed")
