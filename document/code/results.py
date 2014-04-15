@@ -37,6 +37,8 @@ for i in range(hyper.shape[1]):
     pl.savefig(os.path.join(bp, "time-hyper-{0:03d}.png".format(i)))
 
 samples = samples[-20000:, :][::100, :]
+print(np.sqrt(np.diag(np.cov(hyper.T))))
+print(np.median(hyper, axis=0))
 
 # Compute and plot gamma_earth.
 rates = np.exp(pop.get_lnrate(samples, [np.log(365.), np.log(1.0)]))

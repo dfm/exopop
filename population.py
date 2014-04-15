@@ -577,11 +577,15 @@ class CensoringFunction(object):
 
 class ProbabilisticModel(object):
 
-    def __init__(self, dataset, population, censor, smooth):
+    def __init__(self, dataset, population, censor, smooth, step,
+                 randomize=True):
         self.dataset = dataset
         self.population = population
         self.censor = censor
         self.smoothing = SmoothingPrior(smooth, population.bins)
+        self.step = np.atleast_1d(step)
+        assert len(self.step) == len(smooth)
+        self.randomize = randomize
 
         c = dataset.catalogs
         s = c.shape
@@ -651,12 +655,15 @@ class ProbabilisticModel(object):
             th = np.random.uniform(thmn, thmx)
 
     def _metropolis_step(self, pars, heights):
+        if self.randomize:
+            step = self.step * np.random.rand(len(self.step))
+        else:
+            step = self.step
         lp0, cov0 = self.smoothing.lnprior(pars, heights)
-        q = pars + (0.3*np.random.rand()) * np.random.randn(len(pars))
+        q = pars + step * np.random.randn(len(pars))
         lp1, cov1 = self.smoothing.lnprior(q, heights)
         diff = lp1 - lp0
-        if np.isfinite(lp1) and (diff >= 0.0 or
-                                 np.exp(diff) >= np.random.rand()):
+        if np.isfinite(lp1) and np.exp(diff) >= np.random.rand():
             return q, lp1, cov1, True
         return pars, lp0, cov0, False
 
