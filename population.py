@@ -415,16 +415,13 @@ class SeparablePopulation(Population):
         return lp
 
 
-class SmoothPopulation(object):
+class SmoothingPrior(object):
 
-    def __init__(self, pars, base_population, eps=1e-10):
+    def __init__(self, pars, bins, eps=1e-6):
         self.pars = np.atleast_1d(pars)
-        self.base_population = base_population
-        self.base = base_population.base
         self.eps = eps
 
         # Pre-compute the distance vectors.
-        bins = self.base_population.bins
         coords = np.meshgrid(*[0.5*(b[1:] + b[:-1]) for b in bins],
                              indexing="ij")
         coords = np.vstack([c.flatten() for c in coords]).T
@@ -434,44 +431,32 @@ class SmoothPopulation(object):
         assert len(self.pars) == self.ndim
 
     def __len__(self):
-        return len(self.base_population) + self.ndim
+        return self.ndim
 
     def initial(self):
-        return np.append(self.pars, self.base_population.initial())
+        return np.array(self.pars)
 
-    def evaluate(self, theta):
-        return self.base_population.evaluate(theta[self.ndim:])
-
-    def get_lnrate(self, thetas, pos):
-        thetas = np.atleast_2d(thetas)
-        return self.base_population.get_lnrate(thetas[:, self.ndim:], pos)
-
-    def lnprior(self, theta):
-        lp = self.base_population.lnprior(theta[self.ndim:])
-        if not np.isfinite(lp):
-            return -np.inf
-
-        grid = self.base_population._get_grid(theta[self.ndim:])
-        if grid is None:
-            return -np.inf
-
-        # Compute the Gaussian process prior.
-        y = grid.flatten() - theta[0]
+    def get_matrix(self, theta):
         chi2 = np.sum(self.dvec/np.exp(theta[2:self.ndim]), axis=2)
         K = np.exp(theta[1] - 0.5 * chi2)
-        K += np.diag(self.eps * np.ones_like(y))
+        K[np.diag_indices_from(K)] += self.eps
+        return K
+
+    def lnprior(self, theta, heights):
+        y = heights - theta[0]
+        K = self.get_matrix(theta)
+
         factor, flag = cho_factor(K)
         logdet = np.sum(2*np.log(np.diag(factor)))
-        return -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
+        lp = -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
 
-    def plot_2d(self, thetas, *args, **kwargs):
-        thetas = np.atleast_2d(thetas)
-        return self.base_population.plot_2d(thetas[:, self.ndim:], *args,
-                                            **kwargs)
+        # s, logdet = np.linalg.slogdet(K)
+        # lp = -0.5 * (np.dot(y, np.linalg.solve(K, y)) + logdet)
+        # print(s, logdet, lp)
 
-    def plot(self, thetas, **kwargs):
-        thetas = np.atleast_2d(thetas)
-        return self.base_population.plot(thetas[:, self.ndim:], **kwargs)
+        if not np.isfinite(lp):
+            return -np.inf, K
+        return lp, K
 
 
 class Dataset(object):
@@ -592,10 +577,15 @@ class CensoringFunction(object):
 
 class ProbabilisticModel(object):
 
-    def __init__(self, dataset, population, censor):
+    def __init__(self, dataset, population, censor, smooth, step,
+                 randomize=True):
         self.dataset = dataset
         self.population = population
         self.censor = censor
+        self.smoothing = SmoothingPrior(smooth, population.bins)
+        self.step = np.atleast_1d(step)
+        assert len(self.step) == len(smooth)
+        self.randomize = randomize
 
         c = dataset.catalogs
         s = c.shape
@@ -646,3 +636,55 @@ class ProbabilisticModel(object):
 
     def __call__(self, theta):
         return self.lnprob(theta)
+
+    def _ess_step(self, f0, ll0, cov):
+        D = len(f0)
+        nu = np.random.multivariate_normal(np.zeros(D), cov)
+        lny = ll0 + np.log(np.random.rand())
+        th = 2*np.pi*np.random.rand()
+        thmn, thmx = th-2*np.pi, th
+        while True:
+            fp = f0*np.cos(th) + nu*np.sin(th)
+            ll = self.lnprob(fp)
+            if ll > lny:
+                return fp, ll
+            if th < 0:
+                thmn = th
+            else:
+                thmx = th
+            th = np.random.uniform(thmn, thmx)
+
+    def _metropolis_step(self, pars, heights):
+        if self.randomize:
+            step = self.step * np.random.rand(len(self.step))
+        else:
+            step = self.step
+        lp0, cov0 = self.smoothing.lnprior(pars, heights)
+        q = pars + step * np.random.randn(len(pars))
+        lp1, cov1 = self.smoothing.lnprior(q, heights)
+        diff = lp1 - lp0
+        if np.isfinite(lp1) and np.exp(diff) >= np.random.rand():
+            return q, lp1, cov1, True
+        return pars, lp0, cov0, False
+
+    def sample(self):
+        # Get the initial values.
+        hyper = self.smoothing.initial()
+        h = self.population.initial()
+
+        # Compute the initial ln-likelihood.
+        ll = self.lnprob(h)
+        lp, cov = self.smoothing.lnprior(hyper, h)
+
+        # Keep some stats.
+        accepted, total = 0, 0
+
+        while True:
+            h, ll = self._ess_step(h, ll, cov)
+            hyper, lp, cov, a = self._metropolis_step(hyper, h)
+
+            # Update the stats.
+            accepted += int(a)
+            total += 1
+
+            yield h, hyper, ll + lp, accepted / total
