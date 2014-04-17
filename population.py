@@ -443,16 +443,19 @@ class SmoothingPrior(object):
         return K
 
     def lnprior(self, theta, heights):
+        if not -20 < theta[0] < 20:
+            return -np.inf, None
+        if not -2 < theta[1] < 9:
+            return -np.inf, None
+        if np.any((theta[2:self.ndim] < -6)*(theta[2:self.ndim] > 6)):
+            return -np.inf, None
+
         y = heights - theta[0]
         K = self.get_matrix(theta)
 
         factor, flag = cho_factor(K)
         logdet = np.sum(2*np.log(np.diag(factor)))
         lp = -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
-
-        # s, logdet = np.linalg.slogdet(K)
-        # lp = -0.5 * (np.dot(y, np.linalg.solve(K, y)) + logdet)
-        # print(s, logdet, lp)
 
         if not np.isfinite(lp):
             return -np.inf, K
@@ -686,10 +689,10 @@ class ProbabilisticModel(object):
 
         while True:
             h, ll = self._ess_step(h, ll, cov)
-            # hyper, lp, cov, a = self._metropolis_step(hyper, h)
+            hyper, lp, cov, a = self._metropolis_step(hyper, h)
 
             # Update the stats.
-            accepted += 1  # int(a)
+            accepted += int(a)
             total += 1
 
             yield h, hyper, ll + lp, accepted / total
