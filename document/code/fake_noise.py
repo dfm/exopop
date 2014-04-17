@@ -55,7 +55,7 @@ def main(args, state=None, smooth=False):
     # The values from EP's paper (+some made up numbers).
     lpb, lrb = censor.bins
     x, y = lpb[::4], lrb[::4]
-    p_vals = np.log(np.array([8.9, 13.7, 15.8, 15.2, 15., 14.8]))
+    p_vals = np.log(np.array([8.9, 13.7, 15.8, 15.2, 13.3, 12.2]))
     r_vals = np.log(np.array([11, 11.5, 12, 14.2, 18.6, 5.9, 1.9, 1, 0.9, 0.7,
                               0.5, 0.5]))
 
@@ -64,7 +64,7 @@ def main(args, state=None, smooth=False):
     r_vals -= logsumexp(r_vals + np.log(np.diff(y)))
 
     # Build a synthetic population.
-    norm = 10.7
+    norm = 10.5
     if smooth:
         truth = [norm, 0.5, -0.2, 4.0, 0.8, -1.5, 1.0]
         pdist = BrokenPowerLaw(lpb)
@@ -76,7 +76,6 @@ def main(args, state=None, smooth=False):
     pop0 = SeparablePopulation([pdist, rdist], lnnorm=truth[0])
     open(os.path.join(bp, "gamma.txt"), "w").write(
         "{0}".format(pop0.get_lnrate(truth, [np.log(365), 0.0])[0]))
-    assert 0
 
     # Sample from this censored population.
     lnrate = np.array(censor.lnprob[1:-1, 1:-1])

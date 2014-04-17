@@ -15,7 +15,6 @@ import h5py
 import triangle
 import numpy as np
 import cPickle as pickle
-from itertools import product
 import matplotlib.pyplot as pl
 
 from load_data import (transit_lnprob0, ln_period0, load_completenes_sim,
@@ -30,6 +29,9 @@ def inverse_detection_efficiency(pop, censor, catalog, err, truth=None):
     weights = np.exp(-censor.lnprob[ind])
     val, x, y = np.histogram2d(c[:, 0], c[:, 1], pop.bins, weights=weights)
     var, x, y = np.histogram2d(c[:, 0], c[:, 1], pop.bins, weights=weights**2)
+
+    val[~np.isfinite(val)] = 0.0
+    var[~np.isfinite(var)] = 0.0
 
     # Build the model for plotting.
     v = pop.initial()
@@ -46,12 +48,10 @@ def inverse_detection_efficiency(pop, censor, catalog, err, truth=None):
                   for i, a in enumerate(marg)]
 
     # Plot the results.
-    rerr = [np.log(catalog[:, 1]) - np.log(catalog[:, 1]-err[:, 1]),
-            np.log(catalog[:, 1]+err[:, 1]) - np.log(catalog[:, 1])]
     labels = ["$\ln T/\mathrm{day}$", "$\ln R/R_\oplus$"]
     top_axes = ["$T\,[\mathrm{days}]$", "$R\,[R_\oplus]$"]
     fig = pop.plot_2d(v, censor=censor, catalog=np.log(catalog),
-                      err=[0, rerr], true=truth, labels=labels,
+                      err=err, true=truth, labels=labels,
                       top_axes=top_axes, literature=literature)
 
     # Extrapolate to the Earth.
@@ -99,7 +99,8 @@ def main(bp, real_data, ep_bins=False):
         rp_rng, nr_bins = np.log([1.0, 16]), 4*8
     else:
         per_rng, np_bins = np.log([6.25, 400.0]), 4*6
-        # rp_rng, nr_bins = [np.log(0.5)+0.5*(np.log(2)-np.log(1)), np.log(32)], 4*11
+        # rp_rng, nr_bins = \
+        #     [np.log(0.5)+0.5*(np.log(2)-np.log(1)), np.log(32)], 4*11
         rp_rng, nr_bins = np.log([0.5, 32]), 4*12
 
     # Load the data.
@@ -120,19 +121,18 @@ def main(bp, real_data, ep_bins=False):
     # Load the candidates.
     if real_data:
         ids, catalog, err = load_candidates()
-
-        # # FIXME!
-        # err = np.zeros_like(err)
-
         truth = None
     else:
         catalog, err, truth = \
             pickle.load(open(os.path.join(bp, "catalog.pkl")))
-    # dataset = Dataset.sample(catalog, err, samples=1, censor=censor,
-    #                          functions=[np.log, np.log])
     dataset = Dataset.sample(catalog, err, samples=72, censor=censor,
                              functions=[np.log, np.log])
     print("{0} entries in catalog".format(dataset.catalogs.shape[1]))
+
+    # ...
+    rerr = [np.log(catalog[:, 1]) - np.log(catalog[:, 1]-err[:, 1]),
+            np.log(catalog[:, 1]+err[:, 1]) - np.log(catalog[:, 1])]
+    err = [0, rerr]
 
     # Build the binned model.
     bins = [x, y]
@@ -163,11 +163,10 @@ def main(bp, real_data, ep_bins=False):
     pickle.dump((model, catalog, err, truth, labels, top_axes,
                  literature),
                 open(os.path.join(bp, "model.pkl"), "w"), -1)
-    assert 0
 
     # Set up the output files.
     nblock = 500
-    N, ndim, nhyper = 1000 * nblock, len(pop), 4
+    N, ndim, nhyper = 2000 * nblock, len(pop), 4
 
     samples = np.empty((nblock, ndim))
     hyper = np.empty((nblock, nhyper))
