@@ -484,7 +484,7 @@ class Dataset(object):
         K, N = values.shape
         good = np.ones(K, dtype=bool)
         catalogs = np.empty((samples, K, N))
-        lnweights = np.zeros(samples)
+        lnweights = np.zeros((samples, K))
         for k, (m, s) in enumerate(izip(values, uncertainties)):
             # Directly sample from the Gaussians.
             if censor is None:
@@ -517,8 +517,13 @@ class Dataset(object):
 
             inds = np.arange(len(lnp))[mask]
             catalogs[:, k, :] = v[inds[:samples]]
-            lnweights += lnp[inds[:samples]]
-        return cls(catalogs[:, good], lnweights)
+            lnweights[:, k] = lnp[inds[:samples]]
+
+            # FIXME: not general at all!!
+            # Let's say that the original prior was flat in the linear vals.
+            lnweights[:, k] += np.sum(catalogs[:, k, :], axis=-1)
+
+        return cls(catalogs[:, good], lnweights[:, good])
 
 
 class CensoringFunction(object):
@@ -614,13 +619,13 @@ class ProbabilisticModel(object):
 
         norm = np.exp(logsumexp(q[center]+self.censor.ln_cell_area))
 
-        # If there is only one sample, we don't need to do the logsumexp.
-        if self.dataset.ncatalogs == 1:
-            return np.sum(q[self.index]) - norm - self.dataset.lnweights[0]
+        # # If there is only one sample, we don't need to do the logsumexp.
+        # if self.dataset.ncatalogs == 1:
+        #     return np.sum(q[self.index]) - norm - self.dataset.lnweights[0]
 
         # Compute the approximate marginalized likelihood.
-        ll = np.sum(q[self.index], axis=1) - norm - self.dataset.lnweights
-        return logsumexp(ll)
+        ll = logsumexp(q[self.index] - self.dataset.lnweights, axis=0)
+        return np.sum(ll) - norm
 
     def lnprior(self, theta):
         return self.population.lnprior(theta)

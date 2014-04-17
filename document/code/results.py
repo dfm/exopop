@@ -36,7 +36,7 @@ for i in range(hyper.shape[1]):
     pl.plot(hyper[:, i])
     pl.savefig(os.path.join(bp, "time-hyper-{0:03d}.png".format(i)))
 
-samples = samples[-200000:, :][::50, :]
+samples = samples[-200000:, :]  # [::50, :]
 
 # Load the true gamma earth if it exists.
 fn = os.path.join(bp, "gamma.txt")
