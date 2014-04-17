@@ -447,7 +447,7 @@ class SmoothingPrior(object):
             return -np.inf, None
         if not -2 < theta[1] < 9:
             return -np.inf, None
-        if np.any((theta[2:self.ndim] < -6)*(theta[2:self.ndim] > 6)):
+        if np.any((theta[2:self.ndim] < -6)+(theta[2:self.ndim] > 6)):
             return -np.inf, None
 
         y = heights - theta[0]
