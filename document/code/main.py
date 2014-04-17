@@ -213,4 +213,4 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         main(sys.argv[1], False)
     else:
-        main("main_everything", True)
+        main("main_no_hyper", True)

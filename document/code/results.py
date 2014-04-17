@@ -17,7 +17,6 @@ import triangle
 import numpy as np
 import cPickle as pickle
 import matplotlib.pyplot as pl
-from matplotlib.ticker import FormatStrFormatter
 
 import load_data
 
@@ -36,6 +35,10 @@ for i in range(hyper.shape[1]):
     pl.clf()
     pl.plot(hyper[:, i])
     pl.savefig(os.path.join(bp, "time-hyper-{0:03d}.png".format(i)))
+
+pl.clf()
+pl.plot(lnprob)
+pl.savefig(os.path.join(bp, "time-lnprob.png"))
 
 samples = samples[-200000:, :]  # [::50, :]
 
@@ -56,6 +59,8 @@ rates = pop.get_lnrate(samples, [np.log(365.), np.log(1.0)])
 fracs = rates - np.log(42557.0)
 a, b, c = triangle.quantile(fracs, [0.16, 0.5, 0.84])
 print("{0}^{{+{1}}}_{{-{2}}}".format(b, c-b, b-a))
+al, bl, cl = triangle.quantile(np.exp(fracs), [0.16, 0.5, 0.84])
+print("{0}^{{+{1}}}_{{-{2}}}".format(bl, cl-bl, bl-al))
 
 fig = pl.figure()
 ax = fig.add_subplot(111)
@@ -78,8 +83,9 @@ ax.set_ylabel(r"$p(\ln \Gamma_\oplus)$")
 a2 = ax.twiny()
 a2.set_xlim(100 * np.exp(ax.get_xlim()))
 a2.set_xscale("log")
-# a2.xaxis.set_major_formatter(FormatStrFormatter("%.1f"))
 a2.set_xlabel(r"$\Gamma_\oplus\,[\%]$")
+
+fig.subplots_adjust(top=0.85)
 
 fig.savefig(os.path.join(bp, "rate.png"))
 fig.savefig(os.path.join(bp, "rate.pdf"))
@@ -89,5 +95,5 @@ somesamples = samples[np.random.randint(len(samples), size=50), :]
 fig = pop.plot_2d(somesamples, censor=model.censor, catalog=np.log(catalog),
                   err=err, true=truth, labels=labels, top_axes=top_axes,
                   literature=literature)
-fig.savefig(os.path.join(bp, "results.png"))
+fig.savefig(os.path.join(bp, "results.png"), dpi=300)
 fig.savefig(os.path.join(bp, "results.pdf"))
