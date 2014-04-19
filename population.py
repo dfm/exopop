@@ -192,8 +192,9 @@ class Population(object):
 
         # Plot the occurence image.
         img = np.median(grids, axis=0).T
-        ax.pcolor(self.base[0], self.base[1], np.exp(img),
-                  cmap="gray", alpha=0.6)
+        m = ax.pcolor(self.base[0], self.base[1], np.exp(img),
+                      cmap="gray", alpha=0.6)
+        m.set_rasterized(True)
 
         # Plot the occurence histograms.
         ys = [logsumexp(grids
@@ -443,16 +444,19 @@ class SmoothingPrior(object):
         return K
 
     def lnprior(self, theta, heights):
+        if not -20 < theta[0] < 20:
+            return -np.inf, None
+        if not -2 < theta[1] < 9:
+            return -np.inf, None
+        if np.any((theta[2:self.ndim] < -2)+(theta[2:self.ndim] > 6)):
+            return -np.inf, None
+
         y = heights - theta[0]
         K = self.get_matrix(theta)
 
         factor, flag = cho_factor(K)
         logdet = np.sum(2*np.log(np.diag(factor)))
         lp = -0.5 * (np.dot(y, cho_solve((factor, flag), y)) + logdet)
-
-        # s, logdet = np.linalg.slogdet(K)
-        # lp = -0.5 * (np.dot(y, np.linalg.solve(K, y)) + logdet)
-        # print(s, logdet, lp)
 
         if not np.isfinite(lp):
             return -np.inf, K
@@ -521,7 +525,7 @@ class Dataset(object):
 
             # FIXME: not general at all!!
             # Let's say that the original prior was flat in the linear vals.
-            lnweights[:, k] += np.sum(catalogs[:, k, :], axis=-1)
+            # lnweights[:, k] += np.sum(catalogs[:, k, :], axis=-1)
 
         return cls(catalogs[:, good], lnweights[:, good])
 
@@ -682,14 +686,16 @@ class ProbabilisticModel(object):
         lp, cov = self.smoothing.lnprior(hyper, h)
 
         # Keep some stats.
-        accepted, total = 0, 0
+        count = 0
+        accepted, total = 1, 1
 
         while True:
             h, ll = self._ess_step(h, ll, cov)
-            # hyper, lp, cov, a = self._metropolis_step(hyper, h)
-
-            # Update the stats.
-            accepted += 1  # int(a)
-            total += 1
+            count += 1
+            if count % 10 == 0:
+                # Update the stats.
+                hyper, lp, cov, a = self._metropolis_step(hyper, h)
+                accepted += int(a)
+                total += 1
 
             yield h, hyper, ll + lp, accepted / total
