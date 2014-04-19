@@ -59,18 +59,20 @@
 \newcommand{\mortontodo}[1]{\todo{MORTON}{green}{#1}}
 
 % Document specific variables.
-\newcommand{\rate}{\ensuremath{\eta}}
-\newcommand{\ratepars}{{\ensuremath{\bvec{\theta}}}}
+\newcommand{\rate}{\ensuremath{\Gamma}}
+\newcommand{\ratepar}{{\ensuremath{\theta}}}
+\newcommand{\ratepars}{{\ensuremath{\bvec{\ratepar}}}}
 \newcommand{\obs}[1]{\ensuremath{\hat{#1}}}
 \newcommand{\radius}{\ensuremath{R}}
 \newcommand{\period}{\ensuremath{T}}
 \newcommand{\completeness}{{\ensuremath{P_\mathrm{c}}}}
 \newcommand{\transitprob}{{\ensuremath{P_\mathrm{t}}}}
-\newcommand{\entry}{\ensuremath{S}}
+\newcommand{\entry}{\ensuremath{w}}
 \newcommand{\catalog}{{\ensuremath{\bvec{\entry}}}}
 
 \newcommand{\interim}{{\ensuremath{\bvec{\alpha}}}}
 
+\newcommand{\binarea}{{\ensuremath{\Delta}}}
 \newcommand{\bincenter}{{\ensuremath{\bvec{x}}}}
 \newcommand{\binheight}{{\ensuremath{w}}}
 \newcommand{\binheights}{{\ensuremath{\bvec{\binheight}}}}
@@ -628,6 +630,65 @@ for helpful contributions to the ideas and code presented here.
 This project was partially supported by the NSF (grant AST-0908357), and NASA
 (grant NNX08AJ48G).
 This research made use of the NASA \project{Astrophysics Data System}.
+
+\appendix
+
+\section{Maximum likelihood estimators for noiseless catalogs}
+
+Equation XXXX gives the likelihood of a catalog $\catalog =
+\{\entry_k\}_{k=1}^K$, conditioned on a particular choice of occurence rate
+parameters \ratepars:
+\begin{eqnarray}
+\ln p(\catalog\,|\,\ratepars) &=& \sum_{k=1}^K \ln \rate(\entry_k)
+    - \int \rate(\entry) \dd\entry \quad.
+\end{eqnarray}
+If we model the occurence rate as a piecewise constant function
+\begin{eqnarray}
+\rate (\entry) &=& \left \{\begin{array}{ll}
+\ratepar_1 & \mathrm{if\,} \entry \in \binarea_1, \\
+\cdots & \cdots \\
+\ratepar_N & \mathrm{if\,} \entry \in \binarea_N, \\
+0 & \mathrm{otherwise}
+\end{array}\right.
+\end{eqnarray}
+where $\binarea_n$ is the volume of the bin $n$, the log likelihood becomes
+\begin{eqnarray}
+\ln p(\catalog\,|\,\ratepars) &=&
+    \sum_{k=1}^K \sum_{n=1}^N \mathbf{1}[\entry_k \in \binarea_n]
+        \ln\ratepar_n
+    - \sum_{n=1}^N \ratepar_n\,\binarea_n \quad.
+\end{eqnarray}
+The maximum likelihood solution to this can be computed analytically
+\begin{eqnarray}
+\frac{\dd \ln p(\catalog\,|\,\ratepars)}{\dd \ratepar_m} &=&
+    \frac{N_m}{\ratepar_m} - \binarea_m \\
+\to \quad \ratepar_m &=& \frac{N_m}{\binarea_m}
+\end{eqnarray}
+where $N_m$ is the number of objects in the bin $m$.
+This result is simply a \emph{normalized histogram} of the points.
+
+Including the completeness function $\completeness(\entry)$ is as simple as
+modeling the observable occurence rate as
+\begin{eqnarray}
+\rate (\entry) &=& \completeness(\entry) \, \left \{\begin{array}{ll}
+\ratepar_1 & \mathrm{if\,} \entry \in \binarea_1, \\
+\cdots & \cdots \\
+\ratepar_N & \mathrm{if\,} \entry \in \binarea_N, \\
+0 & \mathrm{otherwise}
+\end{array}\right. \quad.
+\end{eqnarray}
+This leads to a similar analytic maximum likelihood solution
+\begin{eqnarray}
+\frac{\dd \ln p(\catalog\,|\,\ratepars)}{\dd \ratepar_m} &=&
+    \frac{N_m}{\ratepar_m}
+    - \int_{\binarea_m} \completeness(\entry)\dd\entry \\
+\to \quad \ratepar_m &=& N_m \,
+    \left [\int_{\binarea_m} \completeness(\entry)\dd\entry \right ]^{-1}
+\end{eqnarray}
+where the remaining integral is over the bin $m$.
+This result is \emph{almost} the same as the inverse-detection-efficiency
+procedure but each point is weighted by the bin-averaged efficiency instead of
+the per-object efficiency.
 
 \newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
 \begin{thebibliography}{}\raggedright
