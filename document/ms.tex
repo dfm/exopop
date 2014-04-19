@@ -67,7 +67,8 @@
 \newcommand{\period}{\ensuremath{T}}
 \newcommand{\completeness}{{\ensuremath{P_\mathrm{c}}}}
 \newcommand{\transitprob}{{\ensuremath{P_\mathrm{t}}}}
-\newcommand{\entry}{\ensuremath{w}}
+\newcommand{\data}{{\ensuremath{\bvec{x}}}}
+\newcommand{\entry}{{\ensuremath{\bvec{w}}}}
 \newcommand{\catalog}{{\ensuremath{\bvec{\entry}}}}
 
 \newcommand{\interim}{{\ensuremath{\bvec{\alpha}}}}
@@ -123,7 +124,7 @@ completeness \emph{and observational uncertainties}.
 We demonstrate that our method produces lower variance estimates than the
 standard inverse-detection-efficiency weighting procedure.
 When applied to an existing catalog of small planet candidates around G dwarfs
-(Petigura \etal 2013), our method confirms previous measurements of a
+(Petigura \etal\ 2013), our method confirms previous measurements of a
 flattening radius distribution near Earth's radius.
 One output of our models is fully marginalized estimates---marginalizing out
 observational uncertainties and all distribution parameters---of the rate
@@ -229,6 +230,38 @@ uncertainties in all of the planet radii.
 More will be said about this below; the importance sampling looks like a
 product over data points of sums (averages) over individual-datum radius
 samplings.
+
+\section{A brief introduction to hierarchical inference}
+
+In this \paper, we are asking the question: \emph{what constraints can we put
+on the occurence rate of exoplanets given all the light curves measured by
+\project{Kepler}?}
+Mathematically, this involves evaluating the so-called \emph{marginalized
+likelihood function}
+\begin{eqnarray}\eqlabel{crazylike}
+p(\{\data_k\}\,|\,\ratepars) &=&
+    \int\left[\prod_{k=1}^K p(\data_k\,|\,\entry_k)\right ]
+    \,p(\{\entry_k\}\,|\,\ratepars)
+    \dd\{\entry_k\}
+\end{eqnarray}
+where $\{\data_k\}$ is the set of all light curves, \ratepars\ is a vector of
+parameters describing the occurence rate function $\rate_\ratepars(\entry)$
+and \entry\ is a vector of physical parameters describing a planetary system
+(period, radius ratio, \etc).
+
+It is generally computationally intractable to compute the likelihood in
+\eq{crazylike} because it involves the numerical evaluation of an extremely
+ high dimensional---the number of physical parameters times the number of
+targets---and computationally costly integral.
+Instead, we can use existing catalogs of planet candidates to approximate the
+marginalization integral.
+For our purposes, this is the definition of \emph{hierarchical inference}.
+
+A very simple example of such an inference is a procedure that should be very
+familiar: the histogram.
+In the limit of negligible uncertainties, the maximum marginalized likelihood
+for the occurence rate is a histogram of the objects in the catalog (see
+\app{histogram} for the derivation).
 
 \section{Model generalities}
 
@@ -634,6 +667,7 @@ This research made use of the NASA \project{Astrophysics Data System}.
 \appendix
 
 \section{Maximum likelihood estimators for noiseless catalogs}
+\sectlabel{histogram}
 
 Equation XXXX gives the likelihood of a catalog $\catalog =
 \{\entry_k\}_{k=1}^K$, conditioned on a particular choice of occurence rate
