@@ -235,7 +235,7 @@ samplings.
 
 In this \paper, we are asking the question: \emph{what constraints can we put
 on the occurence rate of exoplanets given all the light curves measured by
-\project{Kepler}?}
+\kepler?}
 Mathematically, this involves evaluating the so-called \emph{marginalized
 likelihood function}
 \begin{eqnarray}\eqlabel{crazylike}
@@ -250,18 +250,57 @@ and \entry\ is a vector of physical parameters describing a planetary system
 (period, radius ratio, \etc).
 
 It is generally computationally intractable to compute the likelihood in
-\eq{crazylike} because it involves the numerical evaluation of an extremely
- high dimensional---the number of physical parameters times the number of
-targets---and computationally costly integral.
+\eq{crazylike} because it involves a high dimensional numerical integration of
+a function where each evaluation of the integrand touches \emph{every data
+point}.
 Instead, we can use existing catalogs of planet candidates to approximate the
 marginalization integral.
 For our purposes, this is the definition of \emph{hierarchical inference}.
 
-A very simple example of such an inference is a procedure that should be very
-familiar: the histogram.
-In the limit of negligible uncertainties, the maximum marginalized likelihood
-for the occurence rate is a histogram of the objects in the catalog (see
-\app{histogram} for the derivation).
+A catalog is a dimensionality reduction of the data that it is based on where
+all the (relevant) information has been retained (we hope!).
+In the context of \kepler, the catalog reduces the set of downloaded pixel
+time series (approximately XXXX for the average \kepler\ target) to
+probabilistic constraints on a handful of physical parameters---we'll call
+them \entry---like the orbital period and radius.
+If we take this set of parameters as \emph{sufficient statistics} of the data
+then we can, in theory, compute \eq{crazylike}---up to an unimportant
+constant---without ever looking at the raw data again.
+This is true because the catalog provides constraints on the posterior
+probability of the parameters $\{\entry_k\}$ under some ``interim prior''
+\interim
+\begin{eqnarray}\eqlabel{crazypost}
+p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) &=&
+\frac{p(\{\entry_k\}\,|\,\interim)}{p(\{\data_k\}\,|\,\interim)}\,
+\prod_{k=1}^K p(\data_k\,|\,\entry_k) \quad.
+\end{eqnarray}
+We can then multiply the integrand in \eq{crazylike} by
+\begin{eqnarray}
+\frac{p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)}
+     {p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)}
+\end{eqnarray}
+and use \eq{crazypost} to find
+\begin{eqnarray}
+\frac{p(\{\data_k\}\,|\,\ratepars)}{p(\{\data_k\}\,|\,\interim)} &=&
+    \int
+    \frac{p(\{\entry_k\}\,|\,\ratepars)}{p(\{\entry_k\}\,|\,\interim)}\,
+    p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)
+    \dd\{\entry_k\} \quad.
+\end{eqnarray}
+On the right hand side of this equation, the data come in only through the
+quantity $p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)$ that is provided by the
+catalog!
+
+A very simple example is a procedure that will be very familiar: the histogram.
+If you model the function $p(\{\entry_k\}\,|\,\ratepars)$ as a piecewise
+constant rate function---where the bin heights are the parameters---and if the
+uncertainties on the catalog are negligible compared to the bin widths then
+the maximum marginalized solution for \ratepars\ is a histogram of the
+catalog entries (see \app{histogram} for the derivation).
+The case of non-negligible uncertainties is described by \citet{hogge} using a
+method similar to the one discussed below.
+The limiting noiseless case for an incomplete catalog also has an analytic
+maximum likelihood result that we derive in \app{histogram}.
 
 \section{Model generalities}
 
