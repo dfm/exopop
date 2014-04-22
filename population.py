@@ -525,7 +525,7 @@ class Dataset(object):
 
             # FIXME: not general at all!!
             # Let's say that the original prior was flat in the linear vals.
-            # lnweights[:, k] += np.sum(catalogs[:, k, :], axis=-1)
+            lnweights[:, k] += np.sum(catalogs[:, k, :], axis=-1)
 
         return cls(catalogs[:, good], lnweights[:, good])
 
@@ -646,17 +646,17 @@ class ProbabilisticModel(object):
     def __call__(self, theta):
         return self.lnprob(theta)
 
-    def _ess_step(self, f0, ll0, cov):
+    def _ess_step(self, f0, ll0, cov, mean=0.0):
         D = len(f0)
         nu = np.random.multivariate_normal(np.zeros(D), cov)
         lny = ll0 + np.log(np.random.rand())
         th = 2*np.pi*np.random.rand()
         thmn, thmx = th-2*np.pi, th
         while True:
-            fp = f0*np.cos(th) + nu*np.sin(th)
-            ll = self.lnprob(fp)
+            fp = (f0-mean)*np.cos(th) + nu*np.sin(th)
+            ll = self.lnprob(fp+mean)
             if ll > lny:
-                return fp, ll
+                return fp+mean, ll
             if th < 0:
                 thmn = th
             else:
@@ -690,7 +690,7 @@ class ProbabilisticModel(object):
         accepted, total = 1, 1
 
         while True:
-            h, ll = self._ess_step(h, ll, cov)
+            h, ll = self._ess_step(h, ll, cov, mean=hyper[0])
             count += 1
             if count % 10 == 0:
                 # Update the stats.
