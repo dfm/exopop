@@ -16,9 +16,9 @@ population = population
 
 bp = os.path.join(base, "data")
 
-stars = pd.read_hdf(os.path.join(bp, "stlr.h5"), "stlr")
 G = 2945.4625385377644
 P = 10.0
+# stars = pd.read_hdf(os.path.join(bp, "stlr.h5"), "stlr")
 # transit_lnprobs = np.log(stars.Rstar) + (np.log(4*np.pi*np.pi)
 #                                          - np.log(G*P*P*stars.Mstar)) / 3
 # transit_lnprob0 = np.median(transit_lnprobs)

@@ -59,18 +59,21 @@
 \newcommand{\mortontodo}[1]{\todo{MORTON}{green}{#1}}
 
 % Document specific variables.
-\newcommand{\rate}{\ensuremath{\eta}}
-\newcommand{\ratepars}{{\ensuremath{\bvec{\theta}}}}
+\newcommand{\rate}{\ensuremath{\Gamma}}
+\newcommand{\ratepar}{{\ensuremath{\theta}}}
+\newcommand{\ratepars}{{\ensuremath{\bvec{\ratepar}}}}
 \newcommand{\obs}[1]{\ensuremath{\hat{#1}}}
 \newcommand{\radius}{\ensuremath{R}}
 \newcommand{\period}{\ensuremath{T}}
 \newcommand{\completeness}{{\ensuremath{P_\mathrm{c}}}}
 \newcommand{\transitprob}{{\ensuremath{P_\mathrm{t}}}}
-\newcommand{\entry}{\ensuremath{S}}
+\newcommand{\data}{{\ensuremath{\bvec{x}}}}
+\newcommand{\entry}{{\ensuremath{\bvec{w}}}}
 \newcommand{\catalog}{{\ensuremath{\bvec{\entry}}}}
 
 \newcommand{\interim}{{\ensuremath{\bvec{\alpha}}}}
 
+\newcommand{\binarea}{{\ensuremath{\Delta}}}
 \newcommand{\bincenter}{{\ensuremath{\bvec{x}}}}
 \newcommand{\binheight}{{\ensuremath{w}}}
 \newcommand{\binheights}{{\ensuremath{\bvec{\binheight}}}}
@@ -121,7 +124,7 @@ completeness \emph{and observational uncertainties}.
 We demonstrate that our method produces lower variance estimates than the
 standard inverse-detection-efficiency weighting procedure.
 When applied to an existing catalog of small planet candidates around G dwarfs
-(Petigura \etal 2013), our method confirms previous measurements of a
+(Petigura \etal\ 2013), our method confirms previous measurements of a
 flattening radius distribution near Earth's radius.
 One output of our models is fully marginalized estimates---marginalizing out
 observational uncertainties and all distribution parameters---of the rate
@@ -227,6 +230,77 @@ uncertainties in all of the planet radii.
 More will be said about this below; the importance sampling looks like a
 product over data points of sums (averages) over individual-datum radius
 samplings.
+
+\section{A brief introduction to hierarchical inference}
+
+In this \paper, we are asking the question: \emph{what constraints can we put
+on the occurence rate of exoplanets given all the light curves measured by
+\kepler?}
+Mathematically, this involves evaluating the so-called \emph{marginalized
+likelihood function}
+\begin{eqnarray}\eqlabel{crazylike}
+p(\{\data_k\}\,|\,\ratepars) &=&
+    \int\left[\prod_{k=1}^K p(\data_k\,|\,\entry_k)\right ]
+    \,p(\{\entry_k\}\,|\,\ratepars)
+    \dd\{\entry_k\}
+\end{eqnarray}
+where $\{\data_k\}$ is the set of all light curves, \ratepars\ is a vector of
+parameters describing the occurence rate function $\rate_\ratepars(\entry)$
+and \entry\ is a vector of physical parameters describing a planetary system
+(period, radius ratio, \etc).
+
+It is generally computationally intractable to compute the likelihood in
+\eq{crazylike} because it involves a high dimensional numerical integration of
+a function where each evaluation of the integrand touches \emph{every data
+point}.
+Instead, we can use existing catalogs of planet candidates to approximate the
+marginalization integral.
+For our purposes, this is the definition of \emph{hierarchical inference}.
+
+A catalog is a dimensionality reduction of the data that it is based on where
+all the (relevant) information has been retained (we hope!).
+In the context of \kepler, the catalog reduces the set of downloaded pixel
+time series (approximately XXXX for the average \kepler\ target) to
+probabilistic constraints on a handful of physical parameters---we'll call
+them \entry---like the orbital period and radius.
+If we take this set of parameters as \emph{sufficient statistics} of the data
+then we can, in theory, compute \eq{crazylike}---up to an unimportant
+constant---without ever looking at the raw data again.
+This is true because the catalog provides constraints on the posterior
+probability of the parameters $\{\entry_k\}$ under some ``interim prior''
+\interim
+\begin{eqnarray}\eqlabel{crazypost}
+p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) &=&
+\frac{p(\{\entry_k\}\,|\,\interim)}{p(\{\data_k\}\,|\,\interim)}\,
+\prod_{k=1}^K p(\data_k\,|\,\entry_k) \quad.
+\end{eqnarray}
+We can then multiply the integrand in \eq{crazylike} by
+\begin{eqnarray}
+\frac{p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)}
+     {p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)}
+\end{eqnarray}
+and use \eq{crazypost} to find
+\begin{eqnarray}
+\frac{p(\{\data_k\}\,|\,\ratepars)}{p(\{\data_k\}\,|\,\interim)} &=&
+    \int
+    \frac{p(\{\entry_k\}\,|\,\ratepars)}{p(\{\entry_k\}\,|\,\interim)}\,
+    p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)
+    \dd\{\entry_k\} \quad.
+\end{eqnarray}
+On the right hand side of this equation, the data come in only through the
+quantity $p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)$ that is provided by the
+catalog!
+
+A very simple example is a procedure that will be very familiar: the histogram.
+If you model the function $p(\{\entry_k\}\,|\,\ratepars)$ as a piecewise
+constant rate function---where the bin heights are the parameters---and if the
+uncertainties on the catalog are negligible compared to the bin widths then
+the maximum marginalized solution for \ratepars\ is a histogram of the
+catalog entries (see \app{histogram} for the derivation).
+The case of non-negligible uncertainties is described by \citet{hogge} using a
+method similar to the one discussed below.
+The limiting noiseless case for an incomplete catalog also has an analytic
+maximum likelihood result that we derive in \app{histogram}.
 
 \section{Model generalities}
 
@@ -628,6 +702,66 @@ for helpful contributions to the ideas and code presented here.
 This project was partially supported by the NSF (grant AST-0908357), and NASA
 (grant NNX08AJ48G).
 This research made use of the NASA \project{Astrophysics Data System}.
+
+\appendix
+
+\section{Maximum likelihood estimators for noiseless catalogs}
+\sectlabel{histogram}
+
+Equation XXXX gives the likelihood of a catalog $\catalog =
+\{\entry_k\}_{k=1}^K$, conditioned on a particular choice of occurence rate
+parameters \ratepars:
+\begin{eqnarray}
+\ln p(\catalog\,|\,\ratepars) &=& \sum_{k=1}^K \ln \rate(\entry_k)
+    - \int \rate(\entry) \dd\entry \quad.
+\end{eqnarray}
+If we model the occurence rate as a piecewise constant function
+\begin{eqnarray}
+\rate (\entry) &=& \left \{\begin{array}{ll}
+\ratepar_1 & \mathrm{if\,} \entry \in \binarea_1, \\
+\cdots & \cdots \\
+\ratepar_N & \mathrm{if\,} \entry \in \binarea_N, \\
+0 & \mathrm{otherwise}
+\end{array}\right.
+\end{eqnarray}
+where $\binarea_n$ is the volume of the bin $n$, the log likelihood becomes
+\begin{eqnarray}
+\ln p(\catalog\,|\,\ratepars) &=&
+    \sum_{k=1}^K \sum_{n=1}^N \mathbf{1}[\entry_k \in \binarea_n]
+        \ln\ratepar_n
+    - \sum_{n=1}^N \ratepar_n\,\binarea_n \quad.
+\end{eqnarray}
+The maximum likelihood solution to this can be computed analytically
+\begin{eqnarray}
+\frac{\dd \ln p(\catalog\,|\,\ratepars)}{\dd \ratepar_m} &=&
+    \frac{N_m}{\ratepar_m} - \binarea_m \\
+\to \quad \ratepar_m &=& \frac{N_m}{\binarea_m}
+\end{eqnarray}
+where $N_m$ is the number of objects in the bin $m$.
+This result is simply a \emph{normalized histogram} of the points.
+
+Including the completeness function $\completeness(\entry)$ is as simple as
+modeling the observable occurence rate as
+\begin{eqnarray}
+\rate (\entry) &=& \completeness(\entry) \, \left \{\begin{array}{ll}
+\ratepar_1 & \mathrm{if\,} \entry \in \binarea_1, \\
+\cdots & \cdots \\
+\ratepar_N & \mathrm{if\,} \entry \in \binarea_N, \\
+0 & \mathrm{otherwise}
+\end{array}\right. \quad.
+\end{eqnarray}
+This leads to a similar analytic maximum likelihood solution
+\begin{eqnarray}
+\frac{\dd \ln p(\catalog\,|\,\ratepars)}{\dd \ratepar_m} &=&
+    \frac{N_m}{\ratepar_m}
+    - \int_{\binarea_m} \completeness(\entry)\dd\entry \\
+\to \quad \ratepar_m &=& N_m \,
+    \left [\int_{\binarea_m} \completeness(\entry)\dd\entry \right ]^{-1}
+\end{eqnarray}
+where the remaining integral is over the bin $m$.
+This result is \emph{almost} the same as the inverse-detection-efficiency
+procedure but each point is weighted by the bin-averaged efficiency instead of
+the per-object efficiency.
 
 \newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
 \begin{thebibliography}{}\raggedright

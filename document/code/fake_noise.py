@@ -16,7 +16,8 @@ import cPickle as pickle
 from itertools import product
 from scipy.misc import logsumexp
 
-from load_data import transit_lnprob0, ln_period0, load_completenes_sim
+from load_data import (transit_lnprob0, ln_period0, load_completenes_sim,
+                       load_candidates)
 from population import (CensoringFunction, SeparablePopulation, Histogram,
                         BrokenPowerLaw)
 
@@ -51,6 +52,10 @@ def main(args, state=None, smooth=False):
                                bins=(np_bins, nr_bins),
                                range=[per_rng, rp_rng],
                                transit_lnprob_function=tlp)
+
+    # Load the candidates to get fractional uncertainties.
+    inds, mu, sig = load_candidates()
+    ferr = sig[:, 1] / mu[:, 1]
 
     # The values from EP's paper (+some made up numbers).
     lpb, lrb = censor.bins
@@ -93,7 +98,8 @@ def main(args, state=None, smooth=False):
     # Add in some observational uncertainties.
     catalog = np.exp(catalog)
     # err = np.vstack([np.zeros(len(catalog)), 0.1 * catalog[:, 1]]).T
-    err = np.vstack([np.zeros(len(catalog)), 0.25 * catalog[:, 1]]).T
+    i = np.random.randint(len(ferr), size=len(catalog))
+    err = np.vstack([np.zeros(len(catalog)), ferr[i] * catalog[:, 1]]).T
     catalog += err * np.random.randn(*(err.shape))
     print(len(catalog))
 
