@@ -403,53 +403,25 @@ as 1.
 
 \section{Validation using synthetic catalogs}
 
-To confirm that the probabilistic framework developed in the previous sections
-provides correct inferences about the population of exoplanets given noisy
-data, we'll start by generating synthetic catalogs and running our full
-inference pipeline on those data.
-In this section, we also demonstrate the key benefits of our method over the
-standard intuitive inverse-detection-efficiency procedure.
-
-\paragraph{Inverse-detection-efficiency}
-Authors in the exoplanet literature (for example, \citealt{howard, dressing,
-petigura}) have built population level models using this procedure.
-The basic idea is to make a histogram of planet candidates in the model where
-each sample has a weight proportional to the inverse detection efficiency.
-This method makes intuitive sense and, in the limit of infinitely precise
-measurements, it is not wrong.
-Even in this limit, this estimator of the occurrence distributions will have
-large variance; especially as the detection efficiency becomes low.
-In the presence of observational uncertainties, the inferred distributions
-will be biased.
-
-The likelihood function in \eq{true-like} provides a \emph{probability
-distribution over catalogs} conditioned on the parameters of the rate
-function.
-Therefore, it is also the description of a \emph{generative process} for
-synthetic catalogs.
-To demonstrate the effectiveness of our model, we generate synthetic catalogs
-from known distributions in period and radius, and test the performance of our
-method on the resulting data.
-For comparison, we also implement the one-over-efficiency weighting procedure
-(see, for example, \citealt{howard, dressing, petigura}) and apply it to the
-same datasets.
-
-\paragraph{The generative process}
-The variable rate Poisson likelihood function in \eq{true-like} can be sampled
-generally for arbitrary forms of the rate function using a procedure called
-``thinning'' (\citealt{poisson}).
-In this \paper, however, we will only consider binned representations of
-\rate, greatly simplifying the generative process.
-Conditioned on a set of rate function parameters and a given completeness
-function (here we'll use the injections from \citealt{petigura}), we compute
-the observable rate grid from \eq{obs-rate}.
-Then in each bin, we sample $J$ candidates uniformly in period and
-radius (as defined by the bin edges) where $J$ is a Poisson random variable
-sampled with the rate given by the observable rate in this bin.
-\dfmtodo{Make this description not be the most confusing thing ever.}
-Then, we add 30\% measurement uncertainties to the radius measurements where
-30\% was chosen to match to properties of the real catalog
-(\citealt{petigura}).
+In order to get a feeling for the constraints provided by our method and to
+explore any biases introduced by ignoring the observational uncertainties, we
+start by ``observing'' a few synthetic catalogs from qualitatively different
+known occurence rate functions.
+For each of these simulations, we'll take the completeness function computed
+by \citet{petigura} as given.
+In general, \eq{poisson-like} can be sampled using a procedure called thinning
+(\citealt{poisson}) but for our purposes, we'll simply consider a piecewise
+constant rate function evaluated on a fine grid in (log-) period and radius.
+For this discrete function, the generative procedure is simply:
+\begin{enumerate}
+{\item loop over each grid cell $i$,}
+{\item draw Poisson random integer $K_i\sim\mathrm{Poissson}(\obs{\rate}_i)$
+with the observable rate evaluated in the cell, and}
+{\item distribute $K_i$ catalog entries in the cell randomly.}
+\end{enumerate}
+We then choose fractional observational uncertainties on the radii from the
+\citet{petigura} catalog and apply them to the catalog assuming that they are
+Gaussian.
 
 \paragraph{Results}
 See \fig{synthetic-radius}.
