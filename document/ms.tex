@@ -236,7 +236,7 @@ Mathematically, this involves evaluating the so-called \emph{marginalized
 likelihood function}
 \begin{eqnarray}\eqlabel{crazylike}
 p(\{\data_k\}\,|\,\ratepars) &=&
-    \int\left[\prod_{k=1}^K p(\data_k\,|\,\entry_k)\right ]
+    \int p(\{\data_k\}\,|\,\{\entry_k\})
     \,p(\{\entry_k\}\,|\,\ratepars)
     \dd\{\entry_k\}
 \end{eqnarray}
@@ -244,18 +244,14 @@ where $\{\data_k\}$ is the set of all light curves, \ratepars\ is a vector of
 parameters describing the occurence rate function $\rate_\ratepars(\entry)$
 and \entry\ is a vector of physical parameters describing a planetary system
 (orbital periods, radius ratios, stellar radius, \etc).
-In this equation, we have only made one assumption ...
+In this equation, our only assumption is that the datasets depend on the
+occurence rate of exoplanets only through the catalog.
+In our case, this assumption qualitatively means that the signals found in the
+light curves depend only on the actual planet properties and not on their
+distributions.
 
-It is generally computationally intractable to compute the likelihood in
-\eq{crazylike} because it involves a high dimensional numerical integration of
-a function where each evaluation of the integrand touches \emph{every data
-point}.
-Instead, we can use existing catalogs of planet candidates to approximate the
-marginalization integral.
-For our purposes, this is the definition of \emph{hierarchical inference}.
-
-A catalog is a dimensionality reduction of the raw data that with all the
-relevant information retained (we hope!).
+In other words, a catalog is a dimensionality reduction of the raw data with
+all the relevant information retained.
 In the context of \kepler, the catalog reduces the set of downloaded pixel
 time series (approximately XXXX data points for the average \kepler\ target)
 to probabilistic constraints on a handful of physical parameters---\entry\
@@ -268,8 +264,8 @@ probability of the parameters $\{\entry_k\}$ under some choice of ``interim
 prior'' \interim
 \begin{eqnarray}\eqlabel{crazypost}
 p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) &=&
-\frac{p(\{\entry_k\}\,|\,\interim)}{p(\{\data_k\}\,|\,\interim)}\,
-\prod_{k=1}^K p(\data_k\,|\,\entry_k) \quad.
+\frac{p(\{\data_k\}\,|\,\{\entry_k\})\,p(\{\entry_k\}\,|\,\interim)}
+     {p(\{\data_k\}\,|\,\interim)} \quad.
 \end{eqnarray}
 It turns out that we can use this posterior to simplify \eq{crazylike} to a
 form that can, in many common cases, be evaluated efficiently.
@@ -293,12 +289,10 @@ A very simple example is a procedure that will be very familiar: the histogram.
 If you model the function $p(\{\entry_k\}\,|\,\ratepars)$ as a piecewise
 constant rate function---where the bin heights are the parameters---and if the
 uncertainties on the catalog are negligible compared to the bin widths then
-the maximum marginalized solution for \ratepars\ is a histogram of the
-catalog entries (see \app{histogram} for the derivation).
+the maximum marginalized likelihood solution for \ratepars\ is a histogram of
+the catalog entries (see \app{histogram} for the derivation).
 The case of non-negligible uncertainties is described by \citet{hogge} using a
 method similar to the one discussed below.
-The limiting noiseless case for an incomplete catalog also has an analytic
-maximum likelihood result that we derive in \app{histogram}.
 
 \section{Model generalities}
 
