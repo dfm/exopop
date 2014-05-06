@@ -275,7 +275,7 @@ To find this result, multiply the integrand in \eq{crazylike} by
      {p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)}
 \end{eqnarray}
 and use \eq{crazypost} to find
-\begin{eqnarray}
+\begin{eqnarray}\eqlabel{simplemarglike}
 \frac{p(\{\data_k\}\,|\,\ratepars)}{p(\{\data_k\}\,|\,\interim)} &=&
     \int
     \frac{p(\{\entry_k\}\,|\,\ratepars)}{p(\{\entry_k\}\,|\,\interim)}\,
@@ -285,6 +285,25 @@ and use \eq{crazypost} to find
 The data only enter this equation through the posterior constraints provided
 by the catalog!
 
+The constraints in \eq{crazypost} can always be---and often are---propagated
+as a list of $N$ samples $\{\entry_k^{(n)}\}$ from the posterior
+\begin{eqnarray}
+\entry_k^{(n)} &\sim& p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) \quad.
+\end{eqnarray}
+We can use these samples to approximately compute the integral in
+\eq{simplemarglike} as
+\begin{eqnarray}
+\frac{p(\{\data_k\}\,|\,\ratepars)}{p(\{\data_k\}\,|\,\interim)} &\approx&
+    \frac{1}{N} \sum_{n=1}^N
+    \frac{p(\{\entry_k^{(n)}\}\,|\,\ratepars)}
+         {p(\{\entry_k^{(n)}\}\,|\,\interim)} \quad.
+\end{eqnarray}
+This is very efficient to compute as long as an evaluation of
+$p(\{\entry_k^{(n)}\}\,|\,\ratepars)$ is not very expensive.
+That being said, this could be a high variance estimator depending on the
+initial choice of $p(\{\entry_k^{(n)}\}\,|\,\interim)$ but in our case, we'll
+show that not many samples are needed to get an accurate estimate.
+
 A very simple example is a procedure that will be very familiar: the histogram.
 If you model the function $p(\{\entry_k\}\,|\,\ratepars)$ as a piecewise
 constant rate function---where the bin heights are the parameters---and if the
@@ -292,7 +311,7 @@ uncertainties on the catalog are negligible compared to the bin widths then
 the maximum marginalized likelihood solution for \ratepars\ is a histogram of
 the catalog entries (see \app{histogram} for the derivation).
 The case of non-negligible uncertainties is described by \citet{hogge} using a
-method similar to the one discussed below.
+method similar to the one discussed here.
 
 \section{Model generalities}
 
@@ -373,7 +392,7 @@ in various limiting cases, they would provide the same result.
 assumptions.}
 
 \paragraph{Occurence rate parameterization \& priors}
-\dfmtodo{describe the Gaussian process prior on the bin heights.}
+In this paper, we will also model
 
 \section{The completeness function \& dataset}
 
