@@ -424,33 +424,26 @@ Gaussian.
 See \fig{synthetic-radius}.
 As expected, the forward model is a much lower variance estimator.
 
-\begin{figure}[htbp]
-\begin{center}
-\subfigure[one-over-efficiency]{%
-\includegraphics[width=0.45\textwidth]{figures/synthetic-vmax-radius.pdf}
-}
-\subfigure[fully-marginalized forward model]{%
-\includegraphics[width=0.45\textwidth]{figures/synthetic-radius.pdf}
-}
-\end{center}
-\caption{%
-The inferred distribution of exoplanet radii based on a noisy observation of a
-synthetic catalog.
-The red dotted line shows the true distribution function and the black
-histograms are the constraints from the different inference techniques.
-\figlabel{synthetic-radius}}
-\end{figure}
+% \begin{figure}[htbp]
+% \begin{center}
+% \subfigure[one-over-efficiency]{%
+% \includegraphics[width=0.45\textwidth]{figures/synthetic-vmax-radius.pdf}
+% }
+% \subfigure[fully-marginalized forward model]{%
+% \includegraphics[width=0.45\textwidth]{figures/synthetic-radius.pdf}
+% }
+% \end{center}
+% \caption{%
+% The inferred distribution of exoplanet radii based on a noisy observation of a
+% synthetic catalog.
+% The red dotted line shows the true distribution function and the black
+% histograms are the constraints from the different inference techniques.
+% \figlabel{synthetic-radius}}
+% \end{figure}
+
+\section{Extrapolation to Earth}
 
 \section{Real data}
-
-It has been shown that the joint period--radius distribution for exoplanets is
-not separable (\dfmtodo{CITE}).
-In this section, we discuss non-separable model in our analysis framework.
-
-We model the rate function $\rate(\period,\,\radius)$ as a piecewise constant
-function in rectangular bins in $\ln\period$ and $\ln\radius$.
-The parameters \ratepars\ that we're fitting are the values of each of these
-bins (subject to a normalization constraint).
 
 \section{Discussion}
 
