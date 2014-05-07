@@ -25,7 +25,7 @@
 \newcommand{\kepler}{\project{Kepler}}
 \newcommand{\license}{MIT License}
 
-\newcommand{\paper}{\emph{Article}}
+\newcommand{\paper}{\textsl{Article}}
 
 \newcommand{\foreign}[1]{\emph{#1}}
 \newcommand{\etal}{\foreign{et\,al.}}
@@ -240,25 +240,28 @@ p(\{\data_k\}\,|\,\ratepars) &=&
     \,p(\{\entry_k\}\,|\,\ratepars)
     \dd\{\entry_k\}
 \end{eqnarray}
-where $\{\data_k\}$ is the set of all light curves, \ratepars\ is a vector of
-parameters describing the occurence rate function $\rate_\ratepars(\entry)$
-and \entry\ is a vector of physical parameters describing a planetary system
-(orbital periods, radius ratios, stellar radius, \etc).
+where $\{\data_k\}$ is the set of all light curves, one light curve $\data_k$
+per target $k$, \ratepars\ is a vector of parameters describing the occurence
+rate function $\rate_\ratepars(\entry)$ and $\entry_k$ is the vector of
+physical parameters describing the planetary system (orbital periods,
+radius ratios, stellar radius, \etc) around target $k$.
 In this equation, our only assumption is that the datasets depend on the
-occurence rate of exoplanets only through the catalog.
+occurence rate of exoplanets only through the catalog $\{\entry_k\}$.
 In our case, this assumption qualitatively means that the signals found in the
-light curves depend only on the actual planet properties and not on their
-distributions.
+light curves depend only on the actual planet properties and not on the
+distributions from which they are drawn.
+It is worth noting that---as we will discuss further below---the catalog only
+provides \emph{probabilistic} constraints on $\{\entry_k\}$.
 
 In other words, a catalog is a dimensionality reduction of the raw data with
 all the relevant information retained.
 In the context of \kepler, the catalog reduces the set of downloaded pixel
-time series (approximately XXXX data points for the average \kepler\ target)
+time series (approximately 70,000 data points for the typical \kepler\ target)
 to probabilistic constraints on a handful of physical parameters---\entry\
-from above---like the orbital period and radius.
-If we take this set of parameters as \emph{sufficient statistics} of the data
-then we can, in theory, compute \eq{crazylike}---up to an unimportant
-constant---without ever looking at the raw data again.
+from above---like the orbital period and planetary radius.
+If we take this set of parameters $\{\entry_k\}$ as \emph{sufficient
+statistics} of the data then we can, in theory, compute \eq{crazylike}---up to
+an unimportant constant---without ever looking at the raw data again.
 This is true because the catalog provides constraints on the posterior
 probability of the parameters $\{\entry_k\}$ under some choice of ``interim
 prior'' \interim
@@ -283,7 +286,8 @@ and use \eq{crazypost} to find
     \dd\{\entry_k\} \quad.
 \end{eqnarray}
 The data only enter this equation through the posterior constraints provided
-by the catalog!
+by the catalog $\{\entry_k\}$!
+For our purposes, this is the \emph{definition} of hierarchical inference.
 
 The constraints in \eq{crazypost} can always be---and often are---propagated
 as a list of $N$ samples $\{\entry_k^{(n)}\}$ from the posterior
@@ -304,7 +308,7 @@ That being said, this could be a high variance estimator depending on the
 initial choice of $p(\{\entry_k^{(n)}\}\,|\,\interim)$ but in our case, we'll
 show that not many samples are needed to get an accurate estimate.
 
-A very simple example is a procedure that will be very familiar: the histogram.
+A very simple example is the familiar procedure of making a histogram.
 If you model the function $p(\{\entry_k\}\,|\,\ratepars)$ as a piecewise
 constant rate function---where the bin heights are the parameters---and if the
 uncertainties on the catalog are negligible compared to the bin widths then
@@ -326,6 +330,15 @@ p(\{\entry_k\}\,|\,\ratepars) &=&
     \exp\left(-\int \obs{\rate}_\ratepars (\entry) \dd\entry\right) \,
     \prod_{k=1}^K \obs{\rate}_\ratepars (\entry_k)\quad.
 \end{eqnarray}
+In this equation, the integral in the normalization term is the expected
+number of observable exoplanets in the sample.
+A further assumption that we have made in \eq{poisson-like} is that each
+object is an independent sample from the rate function.
+This assumption---though it is often made---cannot be correct when we consider
+systems of multiple planets.
+It is possible to relax this assumption (see \citealt{tremaine} for a related
+technique) but this generalization is beyond the scope of the current \paper.
+
 The main thing to note here is that $\obs{\rate}_\ratepars$ is the rate of
 exoplanets that you would expect to observe taking into account the geometric
 transit probability and any other detection efficiencies.
@@ -392,9 +405,10 @@ in various limiting cases, they would provide the same result.
 assumptions.}
 
 \paragraph{Occurence rate parameterization \& priors}
-In this paper, we will also model
+For the remainder of this \paper, we will also model the occurence rate as a
+histogram in logarithmic bins of period $\ln\period$ and radius $\ln\radius$.
 
-\section{The completeness function \& dataset}
+\section{Data and completeness function}
 
 Erik Petigura and collaborators (\citealt{petigura-a,petigura}) heroically
 determined the empirical end-to-end completeness of their transit search
