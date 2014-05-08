@@ -410,26 +410,50 @@ histogram in logarithmic bins of period $\ln\period$ and radius $\ln\radius$.
 
 \section{Data and completeness function}
 
-Erik Petigura and collaborators (\citealt{petigura-a,petigura}) heroically
-determined the empirical end-to-end completeness of their transit search
-pipeline by injecting synthetic signals of known period and radius into the
-raw aperture photometry and testing recovery rates.
-They also published a catalog of XXX small planet candidates around G type
-stars; YYY of them previously unknown.
-Given the unprecedented quality of the completeness characterization, we will
-focus on this dataset in this \paper.
+Using an independent exoplanet search and characterization pipeline,
+\citet{petigura} published a catalog of 603 planet candidates orbiting stars
+in their ``Sun-like'' sample of \kepler\ targets.
+For each candidate, \citet{petigura} used Markov chain Monte Carlo to sample
+the posterior probability density---presumably assuming uniform priors---for
+the radius ratio, transit duration, and impact parameter.
+They then incorporated the uncertainties in the stellar radius and published
+constraints on the physical radii of their candidates.
+The exact shape of the implied prior on planet radius depends on the assumed
+priors on radius ratio and stellar radius but in the limit of a broad uniform
+prior on each quantity, the implicit prior at small physical radius is
+approximately uniform; this is the assumption that we make.
+
+A huge benefit of this dataset is that Erik Petigura and collaborators
+published a rigorous analysis the empirical end-to-end completeness of their
+transit search pipeline.
+Instead of choosing a functional form for the detection efficiency of the
+pipeline as a function of the parameters of interest, \citet{petigura}
+injected synthetic signals of known period and radius into the raw aperture
+photometry and determining the empirical recovery rate after the full analysis.
 
 We use all the injected samples from \citet{petigura} to compute the mean
 (marginalized) detection efficiency in bins of $\ln\period$ and $\ln\radius$.
 In each bin, this efficiency is simply the fraction of recovered injections.
-For the purposes of this \paper, we will neglect the uncertainties introduced
-by the fact that this estimate is being made with a finite number of samples.
+For the purposes of this \paper, we neglect the counting uncertainties
+introduced by the finite number of samples.
 
-The largest injected radius is $16\,R_\oplus$ but, because of the measurement
-uncertainties on the radii, it will be necessary for us to model the
-distribution to larger radii.
+The largest injected signal had a radius of $16\,R_\oplus$ but, because of the
+measurement uncertainties on the radii, we need to model the distribution at
+larger radii.
 To do this, we approximate the survey completeness for $\radius>16\,R_\oplus$
 as 1.
+
+Given our domain knowledge of how detection efficiency depends on the physical
+parameters, it might seem silly to measure the survey completeness in period
+and radius instead of radius ratio or signal-to-noise.
+It is also likely that a change of coordinates would yield a higher precision
+result.
+That being said, it is still correct to measure the completeness in period and
+radius, and there are a few practical reasons for our choice.
+First, since the radius uncertainties are dominated by uncertainties in the
+stellar parameters, it is not possible to use the published catalog
+(\citealt{petigura}) to compute constraints on radius ratios.
+\dfmtodo{finish this}
 
 \section{Validation using synthetic catalogs}
 
