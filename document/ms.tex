@@ -296,7 +296,7 @@ as a list of $N$ samples $\{\entry_k^{(n)}\}$ from the posterior
 \end{eqnarray}
 We can use these samples to approximately compute the integral in
 \eq{simplemarglike} as
-\begin{eqnarray}
+\begin{eqnarray}\eqlabel{importance}
 \frac{p(\{\data_k\}\,|\,\ratepars)}{p(\{\data_k\}\,|\,\interim)} &\approx&
     \frac{1}{N} \sum_{n=1}^N
     \frac{p(\{\entry_k^{(n)}\}\,|\,\ratepars)}
@@ -418,10 +418,13 @@ the posterior probability density---presumably assuming uniform priors---for
 the radius ratio, transit duration, and impact parameter.
 They then incorporated the uncertainties in the stellar radius and published
 constraints on the physical radii of their candidates.
-The exact shape of the implied prior on planet radius depends on the assumed
-priors on radius ratio and stellar radius but in the limit of a broad uniform
-prior on each quantity, the implicit prior at small physical radius is
-approximately uniform; this is the assumption that we make.
+Given this data reduction and since we don't have access to the individual
+posterior constraints on radius ratio and stellar radius, we can't directly
+compute the importance weights $p(\{\entry_k^\}\,|\,\interim)$ needed for
+\eq{importance}.
+For the rest of this \paper, we'll make the simplifying assumption that these
+weights are constant in log-period and log-radius but the results don't seem
+to be sensitive to this specific choice.
 
 A huge benefit of this dataset is that Erik Petigura and collaborators
 published a rigorous analysis the empirical end-to-end completeness of their
@@ -455,9 +458,9 @@ uncertainties in the stellar parameters, it is not possible to use the
 published catalog (\citealt{petigura}) to compute constraints on radius
 ratios.
 In future catalogs, this problem would be solved by publishing representations
-of the posterior probabilities that are being measured.
-In this case, these parameters are radius ratio and stellar radius instead of
-just the physical radius.
+of all the posterior probabilities that are being measured.
+In this case, the most useful data product would be \emph{posterior samples
+for each target's radius ratio and stellar radius}.
 
 \section{Validation using synthetic catalogs}
 
