@@ -504,16 +504,35 @@ distributions are smooth broken power laws.
 The second---\modelb---is designed to be exactly the distribution inferred by
 \citet{petigura} in the range that they considered and then smoothly
 extrapolated outside that range.
+The catalogs generated from these two models are shown in \fig{smooth-results}
+and \fig{simulation-results}, respectively and the data are available online
+at \dfmtodo{ADD SOME URL}.
 
 For each catalog, we directly apply the inverse-detection-efficiency
 procedure as implemented by \citealt{petigura}\footnote{Our implementation
 exactly reproduces their results when applied to the published catalog.} and
-our probabilistic method.
+our probabilistic method, marginalizing over the hyperparameters of the
+Gaussian process regularization.
+\Fig{smooth-results} and \fig{simulation-results} show the results of this
+analysis in both cases.
+In particular, the side panels compare the marginalized occurence rate
+functions in period and radius to the true functions that were used to
+generate the catalogs.
+\Fig{smooth-results} shows that even if the true occurence rate is a smooth
+function, the rate inferred by the inverse-detection-efficiency method can
+appear to have sharp features.
+In this first example---where the true distribution is well described by our
+Gaussian process model---the probabilistic inference of the occurence rate is
+both more precise and accurate.
 
-
-\paragraph{Results}
-See \fig{synthetic-radius}.
-As expected, the forward model is a much lower variance estimator.
+In the second example, the true rate function includes a sharp feature chosen
+to reproduce the result published by \citet{petigura}.
+In this case, \fig{simulation-results} shows that the probabilistic
+constraints on the occurence rate are less precise \emph{but more accurate}
+than results using the inverse-detection-efficiency method.
+At this point, the distributions inferred by these two different techniques
+don't seem drastically inconsistent but the difference are most obvious as the
+survey completeness goes to zero: exactly the region of interest.
 
 \begin{figure}[htbp]
 \begin{center}
