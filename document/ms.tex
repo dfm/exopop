@@ -565,6 +565,20 @@ The same as \fig{smooth-results} for \modelb.
 
 \section{Extrapolation to Earth}
 
+As well as inferring the ocurrence distribution of exoplanets, this dataset
+can also be used to constrain the rate of Earth analogs.
+Even though no true analog has been observed, we can make some assumptions
+about the distribution (as described below) and extrapolate to the location of
+the Earth.
+Explicitly, we constrain the rate of exoplanets \emph{evaluated at the
+location of Earth}
+\begin{eqnarray}
+\gammaearth &=& \rate (\ln\period_\oplus,\,\ln\radius_\oplus) \\
+&=&
+\left.\frac{\dd N}{\dd\ln\period\,\dd\ln\radius}\right|
+_{\radius=\radius_\oplus,\,\period=\period_\oplus}\quad.
+\end{eqnarray}
+
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics[width=0.7\textwidth]{figures/smooth/rate.pdf}
