@@ -491,17 +491,6 @@ class Dataset(object):
         lnweights = np.zeros((samples, K))
         for k, (m, s) in enumerate(izip(values, uncertainties)):
             # Directly sample from the Gaussians.
-            if censor is None:
-                v = m[None, :] + s[None, :] * np.random.randn(samples, N)
-                if functions is not None:
-                    for n, f in enumerate(functions):
-                        if f is None:
-                            continue
-                        v[:, n] = f(v[:, n])
-                catalogs[:, k, :] = v
-                continue
-
-            # Use rejection sampling to sample from the joint posterior.
             v = m[None, :] + s[None, :] * np.random.randn(tot, N)
             if functions is not None:
                 for n, f in enumerate(functions):
@@ -509,23 +498,52 @@ class Dataset(object):
                         continue
                     v[:, n] = f(v[:, n])
 
-            # Compute the acceptance mask.
-            lnp = censor.get_lncompleteness(v)
-            mask = np.random.rand(len(lnp)) < np.exp(lnp)
+            if censor is not None:
+                lnp = censor.get_lncompleteness(v)
+                mask = np.isfinite(lnp)
 
-            # Make sure that we're getting enough samples for each object.
-            if np.sum(mask) < samples:
-                print("Dropping candidate at {0}".format(m))
-                good[k] = 0
-                continue
+                # Make sure that we're getting enough samples for each object.
+                if np.sum(mask) < samples:
+                    print("Dropping candidate at {0}".format(m))
+                    good[k] = 0
+                    continue
 
-            inds = np.arange(len(lnp))[mask]
-            catalogs[:, k, :] = v[inds[:samples]]
-            lnweights[:, k] = lnp[inds[:samples]]
+                inds = np.arange(len(lnp))[mask]
+                catalogs[:, k, :] = v[inds[:samples]]
 
-            # FIXME: not general at all!!
-            # Let's say that the original prior was flat in the linear vals.
-            lnweights[:, k] += np.sum(catalogs[:, k, :], axis=-1)
+            else:
+                catalogs[:, k, :] = v[:samples]
+
+            # # FIXME: not general at all!!
+            # # Let's say that the original prior was flat in the linear
+            # # vals.
+            # lnweights[:, k] = np.sum(catalogs[:, k, :], axis=-1)
+
+            # # Use rejection sampling to sample from the joint posterior.
+            # v = m[None, :] + s[None, :] * np.random.randn(tot, N)
+            # if functions is not None:
+            #     for n, f in enumerate(functions):
+            #         if f is None:
+            #             continue
+            #         v[:, n] = f(v[:, n])
+
+            # # Compute the acceptance mask.
+            # lnp = censor.get_lncompleteness(v)
+            # mask = np.random.rand(len(lnp)) < np.exp(lnp)
+
+            # # Make sure that we're getting enough samples for each object.
+            # if np.sum(mask) < samples:
+            #     print("Dropping candidate at {0}".format(m))
+            #     good[k] = 0
+            #     continue
+
+            # inds = np.arange(len(lnp))[mask]
+            # catalogs[:, k, :] = v[inds[:samples]]
+            # lnweights[:, k] = lnp[inds[:samples]]
+
+            # # FIXME: not general at all!!
+            # # Let's say that the original prior was flat in the linear vals.
+            # lnweights[:, k] += np.sum(catalogs[:, k, :], axis=-1)
 
         return cls(catalogs[:, good], lnweights[:, good])
 

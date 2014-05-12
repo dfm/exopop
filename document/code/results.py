@@ -25,6 +25,23 @@ model, catalog, err, truth, labels, top_axes, literature = \
     pickle.load(open(os.path.join(bp, "model.pkl")))
 pop = model.population
 
+# Load the original catalog if it's there.
+fn = os.path.join(bp, "catalog.pkl")
+if os.path.exists(fn):
+    catalog, err, truth = \
+        pickle.load(open(os.path.join(bp, "catalog.pkl")))
+
+    # Hack to deal with negative radii.
+    m = catalog[:, 1] > 0
+    catalog = catalog[m]
+    rerr = [np.log(catalog[:, 1]) - np.log(np.abs(catalog[:, 1]-err[m, 1])),
+            np.log(catalog[:, 1]+err[m, 1]) - np.log(catalog[:, 1])]
+    err = [0, rerr]
+
+labels = ["$\ln P/\mathrm{day}$", "$\ln R/R_\oplus$"]
+top_axes = ["$P\,[\mathrm{days}]$", "$R\,[R_\oplus]$"]
+
+
 with h5py.File(os.path.join(bp, "results.h5")) as f:
     i = int(f.attrs["iteration"])
     samples = f["samples"][:i, :]
@@ -50,9 +67,10 @@ else:
     gamma = None  # [5.7 / 100, 1.7 / 100, 2.2 / 100]
 
 # Load the extrapolated value.
+factor = (np.log(400) - np.log(200)) * (np.log(2) - np.log(1))
 ext = np.array(open(os.path.join(bp, "extrap.txt"), "r").read().split(),
                dtype=float) / 42557.0
-ext /= (np.log(400) - np.log(200)) * (np.log(2) - np.log(1))
+ext /= factor
 
 # Compute and plot gamma_earth.
 rates = pop.get_lnrate(samples, [np.log(365.), np.log(1.0)])

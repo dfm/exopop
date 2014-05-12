@@ -122,10 +122,12 @@ def main(bp, real_data, ep_bins=False):
     if real_data:
         ids, catalog, err = load_candidates()
         truth = None
+        m = np.log(catalog[:, 0]) > np.min(x)
+        catalog, err = catalog[m], err[m]
     else:
         catalog, err, truth = \
             pickle.load(open(os.path.join(bp, "catalog.pkl")))
-    dataset = Dataset.sample(catalog, err, samples=72, censor=censor,
+    dataset = Dataset.sample(catalog, err, samples=256, censor=censor,
                              functions=[np.log, np.log])
     print("{0} entries in catalog".format(dataset.catalogs.shape[1]))
 
@@ -213,4 +215,4 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         main(sys.argv[1], False)
     else:
-        main("main_prior", True)
+        main("results", True)
