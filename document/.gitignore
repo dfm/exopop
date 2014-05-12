@@ -8,5 +8,5 @@
 *.dvi
 *.ps
 *.synctex.gz
-!figures/*.pdf
+!figures/*/*.pdf
 vc.tex
