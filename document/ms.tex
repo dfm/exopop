@@ -297,7 +297,7 @@ For our purposes, this is the \emph{definition} of hierarchical inference.
 The constraints in \eq{crazypost} can always be---and often are---propagated
 as a list of $N$ samples $\{\entry_k^{(n)}\}$ from the posterior
 \begin{eqnarray}
-\entry_k^{(n)} &\sim& p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) \quad.
+\{\entry_k\}^{(n)} &\sim& p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) \quad.
 \end{eqnarray}
 We can use these samples to approximately compute the integral in
 \eq{simplemarglike} as
@@ -366,6 +366,27 @@ the validity of this method.
 Instead, we could use a functional form for it and infer the parameters
 (\dfmtodo{cite all the papers that do the ramp, step function, whatever}).
 
+Now, we can substitute \eq{poisson-like} into \eq{simplemarglike} and apply
+the importance sampling approximation to derive the following expression for
+the marginalized likelihood
+\begin{eqnarray}\eqlabel{money}
+\frac{p(\{\data_k\}\,|\,\ratepars)}{p(\{\data_k\}\,|\,\interim)} &\approx&
+    \exp\left(-\int \obs{\rate}_\ratepars (\entry) \dd\entry\right) \,
+    \prod_{k=1}^K
+    \frac{1}{N_k} \sum_{n=1}^{N_k}
+    \frac{\obs{\rate}_\ratepars (\entry_k^{(n)})}
+         {p(\entry_k^{(n)}\,|\,\interim)} \quad.
+\end{eqnarray}
+In this equation, we're making the further assumption that the catalog treated
+the objects independently.
+In other words, we have per-object posterior samples
+\begin{eqnarray}
+\entry_k^{(n)} &\sim& p(\entry_k\,|\,\data_k,\,\interim) \quad.
+\end{eqnarray}
+\Eq{money} is the \emph{money equation} for our method.
+It lets us efficiently compute the \emph{marginalized likelihood of the entire
+set of light curves for a particular occurence rate function}.
+
 \paragraph{Inverse-detection-efficiency}
 It's now interesting to take a brief aside and discuss the connection between
 our model and the commonly used inverse-detection-efficiency procedure
@@ -410,8 +431,12 @@ in various limiting cases, they would provide the same result.
 assumptions.}
 
 \paragraph{Occurence rate parameterization \& priors}
-For the remainder of this \paper, we will also model the occurence rate as a
-histogram in logarithmic bins of period $\ln\period$ and radius $\ln\radius$.
+For the remainder of this \paper, we also model the occurence rate as a
+two-dimensional histogram with fixed logarithmic bins in period and radius.
+When we include observational uncertainties---using \eq{money}---the maximum
+likelihood result is no longer analytic.
+Therefore, if we want to compute the ``best-fit'' occurence rate, we can use a
+standard non-linear optimization algorithm.
 
 \section{Data and completeness function}
 
@@ -582,7 +607,7 @@ This is also the quantity that \citet{petigura} estimated in different units.
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=0.7\textwidth]{figures/smooth/rate.pdf}
+\includegraphics[width=0.6\textwidth]{figures/smooth/rate.pdf}
 \end{center}
 \caption{%
 The extrapolated rate of Earth analogs \gammaearth\ as inferred by the
@@ -596,7 +621,7 @@ and the true value is indicated as the thick gray vertical line.
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=0.7\textwidth]{figures/simulation/rate.pdf}
+\includegraphics[width=0.6\textwidth]{figures/simulation/rate.pdf}
 \end{center}
 \caption{%
 The same as \fig{smooth-rate} for \modelb.
@@ -618,7 +643,7 @@ The same as \fig{smooth-results} when applied to the observed data from
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=0.7\textwidth]{figures/results/rate.pdf}
+\includegraphics[width=0.6\textwidth]{figures/results/rate.pdf}
 \end{center}
 \caption{%
 The same as \fig{smooth-rate} but applied to the catalog from \citet{petigura}.
