@@ -78,7 +78,10 @@
 \newcommand{\binheight}{{\ensuremath{w}}}
 \newcommand{\binheights}{{\ensuremath{\bvec{\binheight}}}}
 
+\newcommand{\mean}{{\ensuremath{\mu}}}
 \newcommand{\smooth}{{\ensuremath{\lambda}}}
+\newcommand{\smoothpars}{{\ensuremath{\bvec{\smooth}}}}
+\newcommand{\cov}{{\ensuremath{\mathrm{K}}}}
 
 \newcommand{\modela}{\emph{Model A}}
 \newcommand{\modelb}{\emph{Model B}}
@@ -437,6 +440,63 @@ When we include observational uncertainties---using \eq{money}---the maximum
 likelihood result is no longer analytic.
 Therefore, if we want to compute the ``best-fit'' occurence rate, we can use a
 standard non-linear optimization algorithm.
+In the regions of parameter space that we tend to care about, the completeness
+is low and there are only a few observations with large uncertainties.
+In this case, we're especially interested in probabilistic constraints on the
+occurence rate; not just the best-fit model.
+To do this, we apply a prior\footnote{This is a slight misnomer because
+we also we also marginalize over the parameters of this model.} $p(\ratepars)$
+on the occurence rate parameters and generate samples from the posterior
+probability
+\begin{eqnarray}\eqlabel{posterior}
+p(\ratepars\,|\,\{\data_k\}) &\propto&
+    p(\ratepars)\,p(\{\data_k\}\,|\,\ratepars)
+\end{eqnarray}
+using Markov chain Monte Carlo (MCMC).
+
+Given our model of the rate function as a collection of bins, we choose to
+model the prior as a Gaussian process (\citealt{gp,gibson-gp}) on the
+logarithmic bin heights.
+This model encodes our prior belief that, on the grid scale that we consider,
+the occurence rate should be smooth but it is otherwise very flexible about
+the form of the function.
+Mathematically, the prior is written as
+\begin{eqnarray}
+p(\ratepars) &=& p(\ratepars\,|\,\mean,\,\smooth) \\
+&=& \mathcal{N} \left[\ln\ratepars;\,\mean\,\bvec{I},\,
+\cov(\{\binarea_j\},\,\smoothpars)\right]
+\end{eqnarray}
+where $\mathcal{N}(\cdot;\,\mean\,\bvec{I},\,\cov)$ is a $J$-dimensional
+Gaussian with a constant mean \mean\ and covariance matrix \cov\ that depends
+on the bin locations $\{\binarea_j\}$ and a set of hyperparameters
+$\smoothpars = (\smooth_0,\,\smooth_\period,\,\smooth_\radius)$.
+The covariance function that we use is an anisotropic, axis-aligned
+exponential-squared kernel so elements of the matrix are
+\begin{eqnarray}
+\cov_{ij} &=& \smooth_0\,\exp\left(-\frac{1}{2}\,
+    [\binarea_i-\binarea_j]^\mathrm{T}\,\Sigma^{-1}\,[\binarea_i-\binarea_j]
+\right)
+\end{eqnarray}
+where $\Sigma^{-1}$ is the diagonal matrix
+\begin{eqnarray}
+\Sigma^{-1} &=& \left(\begin{array}{cc}
+1/\smooth_\period & 0 \\
+0 & 1/\smooth_\radius
+\end{array}\right) \quad.
+\end{eqnarray}
+
+As well as being a very flexible prior, this Gaussian process model is also
+appealing because it is very well studied in the machine learning literature.
+In particular, there is a very efficient algorithm---elliptical slice sampling
+(ESS; \citealt{ess})---for generating samples from the posterior probability
+function in \eq{posterior}.
+As mentioned above, we actually go one step further and assume uniform
+(hyper-)priors on $\ln\mean$ and $\ln\smoothpars$ in order to sample from the
+joint posterior
+\begin{eqnarray}
+p(\ratepars,\,\mean,\,\smoothpars\,|\,\{\data_k\})
+\end{eqnarray}
+using Algorithm 1 from \citet{ess-hyper}.
 
 \section{Data and completeness function}
 
@@ -559,7 +619,7 @@ At this point, the distributions inferred by these two different techniques
 don't seem drastically inconsistent but the difference are most obvious as the
 survey completeness goes to zero: exactly the region of interest.
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
 \includegraphics[width=\textwidth]{figures/smooth/results.pdf}
 \end{center}
@@ -578,7 +638,7 @@ method.
 \figlabel{smooth-results}}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
 \includegraphics[width=\textwidth]{figures/simulation/results.pdf}
 \end{center}
@@ -605,7 +665,7 @@ _{\radius=\radius_\oplus,\,\period=\period_\oplus}\quad.
 \end{eqnarray}
 This is also the quantity that \citet{petigura} estimated in different units.
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
 \includegraphics[width=0.6\textwidth]{figures/smooth/rate.pdf}
 \end{center}
@@ -619,7 +679,7 @@ and the true value is indicated as the thick gray vertical line.
 \figlabel{smooth-rate}}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
 \includegraphics[width=0.6\textwidth]{figures/simulation/rate.pdf}
 \end{center}
@@ -631,7 +691,7 @@ The same as \fig{smooth-rate} for \modelb.
 
 \section{Real data}
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
 \includegraphics[width=\textwidth]{figures/results/results.pdf}
 \end{center}
@@ -641,7 +701,7 @@ The same as \fig{smooth-results} when applied to the observed data from
 \figlabel{real-results}}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
 \includegraphics[width=0.6\textwidth]{figures/results/rate.pdf}
 \end{center}
@@ -788,6 +848,9 @@ Dong, S., \& Zhu, Z.\ 2013, \apj, 778, 53 (\arxiv{1212.4853})
 \bibitem[Dressing  \& Charbonneau(2013)]{dressing}
 Dressing, C.~D., \& Charbonneau, D.\ 2013, \apj, 767, 95 (\arxiv{1302.1647})
 
+\bibitem[Gibson \etal(2012)]{gibson-gp}
+Gibson, N.~P., Aigrain, S., Roberts, S., \etal\ 2012, \mnras, 419, 2683
+
 \bibitem[Hogg \etal(2013)]{hoggwhitepaper}
 Hogg, D.~W., Angus, R., Barclay, T., et al.\ 2013, \arxiv{1309.0653}
 
@@ -803,6 +866,15 @@ Howard, A.~W., Marcy, G.~W., Bryson, S.~T., et al.\ 2012, \apjs, 201, 15
 Lewis, P.~A.~W., \& Shedler, G.~S.\ 1979, Naval Research Logistics Quarterly,
 26, 403
 
+\bibitem[Murray \etal(2010)]{ess}
+Murray, I., Prescott Adams, R., \& MacKay, D.~J.~C.\ 2010, JMLR: W\&CP, 9, 541
+(\arxiv{1001.0175})
+
+\bibitem[Murray \& Prescott Adams(2010)]{ess-hyper}
+Murray, I., \& Prescott Adams, R.\ 2010, Advances in Neural Information
+Processing Systems, 23, 1723
+(\arxiv{1006.0868})
+
 \bibitem[Petigura \etal(2013a)]{petigura-a}
 Petigura, E.~A., Marcy, G.~W., \& Howard, A.~W.\ 2013a, \apj, 770, 69
 (\arxiv{1304.0460})
@@ -810,6 +882,11 @@ Petigura, E.~A., Marcy, G.~W., \& Howard, A.~W.\ 2013a, \apj, 770, 69
 \bibitem[Petigura \etal(2013b)]{petigura}
 Petigura, E.~A., Howard, A.~W., \& Marcy, G.~W.\ 2013b,
 Proceedings of the National Academy of Science, 110, 19273 (\arxiv{1311.6806})
+
+\bibitem[Rasmussen \& Williams(2006)]{gp}
+Rasmussen, C.~E. \& Williams, C.~K.~I.\ 2006
+Gaussian Processes for Machine Learning, MIT Press
+(\href{http://www.gaussianprocess.org/gpml/}{online})
 
 \bibitem[Roberts \etal(2013)]{roberts}
 Roberts, S., McQuillan, A., Reece, S., \& Aigrain, S.\ 2013, \mnras, 435, 3639
