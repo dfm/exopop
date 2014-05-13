@@ -498,6 +498,11 @@ p(\ratepars,\,\mean,\,\smoothpars\,|\,\{\data_k\})
 \end{eqnarray}
 using Algorithm 1 from \citet{ess-hyper}.
 
+For all the results below, we run a Markov chain with $10^6$ steps for the bin
+heights and update the hyperparameters every 10 steps.
+We tune the Metropolis--Hastings proposal used to update the hyperparameters
+by hand to get an acceptance fraction of $\sim0.2-0.4$ for those parameters.
+
 \section{Data and completeness function}
 
 Using an independent exoplanet search and characterization pipeline,
