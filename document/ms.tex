@@ -65,8 +65,8 @@
 \newcommand{\obs}[1]{\ensuremath{\hat{#1}}}
 \newcommand{\radius}{\ensuremath{R}}
 \newcommand{\period}{\ensuremath{P}}
-\newcommand{\completeness}{{\ensuremath{P_\mathrm{c}}}}
-\newcommand{\transitprob}{{\ensuremath{P_\mathrm{t}}}}
+\newcommand{\completeness}{{\ensuremath{Q_\mathrm{c}}}}
+\newcommand{\transitprob}{{\ensuremath{Q_\mathrm{t}}}}
 \newcommand{\data}{{\ensuremath{\bvec{x}}}}
 \newcommand{\entry}{{\ensuremath{\bvec{w}}}}
 \newcommand{\catalog}{{\ensuremath{\bvec{\entry}}}}
@@ -565,10 +565,16 @@ $R_\star/a$.
 Since we're modeling the distribution in the period--radius plane, we need to
 compute the transit probability marginalized over stellar radius and mass.
 This marginalized distribution scales only with the period of the orbit as
-\dfmtodo{$\propto \period^{3/2}$}.
+$\propto \period^{-2/3}$.
 In theory, this marginalization should be over the true distribution of these
 parameters in the selected stellar catalog but we'll approximate it by
-the empirical distribution.
+the empirical distribution; a reasonable approximation given the size of the
+dataset.
+At a period of 10 days, the median transit probability in the selected sample
+of stars is $5\%$ so we model the transit probability\footnote{We're using the
+letter $Q$ to indicate probabilities since we're already using $P$ to mean
+period.} as a function of period as
+$\transitprob (\period) = 0.05\,(\period-10)^{-2/3}$.
 
 \section{Validation using synthetic catalogs}
 
@@ -660,7 +666,6 @@ method.
 \end{center}
 \caption{%
 The same as \fig{smooth-results} for \modelb.
-\dfmtodo{UPDATE THIS FIGURE TO FINAL VERSION}
 \figlabel{simulation-results}}
 \end{figure}
 
@@ -701,7 +706,6 @@ and the true value is indicated as the thick gray vertical line.
 \end{center}
 \caption{%
 The same as \fig{smooth-rate} for \modelb.
-\dfmtodo{UPDATE THIS FIGURE TO FINAL VERSION}
 \figlabel{simulation-rate}}
 \end{figure}
 
