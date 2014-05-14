@@ -78,7 +78,10 @@
 \newcommand{\binheight}{{\ensuremath{w}}}
 \newcommand{\binheights}{{\ensuremath{\bvec{\binheight}}}}
 
+\newcommand{\mean}{{\ensuremath{\mu}}}
 \newcommand{\smooth}{{\ensuremath{\lambda}}}
+\newcommand{\smoothpars}{{\ensuremath{\bvec{\smooth}}}}
+\newcommand{\cov}{{\ensuremath{\mathrm{K}}}}
 
 \newcommand{\modela}{\emph{Model A}}
 \newcommand{\modelb}{\emph{Model B}}
@@ -297,7 +300,7 @@ For our purposes, this is the \emph{definition} of hierarchical inference.
 The constraints in \eq{crazypost} can always be---and often are---propagated
 as a list of $N$ samples $\{\entry_k^{(n)}\}$ from the posterior
 \begin{eqnarray}
-\entry_k^{(n)} &\sim& p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) \quad.
+\{\entry_k\}^{(n)} &\sim& p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) \quad.
 \end{eqnarray}
 We can use these samples to approximately compute the integral in
 \eq{simplemarglike} as
@@ -366,6 +369,27 @@ the validity of this method.
 Instead, we could use a functional form for it and infer the parameters
 (\dfmtodo{cite all the papers that do the ramp, step function, whatever}).
 
+Now, we can substitute \eq{poisson-like} into \eq{simplemarglike} and apply
+the importance sampling approximation to derive the following expression for
+the marginalized likelihood
+\begin{eqnarray}\eqlabel{money}
+\frac{p(\{\data_k\}\,|\,\ratepars)}{p(\{\data_k\}\,|\,\interim)} &\approx&
+    \exp\left(-\int \obs{\rate}_\ratepars (\entry) \dd\entry\right) \,
+    \prod_{k=1}^K
+    \frac{1}{N_k} \sum_{n=1}^{N_k}
+    \frac{\obs{\rate}_\ratepars (\entry_k^{(n)})}
+         {p(\entry_k^{(n)}\,|\,\interim)} \quad.
+\end{eqnarray}
+In this equation, we're making the further assumption that the catalog treated
+the objects independently.
+In other words, we have per-object posterior samples
+\begin{eqnarray}
+\entry_k^{(n)} &\sim& p(\entry_k\,|\,\data_k,\,\interim) \quad.
+\end{eqnarray}
+\Eq{money} is the \emph{money equation} for our method.
+It lets us efficiently compute the \emph{marginalized likelihood of the entire
+set of light curves for a particular occurence rate function}.
+
 \paragraph{Inverse-detection-efficiency}
 It's now interesting to take a brief aside and discuss the connection between
 our model and the commonly used inverse-detection-efficiency procedure
@@ -410,8 +434,77 @@ in various limiting cases, they would provide the same result.
 assumptions.}
 
 \paragraph{Occurence rate parameterization \& priors}
-For the remainder of this \paper, we will also model the occurence rate as a
-histogram in logarithmic bins of period $\ln\period$ and radius $\ln\radius$.
+For the remainder of this \paper, we also model the occurence rate as a
+two-dimensional histogram with fixed logarithmic bins in period and radius.
+When we include observational uncertainties---using \eq{money}---the maximum
+likelihood result is no longer analytic.
+Therefore, if we want to compute the ``best-fit'' occurence rate, we can use a
+standard non-linear optimization algorithm.
+In the regions of parameter space that we tend to care about, the completeness
+is low and there are only a few observations with large uncertainties.
+In this case, we're especially interested in probabilistic constraints on the
+occurence rate; not just the best-fit model.
+To do this, we apply a prior\footnote{This is a slight misnomer because
+we also we also marginalize over the parameters of this model.} $p(\ratepars)$
+on the occurence rate parameters and generate samples from the posterior
+probability
+\begin{eqnarray}\eqlabel{posterior}
+p(\ratepars\,|\,\{\data_k\}) &\propto&
+    p(\ratepars)\,p(\{\data_k\}\,|\,\ratepars)
+\end{eqnarray}
+using Markov chain Monte Carlo (MCMC).
+
+Given our model of the rate function as a collection of bins, we choose to
+model the prior as a Gaussian process (\citealt{gp,gibson-gp}) on the
+logarithmic bin heights.
+This model encodes our prior belief that, on the grid scale that we consider,
+the occurence rate should be smooth but it is otherwise very flexible about
+the form of the function.
+Mathematically, the prior is written as
+\begin{eqnarray}
+p(\ratepars) &=& p(\ratepars\,|\,\mean,\,\smooth) \\
+&=& \mathcal{N} \left[\ln\ratepars;\,\mean\,\bvec{I},\,
+\cov(\{\binarea_j\},\,\smoothpars)\right]
+\end{eqnarray}
+where $\mathcal{N}(\cdot;\,\mean\,\bvec{I},\,\cov)$ is a $J$-dimensional
+Gaussian with a constant mean \mean\ and covariance matrix \cov\ that depends
+on the bin locations $\{\binarea_j\}$ and a set of hyperparameters
+$\smoothpars = (\smooth_0,\,\smooth_\period,\,\smooth_\radius)$.
+The covariance function that we use is an anisotropic, axis-aligned
+exponential-squared kernel so elements of the matrix are
+\begin{eqnarray}
+\cov_{ij} &=& \smooth_0\,\exp\left(-\frac{1}{2}\,
+    [\binarea_i-\binarea_j]^\mathrm{T}\,\Sigma^{-1}\,[\binarea_i-\binarea_j]
+\right)
+\end{eqnarray}
+where $\Sigma^{-1}$ is the diagonal matrix
+\begin{eqnarray}
+\Sigma^{-1} &=& \left(\begin{array}{cc}
+1/\smooth_\period & 0 \\
+0 & 1/\smooth_\radius
+\end{array}\right) \quad.
+\end{eqnarray}
+
+As well as being a very flexible prior, this Gaussian process model is also
+appealing because it is very well studied in the machine learning literature.
+In particular, there is a very efficient algorithm---elliptical slice sampling
+(ESS; \citealt{ess})---for generating samples from the posterior probability
+function in \eq{posterior}.
+As mentioned above, we actually go one step further and assume uniform
+(hyper-)priors on $\ln\mean$ and $\ln\smoothpars$ in order to sample from the
+joint posterior
+\begin{eqnarray}
+p(\ratepars,\,\mean,\,\smoothpars\,|\,\{\data_k\})
+\end{eqnarray}
+using Algorithm 1 from \citet{ess-hyper}.
+
+For all the results below, we run a Markov chain with $10^6$ steps for the bin
+heights and update the hyperparameters every 10 steps.
+We discard the first \dfmtodo{XXXX} samples as burn-in and then use the
+remaining samples as an approximation to the marginalized probability
+distribution for \ratepars.
+We tune the Metropolis--Hastings proposal used to update the hyperparameters
+by hand to get an acceptance fraction of $\sim0.2-0.4$ for those parameters.
 
 \section{Data and completeness function}
 
@@ -467,7 +560,15 @@ of all the posterior probabilities that are being measured.
 In this case, the most useful data product would be \emph{posterior samples
 for each target's radius ratio and stellar radius}.
 
-\dfmtodo{Talk about how we apply the geometric transit probability.}
+The detection efficiency also depends on the geometric transit probability
+$R_\star/a$.
+Since we're modeling the distribution in the period--radius plane, we need to
+compute the transit probability marginalized over stellar radius and mass.
+This marginalized distribution scales only with the period of the orbit as
+\dfmtodo{$\propto \period^{3/2}$}.
+In theory, this marginalization should be over the true distribution of these
+parameters in the selected stellar catalog but we'll approximate it by
+the empirical distribution.
 
 \section{Validation using synthetic catalogs}
 
@@ -534,7 +635,7 @@ At this point, the distributions inferred by these two different techniques
 don't seem drastically inconsistent but the difference are most obvious as the
 survey completeness goes to zero: exactly the region of interest.
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
 \includegraphics[width=\textwidth]{figures/smooth/results.pdf}
 \end{center}
@@ -553,7 +654,7 @@ method.
 \figlabel{smooth-results}}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
 \includegraphics[width=\textwidth]{figures/simulation/results.pdf}
 \end{center}
@@ -578,10 +679,11 @@ location of Earth}
 \left.\frac{\dd N}{\dd\ln\period\,\dd\ln\radius}\right|
 _{\radius=\radius_\oplus,\,\period=\period_\oplus}\quad.
 \end{eqnarray}
+This is also the quantity that \citet{petigura} estimated in different units.
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
-\includegraphics[width=0.7\textwidth]{figures/smooth/rate.pdf}
+\includegraphics[width=0.6\textwidth]{figures/smooth/rate.pdf}
 \end{center}
 \caption{%
 The extrapolated rate of Earth analogs \gammaearth\ as inferred by the
@@ -593,9 +695,9 @@ and the true value is indicated as the thick gray vertical line.
 \figlabel{smooth-rate}}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
-\includegraphics[width=0.7\textwidth]{figures/simulation/rate.pdf}
+\includegraphics[width=0.6\textwidth]{figures/simulation/rate.pdf}
 \end{center}
 \caption{%
 The same as \fig{smooth-rate} for \modelb.
@@ -605,7 +707,7 @@ The same as \fig{smooth-rate} for \modelb.
 
 \section{Real data}
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
 \includegraphics[width=\textwidth]{figures/results/results.pdf}
 \end{center}
@@ -615,9 +717,9 @@ The same as \fig{smooth-results} when applied to the observed data from
 \figlabel{real-results}}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \begin{center}
-\includegraphics[width=0.7\textwidth]{figures/results/rate.pdf}
+\includegraphics[width=0.6\textwidth]{figures/results/rate.pdf}
 \end{center}
 \caption{%
 The same as \fig{smooth-rate} but applied to the catalog from \citet{petigura}.
@@ -762,6 +864,9 @@ Dong, S., \& Zhu, Z.\ 2013, \apj, 778, 53 (\arxiv{1212.4853})
 \bibitem[Dressing  \& Charbonneau(2013)]{dressing}
 Dressing, C.~D., \& Charbonneau, D.\ 2013, \apj, 767, 95 (\arxiv{1302.1647})
 
+\bibitem[Gibson \etal(2012)]{gibson-gp}
+Gibson, N.~P., Aigrain, S., Roberts, S., \etal\ 2012, \mnras, 419, 2683
+
 \bibitem[Hogg \etal(2013)]{hoggwhitepaper}
 Hogg, D.~W., Angus, R., Barclay, T., et al.\ 2013, \arxiv{1309.0653}
 
@@ -777,6 +882,15 @@ Howard, A.~W., Marcy, G.~W., Bryson, S.~T., et al.\ 2012, \apjs, 201, 15
 Lewis, P.~A.~W., \& Shedler, G.~S.\ 1979, Naval Research Logistics Quarterly,
 26, 403
 
+\bibitem[Murray \etal(2010)]{ess}
+Murray, I., Prescott Adams, R., \& MacKay, D.~J.~C.\ 2010, JMLR: W\&CP, 9, 541
+(\arxiv{1001.0175})
+
+\bibitem[Murray \& Prescott Adams(2010)]{ess-hyper}
+Murray, I., \& Prescott Adams, R.\ 2010, Advances in Neural Information
+Processing Systems, 23, 1723
+(\arxiv{1006.0868})
+
 \bibitem[Petigura \etal(2013a)]{petigura-a}
 Petigura, E.~A., Marcy, G.~W., \& Howard, A.~W.\ 2013a, \apj, 770, 69
 (\arxiv{1304.0460})
@@ -784,6 +898,11 @@ Petigura, E.~A., Marcy, G.~W., \& Howard, A.~W.\ 2013a, \apj, 770, 69
 \bibitem[Petigura \etal(2013b)]{petigura}
 Petigura, E.~A., Howard, A.~W., \& Marcy, G.~W.\ 2013b,
 Proceedings of the National Academy of Science, 110, 19273 (\arxiv{1311.6806})
+
+\bibitem[Rasmussen \& Williams(2006)]{gp}
+Rasmussen, C.~E. \& Williams, C.~K.~I.\ 2006
+Gaussian Processes for Machine Learning, MIT Press
+(\href{http://www.gaussianprocess.org/gpml/}{online})
 
 \bibitem[Roberts \etal(2013)]{roberts}
 Roberts, S., McQuillan, A., Reece, S., \& Aigrain, S.\ 2013, \mnras, 435, 3639
