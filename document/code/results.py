@@ -68,9 +68,14 @@ else:
 
 # Load the extrapolated value.
 factor = (np.log(400) - np.log(200)) * (np.log(2) - np.log(1))
-ext = np.array(open(os.path.join(bp, "extrap.txt"), "r").read().split(),
-               dtype=float) / 42557.0
+if os.path.exists(fn):
+    ext = np.array(open(os.path.join(bp, "extrap.txt"), "r").read().split(),
+                   dtype=float) / 42557.0
+else:
+    ext = np.array([0.057, -0.022, 0.017])
+
 ext /= factor
+print(ext)
 
 # Compute and plot gamma_earth.
 rates = pop.get_lnrate(samples, [np.log(365.), np.log(1.0)])
