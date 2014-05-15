@@ -611,6 +611,15 @@ period.} as a function of period as
 \transitprob (\period) &=&
     0.05\,\left[\frac{\period}{10\,\mathrm{days}}\right]^{-2/3} \quad.
 \end{eqnarray}
+This expression is clearly only valid for $\period \gtrsim 1.4\,\mathrm{days}$
+but the dataset that we're using (\citealt{petigura}) explicitly only includes
+periods longer than five days so this isn't a problem.
+It's also worth noting that we're using the \emph{median} transit probability
+(instead of the mean) because it is a more robust estimator in the presence of
+outliers.
+In our experiments, the results do not seem to be very sensitive to this
+choice.
+\dfmtodo{Is there any rough scaling that is obvious?}
 
 \section{Validation using synthetic catalogs}
 
