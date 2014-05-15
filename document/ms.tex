@@ -140,7 +140,8 @@ uncertain extrapolated estimate of the probability or rate at which Sun-like
 stars host true Earth analogs.
 We relax these assumptions by modeling the occurence rate as a
 multidimensional Gaussian process and find that the rate density of Earth
-analogs is about two percent with large uncertainty.
+analogs is about two percent (per natural logarithmic bin in period and
+radius) with large uncertainty.
 
 \end{abstract}
 
@@ -606,7 +607,10 @@ At a period of 10 days, the median transit probability in the selected sample
 of stars is $5\%$ so we model the transit probability\footnote{We're using the
 letter $Q$ to indicate probabilities since we're already using $P$ to mean
 period.} as a function of period as
-$\transitprob (\period) = 0.05\,(\period-10)^{-2/3}$.
+\begin{eqnarray}
+\transitprob (\period) &=&
+    0.05\,\left[\frac{\period}{10\,\mathrm{days}}\right]^{-2/3} \quad.
+\end{eqnarray}
 
 \section{Validation using synthetic catalogs}
 
