@@ -116,28 +116,32 @@
                           Princeton, NJ, 08540, USA} % CHECK THIS ZIP CODE
 
 \begin{abstract}
-Although no true extra-solar Earth analog is known, hundreds of planets have
-been found around Sun-like stars that are either Earth-sized but on shorter
-periods, or else on year-long orbits but somewhat bigger than Earth.
-These populations ought to permit a (possibly highly uncertain) extrapolated
-measurement of the probability or rate at which Sun-like stars host true Earth
-analogs.
-Here we present a general probabilistic framework for making justified
+
+An impressive number of exoplanets have been discovered and it is of great
+scientific interest to study what we can say about the exoplanet occurence
+rate function given these discoveries.
+Every catalog is censored by non-trivial selection effects and detection
+efficiencies, and the measurements of the system properties (period, radius,
+\etc) are noisy.
+We present a general hierarchical probabilistic framework for making justified
 inferences about the occurrence rate of exoplanets taking into account survey
 completeness \emph{and observational uncertainties}.
-We demonstrate that our method produces lower variance estimates than the
-standard inverse-detection-efficiency weighting procedure.
+By applying our method to synthetic catalogs, we demonstrate that it produces
+more accurate estimates of the underlying occurence rate than the standard
+inverse-detection-efficiency weighting procedure.
 When applied to an existing catalog of small planet candidates around G dwarfs
 (Petigura \etal\ 2013), our method confirms previous measurements of a
 flattening radius distribution near Earth's radius.
-One output of our models is fully marginalized estimates---marginalizing out
-observational uncertainties and all distribution parameters---of the rate
-density of true Earth analogs, expressed as a number of planets per star per
-natural logarithmic interval of period and radius, evaluated at the properties
-of Earth.
-The rate density we infer is an extrapolation; it depends strongly on the
-permitted flexibility of the distribution model, but it tends to come out
-at around ten percent, with large uncertainty.
+Although no true extra-solar Earth analog is known, hundreds of planets have
+been found around Sun-like stars that are either Earth-sized but on shorter
+periods, or else on year-long orbits but somewhat larger.
+Under strong assumptions, it has been shown that these populations permit an
+uncertain extrapolated estimate of the probability or rate at which Sun-like
+stars host true Earth analogs.
+We relax these assumptions by modeling the occurence rate as a
+multidimensional Gaussian process and find that the rate density of Earth
+analogs is about two percent with large uncertainty.
+
 \end{abstract}
 
 \keywords{%
@@ -151,6 +155,34 @@ keywords: made-up-by-Hogg
 }
 
 \section{Introduction}
+
+CITATIONS:
+\begin{itemize}
+\item
+\citet{fressin-fp} --- simultaneous occurence rate and false positive rate
+\item
+\citet{morton} --- false positive rate
+\item
+\citet{morton-swift} --- KDE estimator for radius distribution of cool KOIs
+\item
+\citet{howard} --- inv-det-eff for short-period candidates around Sun-like
+stars
+\item
+\citet{dressing} --- inv-det-eff for cool KOIs
+\item
+\citet{dong} --- semi-analytic completeness, likelihood function-ish,
+turn-over at small radii, non-separability
+\item
+\citet{tabachnik} ---- Poisson likelihood
+\item
+\citet{tremaine} --- statistics of multis
+\item
+\citet{youdin} --- Poisson likelihood
+\item
+\citet{catanzarite} --- extrapolation to Eta-Earth assuming complete
+\item
+\citet{traub} --- extrapolation to Eta-Earth assuming complete
+\end{itemize}
 
 \hoggtodo{%
 \kepler\ has been busting out exoplanets (CITE).
@@ -806,11 +838,18 @@ Brewer, B.~J., \& Stello, D.\ 2009, \mnras, 395, 2226 (\arxiv{0902.3907})
 \bibitem[Carter \& Winn(2009)]{carter}
 Carter, J.~A., \& Winn, J.~N.\ 2009, \apj, 704, 51 (\arxiv{0909.0747})
 
+\bibitem[Catanzarite \& Shao(2011)]{catanzarite}
+Catanzarite, J., \& Shao, M.\ 2011, \apj, 738, 151 (\arxiv{1103.1443})
+
 \bibitem[Dong \& Zhu(2013)]{dong}
 Dong, S., \& Zhu, Z.\ 2013, \apj, 778, 53 (\arxiv{1212.4853})
 
 \bibitem[Dressing  \& Charbonneau(2013)]{dressing}
 Dressing, C.~D., \& Charbonneau, D.\ 2013, \apj, 767, 95 (\arxiv{1302.1647})
+
+\bibitem[Fressin \etal(2013)]{fressin-fp}
+Fressin, F., Torres, G., Charbonneau, D., \etal\ 2013, \apj, 766, 81
+(\arxiv{1301.0842})
 
 \bibitem[Gibson \etal(2012)]{gibson-gp}
 Gibson, N.~P., Aigrain, S., Roberts, S., \etal\ 2012, \mnras, 419, 2683
@@ -829,6 +868,12 @@ Howard, A.~W., Marcy, G.~W., Bryson, S.~T., et al.\ 2012, \apjs, 201, 15
 \bibitem[Lewis \& Shedler(1979)]{poisson}
 Lewis, P.~A.~W., \& Shedler, G.~S.\ 1979, Naval Research Logistics Quarterly,
 26, 403
+
+\bibitem[Morton \& Johnson(2011)]{morton}
+Morton, T.~D., \& Johnson, J.~A.\ 2011, \apj, 738, 170 (\arxiv{1101.5630})
+
+\bibitem[Morton \& Swift(2013)]{morton-swift}
+Morton, T.~D., \& Swift, J.~J.\ 2013, \arxiv{1303.3013}
 
 \bibitem[Murray \etal(2010)]{ess}
 Murray, I., Prescott Adams, R., \& MacKay, D.~J.~C.\ 2010, JMLR: W\&CP, 9, 541
@@ -859,6 +904,9 @@ Roberts, S., McQuillan, A., Reece, S., \& Aigrain, S.\ 2013, \mnras, 435, 3639
 \bibitem[Tabachnik \& Tremaine(2002)]{tabachnik}
 Tabachnik, S., \& Tremaine, S.\ 2002, \mnras, 335, 151
 (\arxiv{astro-ph/0107482})
+
+\bibitem[Traub(2012)]{traub}
+Traub, W.~A.\ 2012, \apj, 745, 20 (\arxiv{1109.4682})
 
 \bibitem[Tremaine \& Dong(2012)]{tremaine}
 Tremaine, S., \& Dong, S.\ 2012, \aj, 143, 94 (\arxiv{1106.5403})
