@@ -118,7 +118,7 @@
 \begin{abstract}
 
 An impressive number of exoplanets have been discovered and it is of great
-scientific interest to study what we can say about the exoplanet occurence
+scientific interest to study what we can say about the exoplanet occurrence
 rate function given these discoveries.
 Every catalog is censored by non-trivial selection effects and detection
 efficiencies, and the measurements of the system properties (period, radius,
@@ -127,7 +127,7 @@ We present a general hierarchical probabilistic framework for making justified
 inferences about the occurrence rate of exoplanets taking into account survey
 completeness \emph{and observational uncertainties}.
 By applying our method to synthetic catalogs, we demonstrate that it produces
-more accurate estimates of the underlying occurence rate than the standard
+more accurate estimates of the underlying occurrence rate than the standard
 inverse-detection-efficiency weighting procedure.
 When applied to an existing catalog of small planet candidates around G dwarfs
 (Petigura \etal\ 2013), our method confirms previous measurements of a
@@ -138,7 +138,7 @@ periods, or else on year-long orbits but somewhat larger.
 Under strong assumptions, it has been shown that these populations permit an
 uncertain extrapolated estimate of the probability or rate at which Sun-like
 stars host true Earth analogs.
-We relax these assumptions by modeling the occurence rate as a
+We relax these assumptions by modeling the occurrence rate as a
 multidimensional Gaussian process and find that the rate density of Earth
 analogs is about two percent (per natural logarithmic bin in period and
 radius) at low signal-to-noise.
@@ -160,7 +160,7 @@ keywords: made-up-by-Hogg
 % CITATIONS:
 % \begin{itemize}
 % \item
-% \citet{fressin-fp} --- simultaneous occurence rate and false positive rate
+% \citet{fressin-fp} --- simultaneous occurrence rate and false positive rate
 % \item
 % \citet{morton} --- false positive rate
 % \item
@@ -191,7 +191,7 @@ Many of these planets orbit Sun-like stars (\citealt{petigura}), where the
 definition of Sun-like is given in terms of the star's temperature and surface
 gravity.
 Given these catalogs, it is interesting to ask what we can say about the
-occurence rate of exoplanets as a function of their physical parameters
+occurrence rate of exoplanets as a function of their physical parameters
 (period, radius, \etc).
 The two main reasons why this is interesting are that \emph{(a)} theories of
 planet formation make predictions about the shape of this function
@@ -202,10 +202,10 @@ year-long orbits around Sun-like stars.}.
 
 \citet{petigura} recently published constraints on this function based on
 their independent analysis of the \kepler\ light curves for 42,000 Sun-like
-stars but the study of exoplanet occurence rates has a long history.
+stars but the study of exoplanet occurrence rates has a long history.
 \dfmtodo{Summarize history with lotsa citations.}
 
-A very important component of any study of exoplanet occurence rates is the
+A very important component of any study of exoplanet occurrence rates is the
 treatment of detection efficiency.
 Qualitatively, in a transit survey, small planets with long periods are much
 harder to detect than large planets orbiting close to their star.
@@ -221,7 +221,7 @@ detection efficiency empirically by injecting synthetic signals into the raw
 data and testing recovery rates (\citealt{petigura-a, petigura}).
 
 In this \paper, we develop a flexible framework for probabilistic inference of
-exoplanet occurence rates that can be applied to incomplete catalogs with
+exoplanet occurrence rates that can be applied to incomplete catalogs with
 \emph{non-negligible observational uncertainties}.
 Our method is a generalization of a previously studied method
 (\citealt{hogge}) to account for detection efficiencies.
@@ -236,7 +236,7 @@ Specifically, we make the following assumptions
 \begin{itemize}
 
 \item the candidates in the catalog are independent Poisson draws from the
-censored occurence rate,
+censored occurrence rate,
 
 \item every candidate is a real exoplanet (there are no false positives),
 
@@ -246,7 +246,7 @@ the parameters),
 
 \item the detection efficiency of the pipeline is known, and
 
-\item the true occurence rate function is \emph{smooth}\footnote{We give our
+\item the true occurrence rate function is \emph{smooth}\footnote{We give our
 definition of ``smooth'' in more detail below but our model is very flexible
 so this is not a strong restriction.}.
 
@@ -267,13 +267,13 @@ applicable in our method and this would be a very interesting generalization.
 \section{A brief introduction to hierarchical inference}
 
 In this \paper, we are asking the question: \emph{what constraints can we put
-on the occurence rate of exoplanets given all the light curves measured by
+on the occurrence rate of exoplanets given all the light curves measured by
 \kepler?}
 Throughout this \paper, we use the notation $\rate_\ratepars(\entry)$ for the
-occurence rate \rate---parameterized by the parameters \ratepars---as a
+occurrence rate \rate---parameterized by the parameters \ratepars---as a
 function of the physical parameters \entry\ (orbital period, planetary radius,
 \etc).
-In this framework, the occurence rate function can be ``parametric''---for
+In this framework, the occurrence rate function can be ``parametric''---for
 example, a power law---or a ``non-parametric'' function---such as a histogram
 where the bin heights are the parameters \ratepars.
 The light curve for a particular target $k$ is called $\data_k$ and the
@@ -292,12 +292,12 @@ p(\{\data_k\}\,|\,\ratepars) &=&
 \end{eqnarray}
 where, as we mentioned above, $\{\data_k\}$ is the set of all light curves,
 one light curve $\data_k$ per target $k$, \ratepars\ is the vector of
-parameters describing the occurence rate function $\rate_\ratepars(\entry)$
+parameters describing the occurrence rate function $\rate_\ratepars(\entry)$
 and $\entry_k$ is the vector of physical parameters describing the planetary
 system (orbital periods, radius ratios, stellar radius, \etc) around target
 $k$.
 In this equation, our only assumption is that the datasets depend on the
-occurence rate of exoplanets only through the catalog $\{\entry_k\}$.
+occurrence rate of exoplanets only through the catalog $\{\entry_k\}$.
 In our case, this assumption qualitatively means that the signals found in the
 light curves depend only on the actual planet properties and not on the
 distributions from which they are drawn.
@@ -372,7 +372,7 @@ method similar to the one discussed here.
 \sectlabel{model}
 
 In the inference procedure described above, we only discussed an abstract
-occurence rate function.
+occurrence rate function.
 To make it more concrete, we'll model the catalog as a Poisson draw from the
 \emph{observable} rate function $\obs{\rate}_\ratepars$.
 This leads to the previously known result (see \citealt{tabachnik,youdin} for
@@ -401,10 +401,10 @@ In practice, it probably makes sense to model the observable rate as
 \end{eqnarray}
 where $\completeness(\entry)$ is the detection efficiency at \entry\ and
 $\rate_\ratepars(\entry)$ is the object that we want to infer: the true
-occurence rate.
+occurrence rate.
 Up to this point, we haven't discussed any specific functional form for
 $\rate_\ratepars(\entry)$ and all of this derivation is equally applicable
-whether we model the occurence rate as (for example) a broken power law or
+whether we model the occurrence rate as (for example) a broken power law or
 a histogram.
 
 For the results in this \paper, we will assume that the completeness function
@@ -432,7 +432,7 @@ In other words, we have per-object posterior samples
 \end{eqnarray}
 \Eq{money} is the \emph{money equation} for our method.
 It lets us efficiently compute the \emph{marginalized likelihood of the entire
-set of light curves for a particular occurence rate function}.
+set of light curves for a particular occurrence rate function}.
 
 \paragraph{Inverse-detection-efficiency}
 It's now interesting to take a brief aside and discuss the connection between
@@ -443,7 +443,7 @@ where the weight for object $\entry_k$ is $1/\completeness(\entry_k)$.
 This makes intuitive sense but (to our knowledge) does not have a clear
 probabilistic justification or interpretation.
 
-If we model the occurence rate as a histogram with $J$ fixed bin volumes
+If we model the occurrence rate as a histogram with $J$ fixed bin volumes
 $\binarea_j$
 \begin{eqnarray}
 \rate_\ratepars (\entry) &=& \left\{\begin{array}{ll}
@@ -470,27 +470,27 @@ equal to zero, we find the maximum likelihood result
 \end{eqnarray}
 where $N_j$ is the number of objects that fall within the bin $j$.
 Since it is the maximum likelihood solution, this result is the minimum
-variance estimator for the occurence rate in the limit of negligible catalog
+variance estimator for the occurrence rate in the limit of negligible catalog
 uncertainties.
 This is \emph{almost} the same as the inverse-detection-efficiency result and
 in various limiting cases, they would provide the same result.
 \dfmtodo{Finish explaining why this result is better under the specified
 assumptions.}
 
-\paragraph{Occurence rate parameterization \& priors}
-For the remainder of this \paper, we also model the occurence rate as a
+\paragraph{occurrence rate parameterization \& priors}
+For the remainder of this \paper, we also model the occurrence rate as a
 two-dimensional histogram with fixed logarithmic bins in period and radius.
 When we include observational uncertainties---using \eq{money}---the maximum
 likelihood result is no longer analytic.
-Therefore, if we want to compute the ``best-fit'' occurence rate, we can use a
+Therefore, if we want to compute the ``best-fit'' occurrence rate, we can use a
 standard non-linear optimization algorithm.
 In the regions of parameter space that we tend to care about, the completeness
 is low and there are only a few observations with large uncertainties.
 In this case, we're especially interested in probabilistic constraints on the
-occurence rate; not just the best-fit model.
+occurrence rate; not just the best-fit model.
 To do this, we apply a prior\footnote{This is a slight misnomer because
 we also we also marginalize over the parameters of this model.} $p(\ratepars)$
-on the occurence rate parameters and generate samples from the posterior
+on the occurrence rate parameters and generate samples from the posterior
 probability
 \begin{eqnarray}\eqlabel{posterior}
 p(\ratepars\,|\,\{\data_k\}) &\propto&
@@ -502,7 +502,7 @@ Given our model of the rate function as a collection of bins, we choose to
 model the prior as a Gaussian process (\citealt{gp,gibson-gp}) on the
 logarithmic bin heights.
 This model encodes our prior belief that, on the grid scale that we consider,
-the occurence rate should be smooth but it is otherwise very flexible about
+the occurrence rate should be smooth but it is otherwise very flexible about
 the form of the function.
 Mathematically, the prior is written as
 \begin{eqnarray}
@@ -638,7 +638,7 @@ choice.
 In order to get a feeling for the constraints provided by our method and to
 explore any biases introduced by ignoring the observational uncertainties, we
 start by ``observing'' a few synthetic catalogs from qualitatively different
-known occurence rate functions.
+known occurrence rate functions.
 For each of these simulations, we'll take the completeness function computed
 by \citet{petigura} as given.
 In general, \eq{poisson-like} can be sampled using a procedure called thinning
@@ -663,7 +663,7 @@ Both distributions are generated by a separable model
     \rate_\ratepars^{(\radius)}(\ln\radius)
 \end{eqnarray}
 but fit using the full general model.
-The first catalog---\modela--- is generated assuming a smooth occurence
+The first catalog---\modela--- is generated assuming a smooth occurrence
 surface where both distributions are broken power laws.
 The second---\modelb---is designed to be exactly the distribution inferred by
 \citet{petigura} in the range that they considered and then smoothly
@@ -679,20 +679,20 @@ method, marginalizing over the hyperparameters of the Gaussian process
 regularization.
 \Fig{smooth-results} and \fig{simulation-results} show the results of this
 analysis in both cases.
-In particular, the side panels compare the marginalized occurence rate
+In particular, the side panels compare the marginalized occurrence rate
 functions in period and radius to the true functions that were used to
 generate the catalogs.
-\Fig{smooth-results} shows that even if the true occurence rate is a smooth
+\Fig{smooth-results} shows that even if the true occurrence rate is a smooth
 function, the rate inferred by the inverse-detection-efficiency method can
 appear to have sharp features.
 In this first example---where the true distribution is well described by our
-Gaussian process model---the probabilistic inference of the occurence rate is
+Gaussian process model---the probabilistic inference of the occurrence rate is
 both more precise and accurate.
 
 In the second example, the true rate function includes a sharp feature chosen
 to reproduce the result published by \citet{petigura}.
 In this case, \fig{simulation-results} shows that the probabilistic
-constraints on the occurence rate are less precise \emph{but more accurate}
+constraints on the occurrence rate are less precise \emph{but more accurate}
 than results using the inverse-detection-efficiency method.
 At this point, the distributions inferred by these two different techniques
 don't seem drastically inconsistent but the difference are most obvious as the
@@ -704,16 +704,16 @@ survey completeness goes to zero: exactly the region of interest.
 \end{center}
 \caption{%
 {\bf Simulated data}.
-Inferences about the occurence rate function based on the simulated catalog
+Inferences about the occurrence rate function based on the simulated catalog
 \modela.
 \emph{Center:} the points with error bars show the exoplanet candidates in the
 simulated incomplete catalog, the contours show the survey completeness
 function (\citealt{petigura}), and the grayscale shows the median posterior
-occurence surface.
+occurrence surface.
 \emph{Top and left:} the red dashed line shows the \emph{true} distribution
 that was used to generate the catalog, the points with error bars show the
 results of the inverse-detection-efficiency procedure, and the histograms are
-posterior samples from the marginalized occurence rate as inferred by our
+posterior samples from the marginalized occurrence rate as inferred by our
 method.
 \figlabel{smooth-results}}
 \end{figure}
@@ -750,7 +750,7 @@ radius---evaluated at the period and radius of Earth.
 Since no Earth analogs have been found any constraints on this rate must be
 extrapolated from the existing observations.
 This extrapolation is generally done by assuming a functional form for the
-occurence rate function, constraining it using the observed candidates and
+occurrence rate function, constraining it using the observed candidates and
 extrapolating.
 All published extrapolations are based on rigid models like a power law
 (\citealt{catanzarite, traub}) or linear in the cumulative period distribution
@@ -762,7 +762,7 @@ We weaken the assumptions necessary for extrapolation by only assuming that
 the distribution is smooth using the Gaussian process prior described in
 \sect{model}.
 This model will, of course, break down if there is a sharp feature in the
-occurence rate function right at the location of Earth but otherwise this is
+occurrence rate function right at the location of Earth but otherwise this is
 the most conservative extrapolation method published up to this point.
 
 The results of our extrapolation method, when applied to the synthetic
@@ -773,7 +773,7 @@ linear relation in the cumulative period distribution for small planets and
 compared these results---converting to the correct units---to our method and
 the truth.
 In both cases, our method returns a less precise but more accurate result for
-the occurence rate and the error bars given by the functional extrapolation
+the occurrence rate and the error bars given by the functional extrapolation
 are overly optimistic.
 
 \begin{figure}[p]
@@ -803,7 +803,7 @@ The same as \fig{smooth-rate} for \modelb.
 
 \section{Results from real data}
 
-Having developed this probabilistic framework for occurence rate inferences
+Having developed this probabilistic framework for occurrence rate inferences
 and demonstrating that it produces reasonable results when applied to
 simulated datasets, we now turn to real data.
 As described in \sect{data}, we will use the catalog of small exoplanet
@@ -812,10 +812,10 @@ This is a great test case because those authors empirically measured the
 detection efficiency of their pipeline as a function of the parameters of
 interest.
 
-\Fig{real-results} shows posterior samples from the inferred occurence rate
+\Fig{real-results} shows posterior samples from the inferred occurrence rate
 distribution as a function of period and radius conditioned on the catalog.
-The marginalized distributions are qualitatively consistent with the occurence
-rate functions measured by \citet{petigura}.
+The marginalized distributions are qualitatively consistent with the
+occurrence rate functions measured by \citet{petigura}.
 The MCMC chain used to generate this figure is available online at
 \dfmtodo{ADD SOME URL}.
 
