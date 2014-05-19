@@ -141,7 +141,7 @@ stars host true Earth analogs.
 We relax these assumptions by modeling the occurence rate as a
 multidimensional Gaussian process and find that the rate density of Earth
 analogs is about two percent (per natural logarithmic bin in period and
-radius) with large uncertainty.
+radius) at low signal-to-noise.
 
 \end{abstract}
 
@@ -551,6 +551,7 @@ We tune the Metropolis--Hastings proposal used to update the hyperparameters
 by hand to get an acceptance fraction of $\sim0.2-0.4$ for those parameters.
 
 \section{Data and completeness function}
+\sectlabel{data}
 
 Using an independent exoplanet search and characterization pipeline,
 \citet{petigura} published a catalog of 603 planet candidates orbiting stars
@@ -702,6 +703,7 @@ survey completeness goes to zero: exactly the region of interest.
 \includegraphics[width=\textwidth]{figures/smooth/results.pdf}
 \end{center}
 \caption{%
+{\bf Simulated data}.
 Inferences about the occurence rate function based on the simulated catalog
 \modela.
 \emph{Center:} the points with error bars show the exoplanet candidates in the
@@ -721,11 +723,13 @@ method.
 \includegraphics[width=\textwidth]{figures/simulation/results.pdf}
 \end{center}
 \caption{%
+{\bf Simulated data}.
 The same as \fig{smooth-results} for \modelb.
 \figlabel{simulation-results}}
 \end{figure}
 
 \section{Extrapolation to Earth}
+\sectlabel{extrap}
 
 As well as inferring the ocurrence distribution of exoplanets, this dataset
 can also be used to constrain the rate of Earth analogs.
@@ -777,8 +781,9 @@ are overly optimistic.
 \includegraphics[width=0.6\textwidth]{figures/smooth/rate.pdf}
 \end{center}
 \caption{%
+{\bf Simulated data}.
 The extrapolated rate of Earth analogs \gammaearth\ as inferred by the
-different techniques.
+different techniques applied to the \modela\ simulation.
 Applying the method used by \citet{petigura} gives a constraint indicated by
 the vertical black line with error bars shown as dashed lines.
 The histogram is the MCMC estimate of our posterior constraint on this rate
@@ -791,13 +796,41 @@ and the true value is indicated as the thick gray vertical line.
 \includegraphics[width=0.6\textwidth]{figures/simulation/rate.pdf}
 \end{center}
 \caption{%
+{\bf Simulated data}.
 The same as \fig{smooth-rate} for \modelb.
 \figlabel{simulation-rate}}
 \end{figure}
 
-\section{Real data}
+\section{Results from real data}
 
+Having developed this probabilistic framework for occurence rate inferences
+and demonstrating that it produces reasonable results when applied to
+simulated datasets, we now turn to real data.
+As described in \sect{data}, we will use the catalog of small exoplanet
+candidates orbiting Sun-like stars published by \citet{petigura}.
+This is a great test case because those authors empirically measured the
+detection efficiency of their pipeline as a function of the parameters of
+interest.
 
+\Fig{real-results} shows posterior samples from the inferred occurence rate
+distribution as a function of period and radius conditioned on the catalog.
+The marginalized distributions are qualitatively consistent with the occurence
+rate functions measured by \citet{petigura}.
+The MCMC chain used to generate this figure is available online at
+\dfmtodo{ADD SOME URL}.
+
+Our constraint on the rate of Earth analogs (as defined in \sect{extrap}) is
+in tension---even though our result has large fractional uncertainty---with
+the result from \citet{petigura}.
+This is shown in \fig{real-rate} where we compare the marginalized posterior
+PDF for \gammaearth\ to the published value and uncertainty.
+Quantitatively, we find that the rate of Earth analogs---the average number of
+Earth-sized planets orbiting a Sun-like on a year-long period---is
+\begin{eqnarray}
+\gammaearth &=& 0.017^{+0.018}_{-0.009} \quad.
+\end{eqnarray}
+Converted to these units, \citet{petigura} measured $0.119_{-0.046}^{+0.035}$
+for the same quantity (indicated as the vertical lines in \fig{real-rate}).
 
 \begin{figure}[p]
 \begin{center}
