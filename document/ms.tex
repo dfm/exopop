@@ -211,81 +211,38 @@ than anyone who has come before.
 Cite \citet{tremaine} for likelihood function including multiplicity.
 }
 
-This study is novel in a number of ways.
-We create probabilistic information about the full exoplanet population
-\emph{not} by weighting the detected objects by the inverse detection
-efficiency (\citealt{petigura}), but rather by forward modeling the
-observed distribution subject to the detection efficiency
-(\dfmtodo{CITE TREMAINE?} \citealt{dong}).
-Re-weighting the data by inverse selection probability---a method called
-V-max in the quasar and galaxy luminosity function contexts---is not wrong,
-but it produces a higher-variance estimate of the population than a justified
-likelihood approach; it is higher variance because
-the effective number of samples, after
-weighting, can be much smaller than the actual number of samples.
-In this work, we build a justified
-likelihood of the observed data, taking into account the completeness function
-or detection efficiency.
-Our likelihood function is a variable-rate Poisson likelihood; it makes the
-fundamental assumption that the data points are independently drawn from the
-model, but is agnostic about all other properties of the data or distribution
-functions.
-Indeed, the assumptions behind this study here are weaker than those of any
-previous study of the period and radius distribution of the Earth-sized
-exoplanet population (\dfmtodo{CITE TREMAINE?} \citealt{dong, petigura}).
-
-Another new aspect of this study is that it makes use of very flexible
-distribution function models.
-Indeed most of the models we consider are ``non-parametric'' in the weak sense
-that they have enormous numbers of free parameters (not the strong sense of
-having an \emph{infinite} number of free parameters).
-The models are protected from degeneracies and over-fitting by priors.
-In some models we assume that the two-dimensional distribution of planets in
-period and radius is separable; in others we don't.
-We treat all of these parameters as ``nuisance parameters'' when we ask
-questions about the occurrence of Earth analogs.
-That is, our rate conclusions are fully marginalized, and those
-marginalizations are over non-trivial numbers of parameters.
-
-When, in what follows, we ask questions about the radius disribution of
-exoplanets, the distribution parameters are no longer nuisances The
-radius-distribution parameters are what we are trying to measure.
-Even in this case, however, our results will have the period-distribution
-parameters marginalized out.
-
-Perhaps the most important novelty of this study is in its treatment of
-observational uncertainties.
-Although planet periods in our data set are very precisely measured, the
-planet radius measurements have large uncertainties.
-The justified probabilistic approach to including these uncertainties in a
-distribution analysis is to introduce the ``true'' radii as latent variables
-and infer and marginalize them out along with all other nuisance parameters.
-Although this sounds expensive---and it can be---there is a simple approach
-we have been advocating (\cite{hogge}) that makes use of importance sampling.
-We use this approach here; our results are fully marginalized over posterior
-uncertainties in all of the planet radii.
-More will be said about this below; the importance sampling looks like a
-product over data points of sums (averages) over individual-datum radius
-samplings.
-
 \section{A brief introduction to hierarchical inference}
 
 In this \paper, we are asking the question: \emph{what constraints can we put
 on the occurence rate of exoplanets given all the light curves measured by
 \kepler?}
-Mathematically, this involves evaluating the so-called \emph{marginalized
-likelihood function}
+Throughout this \paper, we use the notation $\rate_\ratepars(\entry)$ for the
+occurence rate \rate---parameterized by the parameters \ratepars---as a
+function of the physical parameters \entry\ (orbital period, planetary radius,
+\etc).
+In this framework, the occurence rate function can be ``parametric''---for
+example, a power law---or a ``non-parametric'' function---such as a histogram
+where the bin heights are the parameters \ratepars.
+The light curve for a particular target $k$ is called $\data_k$ and the
+\emph{true} set of physical parameters for that same object are given by
+$\entry_k$.
+A catalog provides a set of constraints on the parameters $\{\entry_k\}$
+conditioned the set light curves $\{\data_k\}$.
+
+Any inference about the rate function parameters can be formally addressed by
+evaluating the \emph{marginalized likelihood function}
 \begin{eqnarray}\eqlabel{crazylike}
 p(\{\data_k\}\,|\,\ratepars) &=&
     \int p(\{\data_k\}\,|\,\{\entry_k\})
     \,p(\{\entry_k\}\,|\,\ratepars)
     \dd\{\entry_k\}
 \end{eqnarray}
-where $\{\data_k\}$ is the set of all light curves, one light curve $\data_k$
-per target $k$, \ratepars\ is a vector of parameters describing the occurence
-rate function $\rate_\ratepars(\entry)$ and $\entry_k$ is the vector of
-physical parameters describing the planetary system (orbital periods,
-radius ratios, stellar radius, \etc) around target $k$.
+where, as we mentioned above, $\{\data_k\}$ is the set of all light curves,
+one light curve $\data_k$ per target $k$, \ratepars\ is the vector of
+parameters describing the occurence rate function $\rate_\ratepars(\entry)$
+and $\entry_k$ is the vector of physical parameters describing the planetary
+system (orbital periods, radius ratios, stellar radius, \etc) around target
+$k$.
 In this equation, our only assumption is that the datasets depend on the
 occurence rate of exoplanets only through the catalog $\{\entry_k\}$.
 In our case, this assumption qualitatively means that the signals found in the
@@ -364,8 +321,8 @@ In the inference procedure described above, we only discussed an abstract
 occurence rate function.
 To make it more concrete, we'll model the catalog as a Poisson draw from the
 \emph{observable} rate function $\obs{\rate}_\ratepars$.
-This leads to the well known result (see \citealt{tabachnik,youdin} for some
-of the examples from the exoplanet literature)
+This leads to the previously known result (see \citealt{tabachnik,youdin} for
+some of the examples from the exoplanet literature)
 \begin{eqnarray}\eqlabel{poisson-like}
 p(\{\entry_k\}\,|\,\ratepars) &=&
     \exp\left(-\int \obs{\rate}_\ratepars (\entry) \dd\entry\right) \,
@@ -519,7 +476,7 @@ where $\Sigma^{-1}$ is the diagonal matrix
 \end{eqnarray}
 
 As well as being a very flexible prior, this Gaussian process model is also
-appealing because it is very well studied in the machine learning literature.
+appealing because it is well studied in the machine learning literature.
 In particular, there is a very efficient algorithm---elliptical slice sampling
 (ESS; \citealt{ess})---for generating samples from the posterior probability
 function in \eq{posterior}.
@@ -588,8 +545,8 @@ The main argument is that since the radius uncertainties are dominated by
 uncertainties in the stellar parameters, it is not possible to use the
 published catalog (\citealt{petigura}) to compute constraints on radius
 ratios.
-In future catalogs, this problem would be solved by publishing representations
-of all the posterior probabilities that are being measured.
+In the future, this problem would be solved by publishing a representation of
+\emph{the full posterior PDF for each object in the catalog}.
 In this case, the most useful data product would be \emph{posterior samples
 for each target's radius ratio and stellar radius}.
 
@@ -729,7 +686,11 @@ location of Earth}
 \left.\frac{\dd N}{\dd\ln\period\,\dd\ln\radius}\right|
 _{\radius=\radius_\oplus,\,\period=\period_\oplus}\quad.
 \end{eqnarray}
-This is also the quantity that \citet{petigura} estimated in different units.
+This is also the quantity that \citet{petigura} estimated but in different
+units.
+That is, \gammaearth\ is the average number of exoplanets around a
+``Sun-like'' star---per natural logarithmic bins in period and
+radius---evaluated at the period and radius of Earth.
 
 \begin{figure}[p]
 \begin{center}
@@ -777,47 +738,49 @@ The same as \fig{smooth-rate} but applied to the catalog from \citet{petigura}.
 
 \section{Discussion}
 
-We have made the first measurement of the Earth-like exoplanet population that
-is based on forward modeling, takes proper account of the observational
-uncertainties on planet radii, and makes use of extremely flexible
-non-separable distributions for period and radius.
-We find \hoggtodo{BLAH BLAH BLAH.}
+\dfmtodo{write this section, eh?}
 
-Although our method makes weaker assumptions than any previous work in this
-area, of course it \emph{does} make strong assumptions.
-It assumes that the data set (from \citealt{petigura}) contains planets and
-only planets (no false positives).
-It assumes that the individual-planet radius uncertainties are also correctly
-determined.
-It assumes that the completeness calculation (again from \citealt{petigura})
-is accurate and smoothly varying with period and radius; it makes no attempt
-to adjust the completeness star-by-star for brightness or variability.
-It assumes that the exoplanets are all independently drawn from the same
-distribution function, with no regard to age, metallicity, or multiplicity.
+% We have made the first measurement of the Earth-like exoplanet population that
+% is based on forward modeling, takes proper account of the observational
+% uncertainties on planet radii, and makes use of extremely flexible
+% non-separable distributions for period and radius.
+% We find \hoggtodo{BLAH BLAH BLAH.}
 
-Although we have taken account of the radius uncertainties in a principled
-way, we did make one important approximation: We ignored planets with central
-values far outside the period and radius box in which we built the model.
-That is, we assumed that there are no very large outliers in radius
-determination.
-This assumption is a complex one; it involves the effective, end-to-end error
-distribution in the data set, but also smoothness of the distribution function
-at or near the edges of the analysis box.
+% Although our method makes weaker assumptions than any previous work in this
+% area, of course it \emph{does} make strong assumptions.
+% It assumes that the data set (from \citealt{petigura}) contains planets and
+% only planets (no false positives).
+% It assumes that the individual-planet radius uncertainties are also correctly
+% determined.
+% It assumes that the completeness calculation (again from \citealt{petigura})
+% is accurate and smoothly varying with period and radius; it makes no attempt
+% to adjust the completeness star-by-star for brightness or variability.
+% It assumes that the exoplanets are all independently drawn from the same
+% distribution function, with no regard to age, metallicity, or multiplicity.
 
-If our inferences are right about true Earth analogs, then we expect that
-there are about XXX transiting Earth analogs hidden in the \kepler\ data set.
-We would be able to find some of these Earth analogs if the effective noise
-level in the data could be reduced by a factor of about XXX.
-We have identified a number of directions along which this noise reduction
-might happen, including but not limited to retrospective data-driven or
-physics-driven recalibrations of the \kepler\ focal plane
-(\citealt{hoggwhitepaper}), new methods for performing aperture photometry,
-and better models for stochastic instrument variability or stochastic
-intrinsic stellar variability that take account of frequency structure
-(\citealt{brewer, carter, roberts}).
-If any (or all) of these deliver substantial improvements for \kepler\
-archival data reanalyses, it's Nobel Prize time!  (Or at least \textsl{The
-Colbert Report}?)
+% Although we have taken account of the radius uncertainties in a principled
+% way, we did make one important approximation: We ignored planets with central
+% values far outside the period and radius box in which we built the model.
+% That is, we assumed that there are no very large outliers in radius
+% determination.
+% This assumption is a complex one; it involves the effective, end-to-end error
+% distribution in the data set, but also smoothness of the distribution function
+% at or near the edges of the analysis box.
+
+% If our inferences are right about true Earth analogs, then we expect that
+% there are about XXX transiting Earth analogs hidden in the \kepler\ data set.
+% We would be able to find some of these Earth analogs if the effective noise
+% level in the data could be reduced by a factor of about XXX.
+% We have identified a number of directions along which this noise reduction
+% might happen, including but not limited to retrospective data-driven or
+% physics-driven recalibrations of the \kepler\ focal plane
+% (\citealt{hoggwhitepaper}), new methods for performing aperture photometry,
+% and better models for stochastic instrument variability or stochastic
+% intrinsic stellar variability that take account of frequency structure
+% (\citealt{brewer, carter, roberts}).
+% If any (or all) of these deliver substantial improvements for \kepler\
+% archival data reanalyses, it's Nobel Prize time!  (Or at least \textsl{The
+% Colbert Report}?)
 
 All of the code used in this project is available from
 \url{http://github.com/dfm/exopop} under the MIT open-source software license.
