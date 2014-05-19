@@ -241,8 +241,8 @@ censored occurence rate,
 \item every candidate is a real exoplanet (there are no false positives),
 
 \item the observational uncertainties on the physical parameters are
-non-negligible but the amplitudes are known (the catalog provides
-probabilistic constraints on the parameters),
+non-negligible but known (the catalog provides probabilistic constraints on
+the parameters),
 
 \item the detection efficiency of the pipeline is known, and
 
@@ -369,6 +369,7 @@ The case of non-negligible uncertainties is described by \citet{hogge} using a
 method similar to the one discussed here.
 
 \section{Model generalities}
+\sectlabel{model}
 
 In the inference procedure described above, we only discussed an abstract
 occurence rate function.
@@ -728,9 +729,6 @@ The same as \fig{smooth-results} for \modelb.
 
 As well as inferring the ocurrence distribution of exoplanets, this dataset
 can also be used to constrain the rate of Earth analogs.
-Even though no true analog has been observed, we can make some assumptions
-about the distribution (as described below) and extrapolate to the location of
-the Earth.
 Explicitly, we constrain the rate of exoplanets \emph{evaluated at the
 location of Earth}
 \begin{eqnarray}
@@ -744,6 +742,35 @@ units.
 That is, \gammaearth\ is the average number of exoplanets around a
 ``Sun-like'' star---per natural logarithmic bins in period and
 radius---evaluated at the period and radius of Earth.
+
+Since no Earth analogs have been found any constraints on this rate must be
+extrapolated from the existing observations.
+This extrapolation is generally done by assuming a functional form for the
+occurence rate function, constraining it using the observed candidates and
+extrapolating.
+All published extrapolations are based on rigid models like a power law
+(\citealt{catanzarite, traub}) or linear in the cumulative period distribution
+(\citealt{petigura}).
+All of these results are sensitive to this choice of function and to the other
+implicit decisions (for example the size of radius bin that is considered
+Earth-like by \citealt{petigura}).
+We weaken the assumptions necessary for extrapolation by only assuming that
+the distribution is smooth using the Gaussian process prior described in
+\sect{model}.
+This model will, of course, break down if there is a sharp feature in the
+occurence rate function right at the location of Earth but otherwise this is
+the most conservative extrapolation method published up to this point.
+
+The results of our extrapolation method, when applied to the synthetic
+catalogs described in the previous section, are shown in \fig{smooth-rate} and
+\fig{simulation-rate}.
+We implemented the extrapolation method from \citet{petigura} that assumes a
+linear relation in the cumulative period distribution for small planets and
+compared these results---converting to the correct units---to our method and
+the truth.
+In both cases, our method returns a less precise but more accurate result for
+the occurence rate and the error bars given by the functional extrapolation
+are overly optimistic.
 
 \begin{figure}[p]
 \begin{center}
@@ -769,6 +796,8 @@ The same as \fig{smooth-rate} for \modelb.
 \end{figure}
 
 \section{Real data}
+
+
 
 \begin{figure}[p]
 \begin{center}
