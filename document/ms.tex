@@ -83,8 +83,8 @@
 \newcommand{\smoothpars}{{\ensuremath{\bvec{\smooth}}}}
 \newcommand{\cov}{{\ensuremath{\mathrm{K}}}}
 
-\newcommand{\modela}{\emph{Model A}}
-\newcommand{\modelb}{\emph{Model B}}
+\newcommand{\modela}{\emph{Catalog A}}
+\newcommand{\modelb}{\emph{Catalog B}}
 
 \newcommand{\gammaearth}{{\ensuremath{\rate_\oplus}}}
 
@@ -157,59 +157,112 @@ keywords: made-up-by-Hogg
 
 \section{Introduction}
 
-CITATIONS:
+% CITATIONS:
+% \begin{itemize}
+% \item
+% \citet{fressin-fp} --- simultaneous occurence rate and false positive rate
+% \item
+% \citet{morton} --- false positive rate
+% \item
+% \citet{morton-swift} --- KDE estimator for radius distribution of cool KOIs
+% \item
+% \citet{howard} --- inv-det-eff for short-period candidates around Sun-like
+% stars
+% \item
+% \citet{dressing} --- inv-det-eff for cool KOIs
+% \item
+% \citet{dong} --- semi-analytic completeness, likelihood function-ish,
+% turn-over at small radii, non-separability
+% \item
+% \citet{tabachnik} ---- Poisson likelihood
+% \item
+% \citet{tremaine} --- statistics of multis
+% \item
+% \citet{youdin} --- Poisson likelihood
+% \item
+% \citet{catanzarite} --- extrapolation to Eta-Earth assuming complete
+% \item
+% \citet{traub} --- extrapolation to Eta-Earth assuming complete
+% \end{itemize}
+
+NASA's \kepler\ mission has enabled the discovery of thousands of exoplanet
+candidates (\dfmtodo{CITE KEPLER}).
+Many of these planets orbit Sun-like stars (\citealt{petigura}), where the
+definition of Sun-like is given in terms of the star's temperature and surface
+gravity.
+Given these catalogs, it is interesting to ask what we can say about the
+occurence rate of exoplanets as a function of their physical parameters
+(period, radius, \etc).
+The two main reasons why this is interesting are that \emph{(a)} theories of
+planet formation make predictions about the shape of this function
+(\dfmtodo{CITE}), and \emph{(b)} it allows us to place probabilistic
+constraints on the rate of Earth analogs\footnote{We define, in detail, what
+we mean by Earth analog below but, in short, we mean Earth-sized planets on
+year-long orbits around Sun-like stars.}.
+
+\citet{petigura} recently published constraints on this function based on
+their independent analysis of the \kepler\ light curves for 42,000 Sun-like
+stars but the study of exoplanet occurence rates has a long history.
+\dfmtodo{Summarize history with lotsa citations.}
+
+A very important component of any study of exoplanet occurence rates is the
+treatment of detection efficiency.
+Qualitatively, in a transit survey, small planets with long periods are much
+harder to detect than large planets orbiting close to their star.
+This effect is degenerate with any inferences about the rate function and it
+can be hard to constraint quantitatively.
+In practice, there are three methods for taking this effect into account:
+\emph{(a)} making conservative cuts on the candidates and assuming that the
+resulting catalog is complete (\citealt{catanzarite, traub}; \dfmtodo{CITE}),
+\emph{(b)} asserting an analytic form for the detection efficiency as a
+function of approximate signal-to-noise (\citealt{howard, dressing, dong,
+fressin-fp, morton-swift}; \dfmtodo{CITE}), and \emph{(c)} determining the
+detection efficiency empirically by injecting synthetic signals into the raw
+data and testing recovery rates (\citealt{petigura-a, petigura}).
+
+In this \paper, we develop a flexible framework for probabilistic inference of
+exoplanet occurence rates that can be applied to incomplete catalogs with
+\emph{non-negligible observational uncertainties}.
+Our method is a generalization of a previously studied method
+(\citealt{hogge}) to account for detection efficiencies.
+We run tests on simulated datasets---comparing results with the standard
+techniques that neglect observational uncertainties---and apply our method to
+a real catalog of small planets transiting Sun-like stars
+(\citealt{petigura}).
+For the purposes of this \paper, we make some strong assumptions---although we
+argue that they are weaker than the implicit assumptions in previous
+studies---but none of these are necessary for the applicability of our method.
+Specifically, we make the following assumptions
 \begin{itemize}
-\item
-\citet{fressin-fp} --- simultaneous occurence rate and false positive rate
-\item
-\citet{morton} --- false positive rate
-\item
-\citet{morton-swift} --- KDE estimator for radius distribution of cool KOIs
-\item
-\citet{howard} --- inv-det-eff for short-period candidates around Sun-like
-stars
-\item
-\citet{dressing} --- inv-det-eff for cool KOIs
-\item
-\citet{dong} --- semi-analytic completeness, likelihood function-ish,
-turn-over at small radii, non-separability
-\item
-\citet{tabachnik} ---- Poisson likelihood
-\item
-\citet{tremaine} --- statistics of multis
-\item
-\citet{youdin} --- Poisson likelihood
-\item
-\citet{catanzarite} --- extrapolation to Eta-Earth assuming complete
-\item
-\citet{traub} --- extrapolation to Eta-Earth assuming complete
+
+\item the candidates in the catalog are independent Poisson draws from the
+censored occurence rate,
+
+\item every candidate is a real exoplanet (there are no false positives),
+
+\item the observational uncertainties on the physical parameters are
+non-negligible but the amplitudes are known (the catalog provides
+probabilistic constraints on the parameters),
+
+\item the detection efficiency of the pipeline is known, and
+
+\item the true occurence rate function is \emph{smooth}\footnote{We give our
+definition of ``smooth'' in more detail below but our model is very flexible
+so this is not a strong restriction.}.
+
 \end{itemize}
-
-\hoggtodo{%
-\kepler\ has been busting out exoplanets (CITE).
-Many of them even appear possibly rocky and habitable (CITE).
-Nonetheless, none yet known are true Earth analogs.
-}
-
-\hoggtodo{%
-This hasn't stopped anyone from estimating the rate at which Sun-like stars
-host Earth-like planets on year-ish period orbits (CITE).
-All of these rate estimates are extrapolations of one kind or another.
-Here we perform an extremely conservative extrapolation of this kind.
-}
-
-\hoggtodo{%
-What would make an extrapolation like this conservative?
-Using \emph{huge bins} does not a conservative estimate make.
-You don't want to assume separabilities you can't justify.
-You want to explore an enormous function space for the exoplanet rates or pdf.
-We are going to do be conservative in these senses here, far more conservative
-than anyone who has come before.
-}
-
-\dfmtodo{%
-Cite \citet{tremaine} for likelihood function including multiplicity.
-}
+The first assumption---conditional independence of the candidates---is
+reasonable since the dataset that we consider explicitly includes only single
+transiting systems (\citealt{petigura}).
+When considering other datasets it will be interesting and important to study
+the distributions of taking multiple transiting systems into account
+(\dfmtodo{CITE}) and this would be possible using a conditional distributions
+(as developed by \citealt{tremaine}).
+The second assumption---neglecting false positives---is also strong and not
+really justified (\citealt{fressin-fp, morton}).
+For this \paper, we will neglect this issue and only comment on the effects
+but the prior distributions published by \citet{fressin-fp} would be directly
+applicable in our method and this would be a very interesting generalization.
 
 \section{A brief introduction to hierarchical inference}
 
@@ -608,8 +661,8 @@ Both distributions are generated by a separable model
     \rate_\ratepars^{(\radius)}(\ln\radius)
 \end{eqnarray}
 but fit using the full general model.
-The first model---\modela---has a smooth occurence surface where both
-distributions are smooth broken power laws.
+The first catalog---\modela--- is generated assuming a smooth occurence
+surface where both distributions are broken power laws.
 The second---\modelb---is designed to be exactly the distribution inferred by
 \citet{petigura} in the range that they considered and then smoothly
 extrapolated outside that range.
