@@ -264,6 +264,40 @@ For this \paper, we will neglect this issue and only comment on the effects
 but the prior distributions published by \citet{fressin-fp} would be directly
 applicable in our method and this would be a very interesting generalization.
 
+Conditioned on our assumptions and the choices made in planet detection,
+vetting and characterization pipeline (\citealt{petigura-a, petigura}), we
+constrain the rate of small exoplanets orbiting Sun-like stars.
+As part of this analysis we also place probabilistic constraints on the rate
+of Earth analogs \gammaearth\ which we define as \emph{the number density of
+planets per natural logarithmic bin in period and radius evaluated at the
+location of Earth}
+\begin{eqnarray}
+\gammaearth &=&
+\left.\frac{\dd N}{\dd\ln\period\,\dd\ln\radius}\right|
+_{\radius=\radius_\oplus,\,\period=\period_\oplus}\quad.
+\end{eqnarray}
+Since no Earth analogs have been detected, this constraint requires an
+extrapolation in both period and radius.
+\citet{petigura} performed this extrapolation by assuming that the period
+distribution of planets in a small bin in radius is flat and extrapolated from
+their sample.
+We relax this assumption and extrapolate by only assuming that the
+occurrence rate function is ``smooth'' in period and radius.
+We enforce this constraint by applying a flexible Gaussian process
+regularization to the bin heights.
+
+In the next section, we introduce the concept of hierarchical inference, how
+it applies to the problem at hand, and we derive the importance sampling
+approximation to the marginalized likelihood (this is a generalization of the
+method from \citealt{hogge}).
+Then, in \sect{model}, we describe how to include detection efficiencies in
+this model and derive a probabilistic motivation for the standard
+inverse-detection-efficiency weighting procedure.
+After testing our method on synthetic catalogs in \sect{valid}, we use the
+catalog of planet candidates and the empirically determined detection
+efficiency from \citet{petigura} to measure the occurrence rate of Earth
+analogs.
+
 \section{A brief introduction to hierarchical inference}
 
 In this \paper, we are asking the question: \emph{what constraints can we put
@@ -634,6 +668,7 @@ choice.
 \dfmtodo{Is there any rough scaling that is obvious?}
 
 \section{Validation using synthetic catalogs}
+\sectlabel{valid}
 
 In order to get a feeling for the constraints provided by our method and to
 explore any biases introduced by ignoring the observational uncertainties, we
@@ -878,6 +913,10 @@ exoplanet.
 \item {\bf Smooth rate function}\quad
 
 \end{itemize}
+
+Our constraints are less confident---in a signal-to-noise sense---than
+previous measurements (made using stronger assumptions; \citealt{petigura})
+but, even so, our result is
 
 % We have made the first measurement of the Earth-like exoplanet population that
 % is based on forward modeling, takes proper account of the observational
