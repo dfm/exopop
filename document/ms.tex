@@ -135,13 +135,13 @@ flattening radius distribution near Earth's radius.
 Although no true extra-solar Earth analog is known, hundreds of planets have
 been found around Sun-like stars that are either Earth-sized but on shorter
 periods, or else on year-long orbits but somewhat larger.
-Under strong assumptions, it has been shown that these populations permit an
-uncertain extrapolated estimate of the probability or rate at which Sun-like
-stars host true Earth analogs.
-We relax these assumptions by modeling the occurrence rate as a
-multidimensional Gaussian process and find that the rate density of Earth
-analogs is about two percent (per natural logarithmic bin in period and
-radius) at low signal-to-noise.
+Under strong assumptions, these data have been used to make an extrapolated
+estimate of the probability or rate at which Sun-like stars host Earth
+analogs.
+We relax these assumptions, only requiring that the occurrence rate be a
+smooth function of period and radius (using a Gaussian process) and find that
+the rate of Earth analogs per star is about 0.02 (per natural logarithmic bin
+in period and radius) with large uncertainty.
 
 \end{abstract}
 
@@ -268,9 +268,9 @@ Conditioned on our assumptions and the choices made in planet detection,
 vetting and characterization pipeline (\citealt{petigura-a, petigura}), we
 constrain the rate of small exoplanets orbiting Sun-like stars.
 As part of this analysis we also place probabilistic constraints on the rate
-of Earth analogs \gammaearth\ which we define as \emph{the number density of
-planets per natural logarithmic bin in period and radius evaluated at the
-location of Earth}
+of Earth analogs \gammaearth\ which we define as \emph{the number of planets
+per star per natural logarithmic bin in period and radius, evaluated at the
+period and radius of Earth}
 \begin{eqnarray}
 \gammaearth &=&
 \left.\frac{\dd N}{\dd\ln\period\,\dd\ln\radius}\right|
@@ -279,12 +279,15 @@ _{\radius=\radius_\oplus,\,\period=\period_\oplus}\quad.
 Since no Earth analogs have been detected, this constraint requires an
 extrapolation in both period and radius.
 \citet{petigura} performed this extrapolation by assuming that the period
-distribution of planets in a small bin in radius is flat and extrapolated from
-their sample.
-We relax this assumption and extrapolate by only assuming that the
-occurrence rate function is ``smooth'' in period and radius.
-We enforce this constraint by applying a flexible Gaussian process
+distribution of planets in a small bin in radius is flat, obtaining
+$\gammaearth \approx 0.12$.
+We relax this assumption and extrapolate by only assuming that the occurrence
+rate is a smooth function of period and radius; we find a much lower value for
+\gammaearth.
+We enforce the smoothness constraint by applying a flexible Gaussian process
 regularization to the bin heights.
+
+\dfmtodo{Justify our choice of definition. Not habitability.}
 
 In the next section, we introduce the concept of hierarchical inference, how
 it applies to the problem at hand, and we derive the importance sampling
@@ -568,6 +571,9 @@ appealing because it is well studied in the machine learning literature.
 In particular, there is a very efficient algorithm---elliptical slice sampling
 (ESS; \citealt{ess})---for generating samples from the posterior probability
 function in \eq{posterior}.
+Our implementation is based on Jo Bovy's BSD licensed ESS
+code\footnote{\url{https://github.com/jobovy/bovy_mcmc/blob/master/bovy_mcmc/%
+elliptical_slice.py}}.
 As mentioned above, we actually go one step further and assume uniform
 (hyper-)priors on $\ln\mean$ and $\ln\smoothpars$ in order to sample from the
 joint posterior
@@ -766,6 +772,8 @@ The same as \fig{smooth-results} for \modelb.
 \section{Extrapolation to Earth}
 \sectlabel{extrap}
 
+\dfmtodo{Justify our choice of definition. Not habitability.}
+
 As well as inferring the ocurrence distribution of exoplanets, this dataset
 can also be used to constrain the rate of Earth analogs.
 Explicitly, we constrain the rate of exoplanets \emph{evaluated at the
@@ -906,6 +914,24 @@ The same as \fig{smooth-rate} but applied to the catalog from \citet{petigura}.
 
 \section{Discussion}
 
+Probabilistic framework justified by MATHS.
+
+Disagrees in detail with Petigura esp.\ extrapolation.
+
+Agrees qualitatively with Petigura, Dong, Howard, \etc\ but hard to make
+quantitative comparisons to other ones (pipeline, stars, \etc).
+
+Why did we use the definition of \gammaearth?
+
+Our constraints are less confident---in a signal-to-noise sense---than
+previous measurements (made using stronger assumptions; \citealt{petigura})
+but, even so, our result is
+
+\dfmtodo{%
+Predicted number of observable Earth analogs in the \kepler\ dataset.
+Low but not zero.
+}
+
 In our analysis we make a few simplifying assumptions.
 Each of these could be relaxed and \dfmtodo{BLAH BLAH BLAH}.
 \begin{itemize}
@@ -932,51 +958,21 @@ exoplanet.
 
 \end{itemize}
 
-Our constraints are less confident---in a signal-to-noise sense---than
-previous measurements (made using stronger assumptions; \citealt{petigura})
-but, even so, our result is
+Under these assumptions and the dataset, \etc, we stand by this analysis but
+really this is a model of the planets in Kepler convolved with any latent
+effects of the TERRA pipeline\ldots
 
-% We have made the first measurement of the Earth-like exoplanet population that
-% is based on forward modeling, takes proper account of the observational
-% uncertainties on planet radii, and makes use of extremely flexible
-% non-separable distributions for period and radius.
-% We find \hoggtodo{BLAH BLAH BLAH.}
+A major effect that isn't taken into account is the highest signal-to-noise
+blah blah blah\ldots our number is prolly low.
 
-% Although our method makes weaker assumptions than any previous work in this
-% area, of course it \emph{does} make strong assumptions.
-% It assumes that the data set (from \citealt{petigura}) contains planets and
-% only planets (no false positives).
-% It assumes that the individual-planet radius uncertainties are also correctly
-% determined.
-% It assumes that the completeness calculation (again from \citealt{petigura})
-% is accurate and smoothly varying with period and radius; it makes no attempt
-% to adjust the completeness star-by-star for brightness or variability.
-% It assumes that the exoplanets are all independently drawn from the same
-% distribution function, with no regard to age, metallicity, or multiplicity.
+\dfmtodo{%
+{\bf Advice:} \quad
+Remind us that we want a representation of the full posterior (samples)
+because that would let us do better things with the completeness (modeled as
+r/R, \etc).
+Must explicitly include priors too.
+}
 
-% Although we have taken account of the radius uncertainties in a principled
-% way, we did make one important approximation: We ignored planets with central
-% values far outside the period and radius box in which we built the model.
-% That is, we assumed that there are no very large outliers in radius
-% determination.
-% This assumption is a complex one; it involves the effective, end-to-end error
-% distribution in the data set, but also smoothness of the distribution function
-% at or near the edges of the analysis box.
-
-% If our inferences are right about true Earth analogs, then we expect that
-% there are about XXX transiting Earth analogs hidden in the \kepler\ data set.
-% We would be able to find some of these Earth analogs if the effective noise
-% level in the data could be reduced by a factor of about XXX.
-% We have identified a number of directions along which this noise reduction
-% might happen, including but not limited to retrospective data-driven or
-% physics-driven recalibrations of the \kepler\ focal plane
-% (\citealt{hoggwhitepaper}), new methods for performing aperture photometry,
-% and better models for stochastic instrument variability or stochastic
-% intrinsic stellar variability that take account of frequency structure
-% (\citealt{brewer, carter, roberts}).
-% If any (or all) of these deliver substantial improvements for \kepler\
-% archival data reanalyses, it's Nobel Prize time!  (Or at least \textsl{The
-% Colbert Report}?)
 
 All of the code used in this project is available from
 \url{http://github.com/dfm/exopop} under the MIT open-source software license.
@@ -988,7 +984,7 @@ with git commit \texttt{\githash} (\gitdate).
 We would like to thank Erik Petigura (Berkeley) for freely sharing his data
 and code.
 It is a pleasure to thank
-\ldots
+Jo Bovy (IAS),
 for helpful contributions to the ideas and code presented here.
 This project was partially supported by the NSF (grant AST-0908357), and NASA
 (grant NNX08AJ48G).
