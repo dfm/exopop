@@ -209,8 +209,8 @@ stars but the study of exoplanet occurrence rates has a long history.
 
 A very important component of any study of exoplanet occurrence rates is the
 treatment of detection efficiency.
-Qualitatively, in a transit survey, small planets with long periods are much
-harder to detect than large planets orbiting close to their star.
+Speaking qualitatively, in a transit survey, small planets with long periods
+are much harder to detect than large planets orbiting close to their star.
 This effect is degenerate with any inferences about the rate function and it
 can be hard to constraint quantitatively.
 In practice, there are three methods for taking this effect into account:
@@ -256,10 +256,10 @@ so this is not a strong restriction.}.
 The first assumption---conditional independence of the candidates---is
 reasonable since the dataset that we consider explicitly includes only single
 transiting systems (\citealt{petigura}).
-When considering other datasets it will be interesting and important to study
-the distributions of taking multiple transiting systems into account
-(\dfmtodo{CITE}) and this would be possible using a conditional distributions
-(as developed by \citealt{tremaine}).
+When considering other datasets it will be interesting and important to take
+multiple transiting systems into account (\dfmtodo{CITE}) and this would be
+possible using a conditional distributions (as developed by
+\citealt{tremaine}).
 The second assumption---neglecting false positives---is also strong and not
 really justified (\citealt{fressin-fp, morton}).
 For this \paper, we will neglect this issue and only comment on the effects
@@ -319,7 +319,7 @@ The light curve for a particular target $k$ is called $\data_k$ and the
 \emph{true} set of physical parameters for that same object are given by
 $\entry_k$.
 A catalog provides a set of constraints on the parameters $\{\entry_k\}$
-conditioned the set light curves $\{\data_k\}$.
+conditioned on the set light curves $\{\data_k\}$.
 
 Any inference about the rate function parameters can be formally addressed by
 evaluating the \emph{marginalized likelihood function}
@@ -353,15 +353,20 @@ If we take this set of parameters $\{\entry_k\}$ as \emph{sufficient
 statistics} of the data then we can, in theory, compute \eq{crazylike}---up to
 an unimportant constant---without ever looking at the raw data again.
 This is true because the catalog provides constraints on the posterior
-probability of the parameters $\{\entry_k\}$ under some choice of ``interim
-prior'' \interim
+probability of the parameters $\{\entry_k\}$ under some choice of
+\emph{interim prior} \interim
 \begin{eqnarray}\eqlabel{crazypost}
 p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) &=&
 \frac{p(\{\data_k\}\,|\,\{\entry_k\})\,p(\{\entry_k\}\,|\,\interim)}
      {p(\{\data_k\}\,|\,\interim)} \quad.
 \end{eqnarray}
-It turns out that we can use this posterior to simplify \eq{crazylike} to a
-form that can, in many common cases, be evaluated efficiently.
+The interim prior $p(\{\entry_k\}\,|\,\interim)$ is the prior
+function---parameterized by \interim---that the author of the catalog choose
+when making their measurements.
+
+It turns out that we can use these posterior measurements to simplify
+\eq{crazylike} to a form that can, in many common cases, be evaluated
+efficiently.
 To find this result, multiply the integrand in \eq{crazylike} by
 \begin{eqnarray}
 \frac{p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)}
@@ -605,26 +610,25 @@ They then incorporated the uncertainties in the stellar radius and published
 constraints on the physical radii of their candidates.
 Given this data reduction and since we don't have access to the individual
 posterior constraints on radius ratio and stellar radius, we can't directly
-compute the importance weights $p(\{\entry_k^\}\,|\,\interim)$ needed for
+compute the importance weights $p(\{\entry_k\}\,|\,\interim)$ needed for
 \eq{importance}.
 For the rest of this \paper, we'll make the simplifying assumption that these
 weights are constant in log-period and log-radius but the results don't seem
 to be sensitive to this specific choice.
 
 A huge benefit of this dataset is that Erik Petigura and collaborators
-published a rigorous analysis the empirical end-to-end completeness of their
-transit search pipeline.
+published a rigorous analysis of the empirical end-to-end completeness of
+their transit search pipeline.
 Instead of choosing a functional form for the detection efficiency of the
 pipeline as a function of the parameters of interest, \citet{petigura}
 injected synthetic signals of known period and radius into the raw aperture
-photometry and determining the empirical recovery rate after the full analysis.
+photometry and determined the empirical recovery rate after the full analysis.
 
 We use all the injected samples from \citet{petigura} to compute the mean
 (marginalized) detection efficiency in bins of $\ln\period$ and $\ln\radius$.
 In each bin, this efficiency is simply the fraction of recovered injections.
 For the purposes of this \paper, we neglect the counting uncertainties
 introduced by the finite number of samples.
-
 The largest injected signal had a radius of $16\,R_\oplus$ but, because of the
 measurement uncertainties on the radii, we need to model the distribution at
 larger radii.
@@ -649,7 +653,7 @@ for each target's radius ratio and stellar radius}.
 
 The detection efficiency also depends on the geometric transit probability
 $R_\star/a$.
-Since we're modeling the distribution in the period--radius plane, we need to
+Since we are modeling the distribution in the period--radius plane, we need to
 compute the transit probability marginalized over stellar radius and mass.
 This marginalized distribution scales only with the period of the orbit as
 $\propto \period^{-2/3}$.
@@ -657,18 +661,20 @@ In theory, this marginalization should be over the true distribution of these
 parameters in the selected stellar catalog but we'll approximate it by
 the empirical distribution; a reasonable approximation given the size of the
 dataset.
-At a period of 10 days, the median transit probability in the selected sample
-of stars is $5\%$ so we model the transit probability\footnote{We're using the
-letter $Q$ to indicate probabilities since we're already using $P$ to mean
-period.} as a function of period as
+At a period of 10 days\footnote{This period is chosen arbitrarily because the
+power law only needs to be normalized at one point.}, the median transit
+probability in the selected sample of stars is $5.061\%$ so we model the
+transit probability\footnote{We are using the letter $Q$ to indicate
+probabilities since we are already using $P$ to mean period.} as a function of
+period as
 \begin{eqnarray}
 \transitprob (\period) &=&
-    0.05\,\left[\frac{\period}{10\,\mathrm{days}}\right]^{-2/3} \quad.
+    0.05061\,\left[\frac{\period}{10\,\mathrm{days}}\right]^{-2/3} \quad.
 \end{eqnarray}
 This expression is clearly only valid for $\period \gtrsim 1.4\,\mathrm{days}$
-but the dataset that we're using (\citealt{petigura}) explicitly only includes
-periods longer than five days so this isn't a problem.
-It's also worth noting that we're using the \emph{median} transit probability
+but the dataset that we are using (\citealt{petigura}) explicitly only
+includes periods longer than five days so this is not a problem.
+It is also worth noting that we're using the \emph{median} transit probability
 (instead of the mean) because it is a more robust estimator in the presence of
 outliers.
 In our experiments, the results do not seem to be very sensitive to this
@@ -786,17 +792,16 @@ location of Earth}
 \left.\frac{\dd N}{\dd\ln\period\,\dd\ln\radius}\right|
 _{\radius=\radius_\oplus,\,\period=\period_\oplus}\quad.
 \end{eqnarray}
-This is also the quantity that \citet{petigura} estimated but in different
-units.
 That is, \gammaearth\ is the average number of exoplanets around a
 ``Sun-like'' star---per natural logarithmic bins in period and
 radius---evaluated at the period and radius of Earth.
+This is also the quantity that \citet{petigura} estimated but in different
+units.
 
-Since no Earth analogs have been found any constraints on this rate must be
+Since no Earth analogs have been found, any constraints on this rate must be
 extrapolated from the existing observations.
-This extrapolation is generally done by assuming a functional form for the
-occurrence rate function, constraining it using the observed candidates and
-extrapolating.
+This is generally done by assuming a functional form for the occurrence rate
+function, constraining it using the observed candidates and extrapolating.
 All published extrapolations are based on rigid models like a power law
 (\citealt{catanzarite, traub}) or linear in the cumulative period distribution
 (\citealt{petigura}).
@@ -986,6 +991,7 @@ with git commit \texttt{\githash} (\gitdate).
 We would like to thank Erik Petigura (Berkeley) for freely sharing his data
 and code.
 It is a pleasure to thank
+Ruth Angus (Oxford),
 Jo Bovy (IAS),
 for helpful contributions to the ideas and code presented here.
 This project was partially supported by the NSF (grant AST-0908357), and NASA
