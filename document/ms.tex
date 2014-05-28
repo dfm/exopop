@@ -4,7 +4,6 @@
 %  * 80 characters
 %  * line breaks at the ends of sentences
 %  * eqnarrys ONLY
-%  * ALWAYS cite inside parens () and use \citealt{}; no in-line cites
 %  * that is all.
 %
 
@@ -39,6 +38,7 @@
 \newcommand{\tablabel}[1]{\label{tab:#1}}
 \newcommand{\Eq}[1]{Equation~(\ref{eq:#1})}
 \newcommand{\eq}[1]{\Eq{#1}}
+\newcommand{\eqalt}[1]{Equation~\ref{eq:#1}}
 \newcommand{\eqlabel}[1]{\label{eq:#1}}
 \newcommand{\Sect}[1]{Section~\ref{sect:#1}}
 \newcommand{\sect}[1]{\Sect{#1}}
@@ -124,7 +124,7 @@ Every catalog is censored by non-trivial selection effects and detection
 efficiencies, and the measurements of the system properties (period, radius,
 \etc) are noisy.
 We present a general hierarchical probabilistic framework for making justified
-inferences about the occurrence rate of exoplanets taking into account survey
+inferences about the occurrence rate of exoplanets, taking into account survey
 completeness \emph{and observational uncertainties}.
 By applying our method to synthetic catalogs, we demonstrate that it produces
 more accurate estimates of the underlying occurrence rate than the standard
@@ -138,10 +138,10 @@ periods, or else on year-long orbits but somewhat larger.
 Under strong assumptions, these data have been used to make an extrapolated
 estimate of the probability or rate at which Sun-like stars host Earth
 analogs.
-We relax these assumptions, only requiring that the occurrence rate be a
-smooth function of period and radius (using a Gaussian process) and find that
-the rate of Earth analogs per star is about 0.02 (per natural logarithmic bin
-in period and radius) with large uncertainty.
+We relax some of these assumptions, only requiring that the occurrence rate be
+a smooth function of period and radius (using a Gaussian process) and find
+that the rate of Earth analogs per star is about 0.02 (per natural logarithmic
+bin in period and radius) with large uncertainty.
 
 \end{abstract}
 
@@ -189,6 +189,10 @@ stars: statistics
 
 NASA's \kepler\ mission has enabled the discovery of thousands of exoplanet
 candidates (\dfmtodo{CITE KEPLER}).
+While many of these candidates have not been confirmed as bona fide planets,
+there is evidence that the false positive rate is low (\citealt{morton,
+fressin-fp}), enabling conclusions about the population of planets based on
+the catalog of candidates.
 Many of these planets orbit Sun-like stars (\citealt{petigura}), where the
 definition of Sun-like is given in terms of the star's temperature and surface
 gravity.
@@ -222,6 +226,18 @@ fressin-fp, morton-swift}; \dfmtodo{CITE}), and \emph{(c)} determining the
 detection efficiency empirically by injecting synthetic signals into the raw
 data and testing recovery rates (\citealt{petigura-a, petigura}).
 
+\dfmtodo{From Tim: In a new paragraph here, I think we should say something
+like ``In addition, there are two philosophically different ways of applying
+this detection efficiency to derive planet occurrence rates.''
+ Then first describe the inv-det-eff (cite Howard2012, Dong+Zhu2012,
+Swift+2013, Dress+Charb2013), then the forward-modeling concept, advocated by
+Youdin (2011) in a max-like framework.}
+
+In every previous study of the occurrence rate function, the authors have
+assumed that the measurement uncertainties are negligible.
+This assumption is not justified because these uncertainties---especially on
+measurements of the stellar parameters---can be large compared to the scales
+of interest (\dfmtodo{give a number and CITE}).
 In this \paper, we develop a flexible framework for probabilistic inference of
 exoplanet occurrence rates that can be applied to incomplete catalogs with
 \emph{non-negligible observational uncertainties}.
@@ -231,10 +247,11 @@ We run tests on simulated datasets---comparing results with the standard
 techniques that neglect observational uncertainties---and apply our method to
 a real catalog of small planets transiting Sun-like stars
 (\citealt{petigura}).
+
 For the purposes of this \paper, we make some strong assumptions---although we
 argue that they are weaker than the implicit assumptions in previous
 studies---but none of these are necessary for the applicability of our method.
-Specifically, we make the following assumptions
+Specifically, we make the following assumptions:
 \begin{itemize}
 
 \item the candidates in the catalog are independent Poisson draws from the
@@ -260,8 +277,9 @@ When considering other datasets it will be interesting and important to take
 multiple transiting systems into account (\dfmtodo{CITE}) and this would be
 possible using a conditional distributions (as developed by
 \citealt{tremaine}).
-The second assumption---neglecting false positives---is also strong and not
-really justified (\citealt{fressin-fp, morton}).
+The second assumption---neglecting false positives---is also strong and only
+weakly justified by estimates of low false positive rates in the \kepler\ data
+(\citealt{fressin-fp, morton}).
 For this \paper, we will neglect this issue and only comment on the effects
 but the prior distributions published by \citet{fressin-fp} would be directly
 applicable in our method and this would be a very interesting generalization.
@@ -290,6 +308,8 @@ We enforce the smoothness constraint by applying a flexible Gaussian process
 regularization to the bin heights.
 
 \dfmtodo{Justify our choice of definition. Not habitability.}
+
+\dfmtodo{We should explain why our number is a lower limit here.}
 
 In the next section, we introduce the concept of hierarchical inference, how
 it applies to the problem at hand, and we derive the importance sampling
@@ -331,17 +351,18 @@ p(\{\data_k\}\,|\,\ratepars) &=&
 \end{eqnarray}
 where, as we mentioned above, $\{\data_k\}$ is the set of all light curves,
 one light curve $\data_k$ per target $k$, \ratepars\ is the vector of
-parameters describing the occurrence rate function $\rate_\ratepars(\entry)$
-and $\entry_k$ is the vector of physical parameters describing the planetary
-system (orbital periods, radius ratios, stellar radius, \etc) around target
-$k$.
+parameters describing the population occurrence rate function
+$\rate_\ratepars(\entry)$ and $\entry_k$ is the vector of physical parameters
+describing the planetary system (orbital periods, radius ratios, stellar
+radius, \etc) around target $k$.
 In this equation, our only assumption is that the datasets depend on the
 occurrence rate of exoplanets only through the catalog $\{\entry_k\}$.
 In our case, this assumption qualitatively means that the signals found in the
 light curves depend only on the actual planet properties and not on the
 distributions from which they are drawn.
-It is worth noting that---as we will discuss further below---the catalog only
-provides \emph{probabilistic} constraints on $\{\entry_k\}$.
+It is worth emphasizing that---as we will discuss further below---the catalog
+only provides \emph{probabilistic constraints} on $\{\entry_k\}$; not perfect
+delta-function measurements.
 
 In other words, a catalog is a dimensionality reduction of the raw data with
 all the relevant information retained.
@@ -363,6 +384,12 @@ p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) &=&
 The interim prior $p(\{\entry_k\}\,|\,\interim)$ is the prior
 function---parameterized by \interim---that the author of the catalog choose
 when making their measurements.
+
+\dfmtodo{Can we incorporate Tim's comment: There's the additional level that
+the catalog also distills detections from non-detections.  I don't know if
+there's a place to state that here, I just thought of it.  Because the whole
+"survey" is a collection of detections and non-detections.  Might be beyond
+the scope of this paragraph; just thought I'd mention.}
 
 It turns out that we can use these posterior measurements to simplify
 \eq{crazylike} to a form that can, in many common cases, be evaluated
@@ -402,6 +429,9 @@ $p(\{\entry_k^{(n)}\}\,|\,\ratepars)$ is not very expensive.
 That being said, this could be a high variance estimator depending on the
 initial choice of $p(\{\entry_k^{(n)}\}\,|\,\interim)$ but in our case, we'll
 show that not many samples are needed to get an accurate estimate.
+\Eq{importance} is the \emph{importance sampling approximation} to the
+integral in \eq{simplemarglike} where the trial density is the posterior
+probability for the catalog measurements.
 
 A very simple example is the familiar procedure of making a histogram.
 If you model the function $p(\{\entry_k\}\,|\,\ratepars)$ as a piecewise
@@ -438,7 +468,7 @@ technique) but this generalization is beyond the scope of the current \paper.
 The main thing to note here is that $\obs{\rate}_\ratepars$ is the rate of
 exoplanets that you would expect to observe taking into account the geometric
 transit probability and any other detection efficiencies.
-In practice, it probably makes sense to model the observable rate as
+In practice, we can model the observable rate as
 \begin{eqnarray}
 \obs{\rate}_\ratepars(\entry) &=&
     \completeness(\entry)\,\rate_\ratepars(\entry)
@@ -458,8 +488,8 @@ Instead, we could use a functional form for it and infer the parameters
 (\dfmtodo{cite all the papers that do the ramp, step function, whatever}).
 
 Now, we can substitute \eq{poisson-like} into \eq{simplemarglike} and apply
-the importance sampling approximation to derive the following expression for
-the marginalized likelihood
+the importance sampling approximation (\eqalt{importance}) to derive the
+following expression for the marginalized likelihood
 \begin{eqnarray}\eqlabel{money}
 \frac{p(\{\data_k\}\,|\,\ratepars)}{p(\{\data_k\}\,|\,\interim)} &\approx&
     \exp\left(-\int \obs{\rate}_\ratepars (\entry) \dd\entry\right) \,
