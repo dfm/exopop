@@ -514,8 +514,10 @@ our model and the commonly used inverse-detection-efficiency procedure
 (\citealt{howard,dressing,petigura}).
 This procedure involves making a weighted histogram of the catalog entries
 where the weight for object $\entry_k$ is $1/\completeness(\entry_k)$.
-This makes intuitive sense but (to our knowledge) does not have a clear
+This makes intuitive sense but the standard formulation does not have a clear
 probabilistic justification or interpretation.
+\hoggtodo{Find the papers that Tremaine suggested that we look at re:vmax and
+discuss the motivation in those cases.}
 
 If we model the occurrence rate as a histogram with $J$ fixed bin volumes
 $\binarea_j$
@@ -539,19 +541,29 @@ where the indicator function $\mathbf{1}[\cdot]$ is one if $\cdot$ is true and
 zero otherwise.
 If we take the gradient of this function with respect to \ratepars\ and set it
 equal to zero, we find the maximum likelihood result
-\begin{eqnarray}
-\ratepar_j &=& \frac{N_j}{\int_{\binarea_j} \completeness(\entry)\dd\entry}
+\begin{eqnarray}\eqlabel{ml-ide}
+{\ratepar_j}^* &=&
+\frac{N_j}{\int_{\binarea_j} \completeness(\entry)\dd\entry}
 \end{eqnarray}
 where $N_j$ is the number of objects that fall within the bin $j$.
-Since it is the maximum likelihood solution, this result is the minimum
-variance estimator for the occurrence rate in the limit of negligible catalog
-uncertainties.
-This is \emph{almost} the same as the inverse-detection-efficiency result and
-in various limiting cases, they would provide the same result.
-\dfmtodo{Finish explaining why this result is better under the specified
-assumptions.}
+We estimate the uncertainty $\delta\ratepar_j$ on this value by examining the
+curvature of the log-likelihood function near the maximum and find
+\begin{eqnarray}
+\frac{\delta\ratepar_j}{{\ratepar_j}^*} &=& \frac{1}{\sqrt{N_j}} \quad.
+\end{eqnarray}
 
-\paragraph{occurrence rate parameterization \& priors}
+Since \eq{ml-ide} gives the maximum likelihood solution, this result is the
+minimum-variance estimator for the occurrence rate when the completeness
+function $\completeness(\entry)$ is known and the catalog uncertainties are
+negligible.
+This is \emph{almost} the same as the inverse-detection-efficiency procedure
+and if the completeness function is constant in each bin \binarea, both
+methods give the same result.
+If the completeness function is not piecewise-constant on the same grid as the
+occurrence rate inference, the inverse-detection-efficiency procedure will
+give a higher variance estimate of the occurrence rate.
+
+\paragraph{Occurrence rate parameterization \& priors}
 For the remainder of this \paper, we also model the occurrence rate as a
 two-dimensional histogram with fixed logarithmic bins in period and radius.
 When we include observational uncertainties---using \eq{money}---the maximum
