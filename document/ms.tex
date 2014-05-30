@@ -567,39 +567,52 @@ give a higher variance estimate of the occurrence rate.
 For the remainder of this \paper, we also model the occurrence rate as a
 two-dimensional histogram with fixed logarithmic bins in period and radius.
 When we include observational uncertainties---using \eq{money}---the maximum
-likelihood result is no longer analytic.
+likelihood result is no longer analytic; \eq{ml-ide} is no longer applicable
+when the uncertainties are non-negligible.
 Therefore, if we want to compute the ``best-fit'' occurrence rate, we can use a
 standard non-linear optimization algorithm.
 In the regions of parameter space that we tend to care about, the completeness
 is low and there are only a few observations with large uncertainties.
 In this case, we're especially interested in probabilistic constraints on the
 occurrence rate; not just the best-fit model.
-To do this, we apply a prior\footnote{This is a slight misnomer because
-we also we also marginalize over the parameters of this model.} $p(\ratepars)$
-on the occurrence rate parameters and generate samples from the posterior
-probability
+To do this, we must apply a prior $p(\ratepars)$ on the occurrence rate
+parameters and generate samples from the posterior probability
 \begin{eqnarray}\eqlabel{posterior}
 p(\ratepars\,|\,\{\data_k\}) &\propto&
     p(\ratepars)\,p(\{\data_k\}\,|\,\ratepars)
 \end{eqnarray}
 using Markov chain Monte Carlo (MCMC).
 
-Given our model of the rate function as a collection of bins, we choose to
-model the prior as a Gaussian process (\citealt{gp,gibson-gp}) on the
-logarithmic bin heights.
+There is a lot of flexibility in the choice of functional form of
+$p(\ratepars)$.
+In the well-sampled parts of parameter space there are a lot of
+detected planets and the choice of prior makes little difference, but in the
+regions that we care about, the detection efficiency is low and applying a
+prior that captures our beliefs about the occurrence rate is necessary.
+This will be especially important when we extrapolate the occurrence rate
+function to the location of Earth---in \sect{extrap}---where no exoplanets
+have been found.
+Therefore, instead of using an uninformative prior, we want to use a prior
+that encourages the occurrence rate to be ``smooth'' but it should be flexible
+enough to capture structure that is supported by the data.
+To achieve this, we model the logarithmic bin heights as being drawn from a
+Gaussian process (\citealt{gp, gibson-gp, dfm-gp}).
 This model encodes our prior belief that, on the grid scale that we consider,
 the occurrence rate should be smooth but it is otherwise very flexible about
 the form of the function.
-Mathematically, the prior is written as
+
+Mathematically, the Gaussian process density is
 \begin{eqnarray}
-p(\ratepars) &=& p(\ratepars\,|\,\mean,\,\smooth) \\
-&=& \mathcal{N} \left[\ln\ratepars;\,\mean\,\bvec{I},\,
+p(\ratepars) &=& p(\ratepars\,|\,\mean,\,\smooth) \nonumber\\
+&=& \mathcal{N} \left[\ln\ratepars;\,\mean\,\bvec{1},\,
 \cov(\{\binarea_j\},\,\smoothpars)\right]
+\eqlabel{gp}
 \end{eqnarray}
-where $\mathcal{N}(\cdot;\,\mean\,\bvec{I},\,\cov)$ is a $J$-dimensional
-Gaussian with a constant mean \mean\ and covariance matrix \cov\ that depends
-on the bin locations $\{\binarea_j\}$ and a set of hyperparameters
-$\smoothpars = (\smooth_0,\,\smooth_\period,\,\smooth_\radius)$.
+where $\mathcal{N}(\cdot;\,\mean\,\bvec{1},\,\cov)$ is a $J$-dimensional
+Gaussian\footnote{$J$ is the total number of bins.} with a constant mean
+\mean\ and covariance matrix \cov\ that depends on the bin locations
+$\{\binarea_j\}$ and a set of hyperparameters $\smoothpars = (\smooth_0,\,
+\smooth_\period,\,\smooth_\radius)$.
 The covariance function that we use is an anisotropic, axis-aligned
 exponential-squared kernel so elements of the matrix are
 \begin{eqnarray}
@@ -615,29 +628,37 @@ where $\Sigma^{-1}$ is the diagonal matrix
 \end{array}\right) \quad.
 \end{eqnarray}
 
-As well as being a very flexible prior, this Gaussian process model is also
-appealing because it is well studied in the machine learning literature.
-In particular, there is a very efficient algorithm---elliptical slice sampling
-(ESS; \citealt{ess})---for generating samples from the posterior probability
-function in \eq{posterior}.
-Our implementation is based on Jo Bovy's BSD licensed ESS
+The Gaussian process model for the bin heights given in \eq{gp} very flexible
+but the results will depend on the values of the hyperparameters \mean\ and
+\smoothpars.
+Therefore, instead of fixing these parameters to specific values, we add
+another level to our hierarchical probabilistic model and marginalize over
+this choice.
+In other words, we apply priors---uniform in the logarithm---on \mean\ and
+\smoothpars, and sample from the joint posterior
+\begin{eqnarray} \eqlabel{joint-posterior}
+p(\ratepars,\,\mean,\,\smoothpars\,|\,\{\data_k\}) &\propto&
+    p(\mean,\,\smoothpars)\,p(\ratepars\,|\,\mean,\,\smoothpars)\,
+    p(\{\data_k\}\,|\,\ratepars) \quad.
+\end{eqnarray}
+
+There is a very efficient algorithm called elliptical slice sampling (ESS;
+\citealt{ess, ess-hyper}) for sampling the bin heights \ratepars\ from the
+density in \eq{joint-posterior}.
+Our implementation is adapted from Jo Bovy's BSD licensed ESS
 code\footnote{\url{https://github.com/jobovy/bovy_mcmc/blob/master/bovy_mcmc/%
 elliptical_slice.py}}.
-As mentioned above, we actually go one step further and assume uniform
-(hyper-)priors on $\ln\mean$ and $\ln\smoothpars$ in order to sample from the
-joint posterior
-\begin{eqnarray}
-p(\ratepars,\,\mean,\,\smoothpars\,|\,\{\data_k\})
-\end{eqnarray}
-using Algorithm 1 from \citet{ess-hyper}.
+To simultaneously marginalize over the hyperparameter choice, we use the
+Metropolis--Hastings update from Algorithm 1 in \citet{ess-hyper}.
+We tune the Metropolis--Hastings proposal by hand until we get an acceptance
+fraction of $\sim0.2-0.4$ for the hyperparameters.
 
 For all the results below, we run a Markov chain with $10^6$ steps for the bin
 heights and update the hyperparameters every 10 steps.
-We discard the first \dfmtodo{XXXX} samples as burn-in and then use the
-remaining samples as an approximation to the marginalized probability
+We only keep the final $2 \times 10^5$ steps and discard the earlier samples
+as burn-in.
+The remaining samples provide an approximation to the marginalized probability
 distribution for \ratepars.
-We tune the Metropolis--Hastings proposal used to update the hyperparameters
-by hand to get an acceptance fraction of $\sim0.2-0.4$ for those parameters.
 
 \section{Data and completeness function}
 \sectlabel{data}
@@ -1058,6 +1079,12 @@ This research made use of the NASA \project{Astrophysics Data System}.
 \bibitem[Adams, Murray \& MacKay(2009)]{poiss-gp}
 Adams, R.~P., Murray, I., \& MacKay, D.~J.~C.\ 2009, ICML, 2009, 9
 (\href{http://homepages.inf.ed.ac.uk/imurray2/pub/09poisson/}{online})
+
+% Just a little bit of semi-justified self-citation.
+\bibitem[Ambikasaran \etal(2014)]{dfm-gp}
+Ambikasaran, S., Foreman-Mackey, D., Greengard, L., Hogg, D.~W.,
+\& O'Neil, M.\ 2014, \arxiv{1403.6015}
+
 
 \bibitem[Brewer \& Stello(2009)]{brewer}
 Brewer, B.~J., \& Stello, D.\ 2009, \mnras, 395, 2226 (\arxiv{0902.3907})
