@@ -29,6 +29,7 @@ linewidths = [0.75, 0.75, 0.75, 0.75]
 def plot_results(a):
     x = bins[a % 2]
     s = [slice(None), slice(None), slice(None)]
+    s2 = [None, None, None]
 
     x0 = np.linspace(np.exp(x[0]), np.exp(x[-1]), 5000)[:-1]
     inds = np.digitize(np.log(x0), x) - 1
@@ -46,7 +47,9 @@ def plot_results(a):
                                               [1.25] + linewidths,
                                               ["#222222"] + colors)):
         s[a] = blah
-        samps = logsumexp(samples[s], axis=a)
+        s2[a] = blah
+        samps = logsumexp(samples[s] + np.log(np.diff(bins[a - 1]))[s2],
+                          axis=a)
         q = np.array([quantile(_ - np.log(42557.0), [0.16, 0.5, 0.84])
                       for _ in samps.T])
         y = q[:, 1]
@@ -87,7 +90,7 @@ def plot_results(a):
     ax_right.set_yticklabels([])
     ax.set_xlim(min(x), max(x))
     ax.set_xlabel(r"$\ln {0}$".format(labels[a-1]))
-    ax.set_ylabel(r"$N_\mathrm{avg} / N_\star$")
+    ax.set_ylabel(r"$\Gamma (\ln {0})$".format(labels[a-1]))
     ax.xaxis.set_major_locator(MaxNLocator(5))
 
     a2 = ax.twiny()
@@ -98,7 +101,6 @@ def plot_results(a):
 
     ax.set_ylim(np.exp(ax_right.get_ylim()))
     ax.set_yscale("log")
-    ax.set_ylabel(r"$N_\mathrm{avg} / N_\star$")
 
     fig.subplots_adjust(bottom=0.17, top=0.83, right=0.7, left=0.17)
     prop = FontProperties()
@@ -107,12 +109,12 @@ def plot_results(a):
 
     if a == 1:
         ax_right2.set_xlim(0, 8)
-        ax_right2.set_ylim(-7, 1)
+        ax_right2.set_ylim(-7.5, 0.2)
 
     ax_right2.set_yticklabels([])
     ax2.set_ylim(np.exp(ax_right2.get_ylim()))
     ax2.set_yscale("log")
-    ax2.set_ylabel(r"$N_\mathrm{avg} / N_\star$")
+    ax2.set_ylabel(r"$\Gamma ({0})$".format(labels[a-1]))
     ax2.set_xlabel(r"${0}$".format(labels[a-1]))
     ax2.xaxis.set_major_locator(MaxNLocator(5))
     fig2.subplots_adjust(bottom=0.17, top=0.83, right=0.7, left=0.17)
