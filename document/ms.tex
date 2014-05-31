@@ -91,9 +91,13 @@
 \begin{document}
 
 \title{%
-  Inferring the distribution and rate of Earth-like exoplanets \\
-  from noisy individual-planet inferences
+    Exoplanet occurrence rate inference \& the rate density of Earth analogs
+    from noisy incomplete catalogs
 }
+% \title{%
+%   Inferring the distribution and rate of Earth-like exoplanets \\
+%   from noisy individual-planet inferences
+% }
 
 \newcommand{\nyu}{2}
 \newcommand{\mpia}{3}
@@ -102,8 +106,7 @@
 \author{%
     Daniel~Foreman-Mackey\altaffilmark{1,\nyu},
     David~W.~Hogg\altaffilmark{\nyu,\mpia},
-    Timothy~D.~Morton\altaffilmark{\princeton},
-    \etal
+    Timothy~D.~Morton\altaffilmark{\princeton}
 }
 \altaffiltext{1}         {To whom correspondence should be addressed:
                           \url{danfm@nyu.edu}}
@@ -113,7 +116,7 @@
 \altaffiltext{\mpia}     {Max-Planck-Institut f\"ur Astronomie,
                           K\"onigstuhl 17, D-69117 Heidelberg, Germany}
 \altaffiltext{\princeton}{Department of Astrophysics, Princeton University,
-                          Princeton, NJ, 08540, USA} % CHECK THIS ZIP CODE
+                          Princeton, NJ, 08544, USA}
 
 \begin{abstract}
 
@@ -159,36 +162,8 @@ stars: statistics
 
 \section{Introduction}
 
-% CITATIONS:
-% \begin{itemize}
-% \item
-% \citet{fressin-fp} --- simultaneous occurrence rate and false positive rate
-% \item
-% \citet{morton} --- false positive rate
-% \item
-% \citet{morton-swift} --- KDE estimator for radius distribution of cool KOIs
-% \item
-% \citet{howard} --- inv-det-eff for short-period candidates around Sun-like
-% stars
-% \item
-% \citet{dressing} --- inv-det-eff for cool KOIs
-% \item
-% \citet{dong} --- semi-analytic completeness, likelihood function-ish,
-% turn-over at small radii, non-separability
-% \item
-% \citet{tabachnik} ---- Poisson likelihood
-% \item
-% \citet{tremaine} --- statistics of multis
-% \item
-% \citet{youdin} --- Poisson likelihood
-% \item
-% \citet{catanzarite} --- extrapolation to Eta-Earth assuming complete
-% \item
-% \citet{traub} --- extrapolation to Eta-Earth assuming complete
-% \end{itemize}
-
 NASA's \kepler\ mission has enabled the discovery of thousands of exoplanet
-candidates (\dfmtodo{CITE KEPLER}).
+candidates (\citealt{kepler-catalog}).
 While many of these candidates have not been confirmed as bona fide planets,
 there is evidence that the false positive rate is low (\citealt{morton,
 fressin-fp}), enabling conclusions about the population of planets based on
@@ -199,17 +174,28 @@ gravity.
 Given these catalogs, it is interesting to ask what we can say about the
 occurrence rate of exoplanets as a function of their physical parameters
 (period, radius, \etc).
-The two main reasons why this is interesting are that \emph{(a)} theories of
-planet formation make predictions about the shape of this function
-(\dfmtodo{CITE}), and \emph{(b)} it allows us to place probabilistic
-constraints on the rate of Earth analogs\footnote{We define, in detail, what
-we mean by Earth analog below but, in short, we mean Earth-sized planets on
-year-long orbits around Sun-like stars.}.
+Observational constraints on the occurrence rate function can inform theories
+of planet formation (\dfmtodo{CITE}) and place probabilistic bounds on the
+rate of Earth analogs\footnote{We define, in detail, what we mean by Earth
+analog below but, in short, we mean Earth-sized planets on year-long orbits
+around Sun-like stars.}.
 
 \citet{petigura} recently published constraints on this function based on
 their independent analysis of the \kepler\ light curves for 42,000 Sun-like
-stars but the study of exoplanet occurrence rates has a long history.
-\dfmtodo{Summarize history with lotsa citations.}
+stars.
+This study was especially novel because the authors developed an independent
+planet search pipeline (TERRA; \citealt{petigura-a}) and determined the
+detection efficiency of their analysis empirically by injecting synthetic
+signals into real light curves measured by \kepler.
+The occurrence rate function determined by \citet{petigura} agreed
+qualitatively with previous studies of small planets orbiting Sun-like stars
+(\citealt{dong}).
+In particular, both papers describe a ``flattening'' rate function (in
+logarithmic radius) for planets around Earth's radius.
+Even though no Earth analogs were discovered in their search, \citet{petigura}
+used the small candidates that the did find to place an extrapolated
+constraint on the frequency of Earth-like exoplanets, assuming a flat
+occurrence rate in logarithmic period.
 
 A very important component of any study of exoplanet occurrence rates is the
 treatment of detection efficiency.
@@ -219,30 +205,45 @@ This effect is degenerate with any inferences about the rate function and it
 can be hard to constraint quantitatively.
 In practice, there are three methods for taking this effect into account:
 \emph{(a)} making conservative cuts on the candidates and assuming that the
-resulting catalog is complete (\citealt{catanzarite, traub}; \dfmtodo{CITE}),
+resulting catalog is complete (\citealt{catanzarite, traub, tremaine}),
 \emph{(b)} asserting an analytic form for the detection efficiency as a
-function of approximate signal-to-noise (\citealt{howard, dressing, dong,
-fressin-fp, morton-swift}; \dfmtodo{CITE}), and \emph{(c)} determining the
-detection efficiency empirically by injecting synthetic signals into the raw
-data and testing recovery rates (\citealt{petigura-a, petigura}).
+function of approximate signal-to-noise (\citealt{youdin, howard, dressing,
+dong, fressin-fp, morton-swift}), and \emph{(c)} determining the detection
+efficiency empirically by injecting synthetic signals into the raw data and
+testing recovery rates (\citealt{petigura-a, petigura}).
 
-\dfmtodo{From Tim: In a new paragraph here, I think we should say something
-like ``In addition, there are two philosophically different ways of applying
-this detection efficiency to derive planet occurrence rates.''
- Then first describe the inv-det-eff (cite Howard2012, Dong+Zhu2012,
-Swift+2013, Dress+Charb2013), then the forward-modeling concept, advocated by
-Youdin (2011) in a max-like framework.}
+There are two pedagogically different methods that are commonly used to infer
+the occurrence rate from a catalog and a detection efficiency specification.
+The first is an intuitive method that we will refer to as
+inverse-detection-efficiency procedure and the second is based on the
+likelihood function of the catalog given a parametric rate function.
+The inverse-detection-efficiency method involves making a histogram of the
+objects in the catalog where each point is weighted by its inverse detection
+probability.
+This method is very popular in the literature (\citealt{howard, dong,
+dressing, swift, petigura}) even though it is not motivated probabilistically.
+The alternative ``likelihood'' method models the catalog as a Poisson
+realization of the \emph{observable} rate function of exoplanets taking the
+survey detection efficiencies and transit probabilities into account.
+This technique has been used to constrain parametric models---a broken power
+law, for example---for the occurrence rate function (\citealt{tabachnik,
+youdin, dong}).
+There are many reasons to prefer a result based on an optimization of a
+likelihood function and as we show in \sect{model}, if we model the occurrence
+rate as a piecewise constant function, the inverse-detection-efficiency method
+can be derived as a special case of the likelihood method with a specific set
+of assumptions.
 
 In every previous study of the occurrence rate function, the authors have
 assumed that the measurement uncertainties are negligible.
 This assumption is not justified because these uncertainties---especially on
 measurements of the stellar parameters---can be large compared to the scales
-of interest (\dfmtodo{give a number and CITE}).
+of interest.
 In this \paper, we develop a flexible framework for probabilistic inference of
 exoplanet occurrence rates that can be applied to incomplete catalogs with
 \emph{non-negligible observational uncertainties}.
-Our method is a generalization of a previously studied method
-(\citealt{hogge}) to account for detection efficiencies.
+We generalize the inference method introduced by \citet{hogge} to account for
+survey detection efficiencies.
 We run tests on simulated datasets---comparing results with the standard
 techniques that neglect observational uncertainties---and apply our method to
 a real catalog of small planets transiting Sun-like stars
@@ -250,8 +251,10 @@ a real catalog of small planets transiting Sun-like stars
 
 For the purposes of this \paper, we make some strong assumptions---although we
 argue that they are weaker than the implicit assumptions in previous
-studies---but none of these are necessary for the applicability of our method.
-Specifically, we make the following assumptions:
+studies.
+None of these assumptions are necessary for the applicability of our method
+but they do simplify the procedure.
+Specifically, we assume that
 \begin{itemize}
 
 \item the candidates in the catalog are independent Poisson draws from the
@@ -274,8 +277,8 @@ The first assumption---conditional independence of the candidates---is
 reasonable since the dataset that we consider explicitly includes only single
 transiting systems (\citealt{petigura}).
 When considering other datasets it will be interesting and important to take
-multiple transiting systems into account (\dfmtodo{CITE}) and this would be
-possible using a conditional distributions (as developed by
+multiple transiting systems into account (\citealt{lissauer, tremaine, fang})
+and this would be possible using a conditional distributions (as developed by
 \citealt{tremaine}).
 The second assumption---neglecting false positives---is also strong and only
 weakly justified by estimates of low false positive rates in the \kepler\ data
@@ -283,6 +286,21 @@ weakly justified by estimates of low false positive rates in the \kepler\ data
 For this \paper, we will neglect this issue and only comment on the effects
 but the prior distributions published by \citet{fressin-fp} would be directly
 applicable in our method and this would be a very interesting generalization.
+
+We must emphasize one very important consequence of our assumptions.
+We assume that the catalog of exoplanet candidates is only missing planets
+with probabilities given by the empirical detection efficiency but this
+doesn't take into account the fact that the catalog doesn't include multiple
+transiting systems.
+A large fraction of the transiting planets discovered by the \kepler\ transit
+search pipeline are members of multiple transiting systems (see
+\citealt{lissauer}, for example).
+Since \citet{petigura} only detected at most one planet per system, their
+catalog is actually a list of planet candidates \emph{without a more
+detectable companion}.
+The global effects of this selection is not trivial and an in-depth discussion
+is beyond the scope of this \paper\ but all of the results should be
+interpreted with this caveat in mind.
 
 Conditioned on our assumptions and the choices made in planet detection,
 vetting and characterization pipeline (\citealt{petigura-a, petigura}), we
@@ -306,10 +324,6 @@ rate is a smooth function of period and radius; we find a much lower value for
 \gammaearth.
 We enforce the smoothness constraint by applying a flexible Gaussian process
 regularization to the bin heights.
-
-\dfmtodo{Justify our choice of definition. Not habitability.}
-
-\dfmtodo{We should explain why our number is a lower limit here.}
 
 In the next section, we introduce the concept of hierarchical inference, how
 it applies to the problem at hand, and we derive the importance sampling
@@ -610,7 +624,7 @@ p(\ratepars) &=& p(\ratepars\,|\,\mean,\,\smooth) \nonumber\\
 \end{eqnarray}
 where $\mathcal{N}(\cdot;\,\mean\,\bvec{1},\,\cov)$ is a $J$-dimensional
 Gaussian\footnote{$J$ is the total number of bins.} with a constant mean
-\mean\ and covariance matrix \cov\ that depends on the bin locations
+\mean\ and covariance matrix \cov\ that depends on the bin centers
 $\{\binarea_j\}$ and a set of hyperparameters $\smoothpars = (\smooth_0,\,
 \smooth_\period,\,\smooth_\radius)$.
 The covariance function that we use is an anisotropic, axis-aligned
@@ -641,6 +655,9 @@ p(\ratepars,\,\mean,\,\smoothpars\,|\,\{\data_k\}) &\propto&
     p(\mean,\,\smoothpars)\,p(\ratepars\,|\,\mean,\,\smoothpars)\,
     p(\{\data_k\}\,|\,\ratepars) \quad.
 \end{eqnarray}
+Strictly speaking, in this model, $p(\ratepars\,|\,\mean,\,\smoothpars)$ can't
+really be called a ``prior'' anymore and the constraints on the bin heights
+\ratepars\ are no longer independent.
 
 There is a very efficient algorithm called elliptical slice sampling (ESS;
 \citealt{ess, ess-hyper}) for sampling the bin heights \ratepars\ from the
@@ -667,8 +684,8 @@ Using an independent exoplanet search and characterization pipeline,
 \citet{petigura} published a catalog of 603 planet candidates orbiting stars
 in their ``Sun-like'' sample of \kepler\ targets.
 For each candidate, \citet{petigura} used Markov chain Monte Carlo to sample
-the posterior probability density---presumably assuming uniform priors---for
-the radius ratio, transit duration, and impact parameter.
+the posterior probability density for the radius ratio, transit duration, and
+impact parameter assuming uninformative uniform priors.
 They then incorporated the uncertainties in the stellar radius and published
 constraints on the physical radii of their candidates.
 Given this data reduction and since we don't have access to the individual
@@ -691,7 +708,7 @@ We use all the injected samples from \citet{petigura} to compute the mean
 (marginalized) detection efficiency in bins of $\ln\period$ and $\ln\radius$.
 In each bin, this efficiency is simply the fraction of recovered injections.
 For the purposes of this \paper, we neglect the counting uncertainties
-introduced by the finite number of samples.
+introduced by the finite number of samples used to estimate the completeness.
 The largest injected signal had a radius of $16\,R_\oplus$ but, because of the
 measurement uncertainties on the radii, we need to model the distribution at
 larger radii.
@@ -699,8 +716,8 @@ To do this, we approximate the survey completeness for $\radius>16\,R_\oplus$
 as 1.
 
 Given our domain knowledge of how detection efficiency depends on the physical
-parameters, it might seem silly to measure the survey completeness in period
-and radius instead of radius ratio or signal-to-noise.
+parameters, the intuitive choice would be to measure the survey completeness
+in radius ratio or signal-to-noise instead of period and radius.
 It is also likely that a change of coordinates would yield a higher precision
 result.
 That being said, it is still correct to measure the completeness in period and
@@ -737,12 +754,9 @@ period as
 This expression is clearly only valid for $\period \gtrsim 1.4\,\mathrm{days}$
 but the dataset that we are using (\citealt{petigura}) explicitly only
 includes periods longer than five days so this is not a problem.
-It is also worth noting that we're using the \emph{median} transit probability
-(instead of the mean) because it is a more robust estimator in the presence of
-outliers.
-In our experiments, the results do not seem to be very sensitive to this
-choice.
-\dfmtodo{Is there any rough scaling that is obvious?}
+We're using the \emph{median} transit probability (instead of the mean)
+because it is a more robust estimator in the presence of outliers but in our
+experiments, the results do not seem to be very sensitive to this choice.
 
 \section{Validation using synthetic catalogs}
 \sectlabel{valid}
@@ -784,11 +798,11 @@ The catalogs generated from these two models are shown in \fig{smooth-results}
 and \fig{simulation-results}, respectively and the data are available online
 at \dfmtodo{ADD SOME URL}.
 
-For each catalog, we directly apply the inverse-detection-efficiency procedure
-as implemented by \citealt{petigura}\footnote{Our implementation reproduces
-their results when applied to the published catalog.} and our probabilistic
-method, marginalizing over the hyperparameters of the Gaussian process
-regularization.
+For each catalog, we directly apply both the inverse-detection-efficiency
+procedure as implemented by \citealt{petigura}\footnote{Our implementation
+reproduces their results when applied to the published catalog.} and our
+probabilistic method, marginalizing over the hyperparameters of the Gaussian
+process regularization.
 \Fig{smooth-results} and \fig{simulation-results} show the results of this
 analysis in both cases.
 In particular, the side panels compare the marginalized occurrence rate
@@ -804,11 +818,14 @@ both more precise and accurate.
 In the second example, the true rate function includes a sharp feature chosen
 to reproduce the result published by \citet{petigura}.
 In this case, \fig{simulation-results} shows that the probabilistic
-constraints on the occurrence rate are less precise \emph{but more accurate}
-than results using the inverse-detection-efficiency method.
-At this point, the distributions inferred by these two different techniques
-don't seem drastically inconsistent but the difference are most obvious as the
-survey completeness goes to zero: exactly the region of interest.
+constraints on the occurrence rate are less precise but more accurate than
+results using the inverse-detection-efficiency method.
+This effect is most apparent in the parts of parameter space where the
+detection efficiency is low---long period and small radius.
+
+\dfmtodo{Add more discussion here about how (because it is high variance) the
+inv-det-eff method tends to find a lot of structure in the occurrence rate
+function even when there shouldn't be.}
 
 \begin{figure}[p]
 \begin{center}
@@ -869,11 +886,16 @@ All published extrapolations are based on rigid models like a power law
 (\citealt{catanzarite, traub}) or linear in the cumulative period distribution
 (\citealt{petigura}).
 All of these results are sensitive to this choice of function and to the other
-implicit decisions (for example the size of radius bin that is considered
-Earth-like by \citealt{petigura}).
+implicit decisions (for example the size of bin that is considered Earth-like
+by \citealt{petigura}).
+
 We weaken the assumptions necessary for extrapolation by only assuming that
-the distribution is smooth using the Gaussian process prior described in
+the distribution is smooth using the Gaussian process model described in
 \sect{model}.
+Under this model, the occurrence rate in bins where no objects have been
+detected will be constrained by the height of nearby bins.
+
+
 This model will, of course, break down if there is a sharp feature in the
 occurrence rate function right at the location of Earth but otherwise this is
 the most conservative extrapolation method published up to this point.
@@ -881,7 +903,9 @@ the most conservative extrapolation method published up to this point.
 The results of our extrapolation method, when applied to the synthetic
 catalogs described in the previous section, are shown in \fig{smooth-rate} and
 \fig{simulation-rate}.
-We implemented the extrapolation method from \citet{petigura} that assumes a
+We implemented the extrapolation method from \citet{petigura}.
+
+ that assumes a
 linear relation in the cumulative period distribution for small planets and
 compared these results---converting to the correct units---to our method and
 the truth.
@@ -1085,6 +1109,9 @@ Adams, R.~P., Murray, I., \& MacKay, D.~J.~C.\ 2009, ICML, 2009, 9
 Ambikasaran, S., Foreman-Mackey, D., Greengard, L., Hogg, D.~W.,
 \& O'Neil, M.\ 2014, \arxiv{1403.6015}
 
+\bibitem[Batalha \etal(2013)]{kepler-catalog}
+Batalha, N.~M., Rowe, J.~F., Bryson, S.~T., et al.\ 2013, \apjs, 204, 24
+(\arxiv{1202.5852})
 
 \bibitem[Brewer \& Stello(2009)]{brewer}
 Brewer, B.~J., \& Stello, D.\ 2009, \mnras, 395, 2226 (\arxiv{0902.3907})
@@ -1100,6 +1127,9 @@ Dong, S., \& Zhu, Z.\ 2013, \apj, 778, 53 (\arxiv{1212.4853})
 
 \bibitem[Dressing  \& Charbonneau(2013)]{dressing}
 Dressing, C.~D., \& Charbonneau, D.\ 2013, \apj, 767, 95 (\arxiv{1302.1647})
+
+\bibitem[Fang \& Margot(2012)]{fang}
+Fang, J., \& Margot, J.-L.\ 2012, \apj, 761, 92 (\arxiv{1207.5250})
 
 \bibitem[Fressin \etal(2013)]{fressin-fp}
 Fressin, F., Torres, G., Charbonneau, D., \etal\ 2013, \apj, 766, 81
@@ -1122,6 +1152,10 @@ Howard, A.~W., Marcy, G.~W., Bryson, S.~T., et al.\ 2012, \apjs, 201, 15
 \bibitem[Lewis \& Shedler(1979)]{poisson}
 Lewis, P.~A.~W., \& Shedler, G.~S.\ 1979, Naval Research Logistics Quarterly,
 26, 403
+
+\bibitem[Lissauer \etal(2011)]{lissauer}
+Lissauer, J.~J., Ragozzine, D., Fabrycky, D.~C., et al.\ 2011, \apjs, 197, 8
+(\arxiv{1102.0543})
 
 \bibitem[Morton \& Johnson(2011)]{morton}
 Morton, T.~D., \& Johnson, J.~A.\ 2011, \apj, 738, 170 (\arxiv{1101.5630})
@@ -1154,6 +1188,10 @@ Gaussian Processes for Machine Learning, MIT Press
 \bibitem[Roberts \etal(2013)]{roberts}
 Roberts, S., McQuillan, A., Reece, S., \& Aigrain, S.\ 2013, \mnras, 435, 3639
 (\arxiv{1308.3644})
+
+\bibitem[Swift \etal(2013)]{swift}
+Swift, J.~J., Johnson, J.~A., Morton, T.~D., et al.\ 2013, \apj, 764, 105
+(\arxiv{1301.0023})
 
 \bibitem[Tabachnik \& Tremaine(2002)]{tabachnik}
 Tabachnik, S., \& Tremaine, S.\ 2002, \mnras, 335, 151
