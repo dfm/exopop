@@ -91,8 +91,8 @@
 \begin{document}
 
 \title{%
-    Exoplanet occurrence rate inference \& the rate density of Earth analogs
-    from noisy incomplete catalogs
+    Exoplanet population inference \& the rate of Earth analogs
+    from noisy, incomplete catalogs
 }
 % \title{%
 %   Inferring the distribution and rate of Earth-like exoplanets \\
@@ -101,11 +101,12 @@
 
 \newcommand{\nyu}{2}
 \newcommand{\mpia}{3}
-\newcommand{\princeton}{4}
-\newcommand{\berkeley}{5}
+\newcommand{\cds}{4}
+\newcommand{\princeton}{5}
+\newcommand{\berkeley}{6}
 \author{%
     Daniel~Foreman-Mackey\altaffilmark{1,\nyu},
-    David~W.~Hogg\altaffilmark{\nyu,\mpia},
+    David~W.~Hogg\altaffilmark{\nyu,\mpia,\cds},
     Timothy~D.~Morton\altaffilmark{\princeton}
 }
 \altaffiltext{1}         {To whom correspondence should be addressed:
@@ -115,36 +116,43 @@
                           4 Washington Place, New York, NY, 10003, USA}
 \altaffiltext{\mpia}     {Max-Planck-Institut f\"ur Astronomie,
                           K\"onigstuhl 17, D-69117 Heidelberg, Germany}
+\altaffiltext{\cds}      {Center for Data Science,
+                          New York University,
+                          4 Washington Place, New York, NY, 10003, USA}
 \altaffiltext{\princeton}{Department of Astrophysics, Princeton University,
                           Princeton, NJ, 08544, USA}
 
 \begin{abstract}
 
-An impressive number of exoplanets have been discovered and it is of great
-scientific interest to study what we can say about the exoplanet occurrence
-rate function given these discoveries.
-Every catalog is censored by non-trivial selection effects and detection
-efficiencies, and the measurements of the system properties (period, radius,
-\etc) are noisy.
-We present a general hierarchical probabilistic framework for making justified
-inferences about the occurrence rate of exoplanets, taking into account survey
-completeness \emph{and observational uncertainties}.
-By applying our method to synthetic catalogs, we demonstrate that it produces
-more accurate estimates of the underlying occurrence rate than the standard
-inverse-detection-efficiency weighting procedure.
-When applied to an existing catalog of small planet candidates around G dwarfs
-(Petigura \etal\ 2013), our method confirms previous measurements of a
-flattening radius distribution near Earth's radius.
-Although no true extra-solar Earth analog is known, hundreds of planets have
+Many exoplanets have been discovered and characterized;
+it is now possible to study the population as a whole.
+Although no true extra-Solar Earth analog is known, hundreds of planets have
 been found around Sun-like stars that are either Earth-sized but on shorter
 periods, or else on year-long orbits but somewhat larger.
-Under strong assumptions, these data have been used to make an extrapolated
-estimate of the probability or rate at which Sun-like stars host Earth
-analogs.
-We relax some of these assumptions, only requiring that the occurrence rate be
-a smooth function of period and radius (using a Gaussian process) and find
-that the rate of Earth analogs per star is about 0.02 (per natural logarithmic
+Under strong assumptions, these exoplanet catalogs have been used to make an
+extrapolated estimate of the probability or rate at which Sun-like stars host
+Earth analogs.
+Complicating these studies are that
+every catalog is censored by non-trivial selection effects and detection
+efficiencies, and every system property measurement (period, radius,
+\etc) is noisy.
+Here we present a general hierarchical probabilistic framework for making justified
+inferences about the occurrence rate of exoplanets, taking into account survey
+completeness and, for the first time, \emph{observational uncertainties}.
+We are able to make fewer assumptions about the distribution than previous studies;
+we only require that the occurrence rate be a smooth function of period
+and radius (employing a Gaussian process).
+By applying our method to synthetic catalogs, we demonstrate that it produces
+more accurate estimates of the whole population than standard procedures based
+on weighting by inverse detection efficiency.
+We apply the method to an existing catalog of small planet candidates around
+G dwarf stars (Petigura \etal\ 2013).
+We confirm a previous result that the radius distribution changes slope near Earth radius.
+We find
+that the rate of Earth analogs is about 0.02 (per star per natural logarithmic
 bin in period and radius) with large uncertainty.
+This number is much smaller than previous estimates made with the same data but
+stronger assumptions.
 
 \end{abstract}
 
