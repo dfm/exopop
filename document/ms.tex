@@ -3,6 +3,7 @@
 %
 %  * 80 characters
 %  * line breaks at the ends of sentences
+%  * Sun Solar Earth all capitalized when referring to our peeps, even as in "extra-Solar"
 %  * eqnarrys ONLY
 %  * that is all.
 %
@@ -91,8 +92,8 @@
 \begin{document}
 
 \title{%
-    Exoplanet occurrence rate inference \& the rate density of Earth analogs
-    from noisy incomplete catalogs
+    Exoplanet population inference \& the rate of Earth analogs
+    from noisy, incomplete catalogs
 }
 % \title{%
 %   Inferring the distribution and rate of Earth-like exoplanets \\
@@ -101,11 +102,12 @@
 
 \newcommand{\nyu}{2}
 \newcommand{\mpia}{3}
-\newcommand{\princeton}{4}
-\newcommand{\berkeley}{5}
+\newcommand{\cds}{4}
+\newcommand{\princeton}{5}
+\newcommand{\berkeley}{6}
 \author{%
     Daniel~Foreman-Mackey\altaffilmark{1,\nyu},
-    David~W.~Hogg\altaffilmark{\nyu,\mpia},
+    David~W.~Hogg\altaffilmark{\nyu,\mpia,\cds},
     Timothy~D.~Morton\altaffilmark{\princeton}
 }
 \altaffiltext{1}         {To whom correspondence should be addressed:
@@ -115,36 +117,43 @@
                           4 Washington Place, New York, NY, 10003, USA}
 \altaffiltext{\mpia}     {Max-Planck-Institut f\"ur Astronomie,
                           K\"onigstuhl 17, D-69117 Heidelberg, Germany}
+\altaffiltext{\cds}      {Center for Data Science,
+                          New York University,
+                          4 Washington Place, New York, NY, 10003, USA}
 \altaffiltext{\princeton}{Department of Astrophysics, Princeton University,
                           Princeton, NJ, 08544, USA}
 
 \begin{abstract}
 
-An impressive number of exoplanets have been discovered and it is of great
-scientific interest to study what we can say about the exoplanet occurrence
-rate function given these discoveries.
-Every catalog is censored by non-trivial selection effects and detection
-efficiencies, and the measurements of the system properties (period, radius,
-\etc) are noisy.
-We present a general hierarchical probabilistic framework for making justified
-inferences about the occurrence rate of exoplanets, taking into account survey
-completeness \emph{and observational uncertainties}.
-By applying our method to synthetic catalogs, we demonstrate that it produces
-more accurate estimates of the underlying occurrence rate than the standard
-inverse-detection-efficiency weighting procedure.
-When applied to an existing catalog of small planet candidates around G dwarfs
-(Petigura \etal\ 2013), our method confirms previous measurements of a
-flattening radius distribution near Earth's radius.
-Although no true extra-solar Earth analog is known, hundreds of planets have
+Many exoplanets have been discovered and characterized;
+it is now possible to study the population as a whole.
+Although no true extra-Solar Earth analog is known, hundreds of planets have
 been found around Sun-like stars that are either Earth-sized but on shorter
 periods, or else on year-long orbits but somewhat larger.
-Under strong assumptions, these data have been used to make an extrapolated
-estimate of the probability or rate at which Sun-like stars host Earth
-analogs.
-We relax some of these assumptions, only requiring that the occurrence rate be
-a smooth function of period and radius (using a Gaussian process) and find
-that the rate of Earth analogs per star is about 0.02 (per natural logarithmic
+Under strong assumptions, these exoplanet catalogs have been used to make an
+extrapolated estimate of the probability or rate at which Sun-like stars host
+Earth analogs.
+Complicating these studies are that
+every catalog is censored by non-trivial selection effects and detection
+efficiencies, and every system property measurement (period, radius,
+\etc) is noisy.
+Here we present a general hierarchical probabilistic framework for making justified
+inferences about the occurrence rate of exoplanets, taking into account survey
+completeness and, for the first time, \emph{observational uncertainties}.
+We are able to make fewer assumptions about the distribution than previous studies;
+we only require that the occurrence rate be a smooth function of period
+and radius (employing a Gaussian process).
+By applying our method to synthetic catalogs, we demonstrate that it produces
+more accurate estimates of the whole population than standard procedures based
+on weighting by inverse detection efficiency.
+We apply the method to an existing catalog of small planet candidates around
+G dwarf stars (Petigura \etal\ 2013).
+We confirm a previous result that the radius distribution changes slope near Earth radius.
+We find
+that the rate of Earth analogs is about 0.02 (per star per natural logarithmic
 bin in period and radius) with large uncertainty.
+This number is much smaller than previous estimates made with the same data but
+stronger assumptions.
 
 \end{abstract}
 
@@ -174,10 +183,10 @@ gravity.
 Given these catalogs, it is interesting to ask what we can say about the
 occurrence rate of exoplanets as a function of their physical parameters
 (period, radius, \etc).
-Observational constraints on the occurrence rate function can inform theories
+Observational constraints on the population can inform theories
 of planet formation (\dfmtodo{CITE}) and place probabilistic bounds on the
-rate of Earth analogs\footnote{We define, in detail, what we mean by Earth
-analog below but, in short, we mean Earth-sized planets on year-long orbits
+rate of Earth analogs\footnote{We define, in detail, what we mean by ``Earth
+analog'' below but, roughly, we mean Earth-sized planets on year-long orbits
 around Sun-like stars.}.
 
 \citet{petigura} recently published constraints on this function based on
@@ -237,8 +246,8 @@ of assumptions.
 In every previous study of the occurrence rate function, the authors have
 assumed that the measurement uncertainties are negligible.
 This assumption is not justified because these uncertainties---especially on
-measurements of the stellar parameters---can be large compared to the scales
-of interest.
+measurements (like exoplanet radius) that depend on the stellar
+parameters---can be large compared to the scales of interest.
 In this \paper, we develop a flexible framework for probabilistic inference of
 exoplanet occurrence rates that can be applied to incomplete catalogs with
 \emph{non-negligible observational uncertainties}.
@@ -249,11 +258,11 @@ techniques that neglect observational uncertainties---and apply our method to
 a real catalog of small planets transiting Sun-like stars
 (\citealt{petigura}).
 
-For the purposes of this \paper, we make some strong assumptions---although we
+For the purposes of this \paper, we make some strong assumptions, although we
 argue that they are weaker than the implicit assumptions in previous
 studies.
-None of these assumptions are necessary for the applicability of our method
-but they do simplify the procedure.
+None of these assumptions is necessary for the validity of our general method
+but they do simplify the specific procedures we employ.
 Specifically, we assume that
 \begin{itemize}
 
@@ -276,6 +285,7 @@ so this is not a strong restriction.}.
 The first assumption---conditional independence of the candidates---is
 reasonable since the dataset that we consider explicitly includes only single
 transiting systems (\citealt{petigura}).
+This is a limitation of the input catalog.
 When considering other datasets it will be interesting and important to take
 multiple transiting systems into account (\citealt{lissauer, tremaine, fang})
 and this would be possible using a conditional distributions (as developed by
@@ -289,7 +299,8 @@ applicable in our method and this would be a very interesting generalization.
 
 We must emphasize one very important consequence of our assumptions.
 We assume that the catalog of exoplanet candidates is only missing planets
-with probabilities given by the empirical detection efficiency but this
+with probabilities given by the empirical detection efficiency.
+In detail this must be false; the detection efficiency we use
 doesn't take into account the fact that the catalog doesn't include multiple
 transiting systems.
 A large fraction of the transiting planets discovered by the \kepler\ transit
@@ -308,7 +319,7 @@ constrain the rate of small exoplanets orbiting Sun-like stars.
 As part of this analysis we also place probabilistic constraints on the rate
 of Earth analogs \gammaearth\ which we define as \emph{the number of planets
 per star per natural logarithmic bin in period and radius, evaluated at the
-period and radius of Earth}
+period and radius of Earth} % Prof Tremaine, you owe us a beer.
 \begin{eqnarray}
 \gammaearth &=&
 \left.\frac{\dd N}{\dd\ln\period\,\dd\ln\radius}\right|
@@ -319,13 +330,13 @@ extrapolation in both period and radius.
 \citet{petigura} performed this extrapolation by assuming that the period
 distribution of planets in a small bin in radius is flat, obtaining
 $\gammaearth \approx 0.12$.
-We relax this assumption and extrapolate by only assuming that the occurrence
+We relax this assumption and extrapolate only by assuming that the occurrence
 rate is a smooth function of period and radius; we find a much lower value for
 \gammaearth.
 We enforce the smoothness constraint by applying a flexible Gaussian process
 regularization to the bin heights.
 
-In the next section, we introduce the concept of hierarchical inference, how
+In the next \sectionname, we introduce the concept of hierarchical inference, how
 it applies to the problem at hand, and we derive the importance sampling
 approximation to the marginalized likelihood (this is a generalization of the
 method from \citealt{hogge}).
