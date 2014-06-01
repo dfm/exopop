@@ -183,10 +183,10 @@ gravity.
 Given these catalogs, it is interesting to ask what we can say about the
 occurrence rate of exoplanets as a function of their physical parameters
 (period, radius, \etc).
-Observational constraints on the occurrence rate function can inform theories
+Observational constraints on the population can inform theories
 of planet formation (\dfmtodo{CITE}) and place probabilistic bounds on the
-rate of Earth analogs\footnote{We define, in detail, what we mean by Earth
-analog below but, in short, we mean Earth-sized planets on year-long orbits
+rate of Earth analogs\footnote{We define, in detail, what we mean by ``Earth
+analog'' below but, roughly, we mean Earth-sized planets on year-long orbits
 around Sun-like stars.}.
 
 \citet{petigura} recently published constraints on this function based on
@@ -246,8 +246,8 @@ of assumptions.
 In every previous study of the occurrence rate function, the authors have
 assumed that the measurement uncertainties are negligible.
 This assumption is not justified because these uncertainties---especially on
-measurements of the stellar parameters---can be large compared to the scales
-of interest.
+measurements (like exoplanet radius) that depend on the stellar
+parameters---can be large compared to the scales of interest.
 In this \paper, we develop a flexible framework for probabilistic inference of
 exoplanet occurrence rates that can be applied to incomplete catalogs with
 \emph{non-negligible observational uncertainties}.
@@ -258,11 +258,11 @@ techniques that neglect observational uncertainties---and apply our method to
 a real catalog of small planets transiting Sun-like stars
 (\citealt{petigura}).
 
-For the purposes of this \paper, we make some strong assumptions---although we
+For the purposes of this \paper, we make some strong assumptions, although we
 argue that they are weaker than the implicit assumptions in previous
 studies.
-None of these assumptions are necessary for the applicability of our method
-but they do simplify the procedure.
+None of these assumptions is necessary for the validity of our general method
+but they do simplify the specific procedures we employ.
 Specifically, we assume that
 \begin{itemize}
 
@@ -285,6 +285,7 @@ so this is not a strong restriction.}.
 The first assumption---conditional independence of the candidates---is
 reasonable since the dataset that we consider explicitly includes only single
 transiting systems (\citealt{petigura}).
+This is a limitation of the input catalog.
 When considering other datasets it will be interesting and important to take
 multiple transiting systems into account (\citealt{lissauer, tremaine, fang})
 and this would be possible using a conditional distributions (as developed by
@@ -298,7 +299,8 @@ applicable in our method and this would be a very interesting generalization.
 
 We must emphasize one very important consequence of our assumptions.
 We assume that the catalog of exoplanet candidates is only missing planets
-with probabilities given by the empirical detection efficiency but this
+with probabilities given by the empirical detection efficiency.
+In detail this must be false; the detection efficiency we use
 doesn't take into account the fact that the catalog doesn't include multiple
 transiting systems.
 A large fraction of the transiting planets discovered by the \kepler\ transit
@@ -317,7 +319,7 @@ constrain the rate of small exoplanets orbiting Sun-like stars.
 As part of this analysis we also place probabilistic constraints on the rate
 of Earth analogs \gammaearth\ which we define as \emph{the number of planets
 per star per natural logarithmic bin in period and radius, evaluated at the
-period and radius of Earth}
+period and radius of Earth} % Prof Tremaine, you owe us a beer.
 \begin{eqnarray}
 \gammaearth &=&
 \left.\frac{\dd N}{\dd\ln\period\,\dd\ln\radius}\right|
@@ -328,13 +330,13 @@ extrapolation in both period and radius.
 \citet{petigura} performed this extrapolation by assuming that the period
 distribution of planets in a small bin in radius is flat, obtaining
 $\gammaearth \approx 0.12$.
-We relax this assumption and extrapolate by only assuming that the occurrence
+We relax this assumption and extrapolate only by assuming that the occurrence
 rate is a smooth function of period and radius; we find a much lower value for
 \gammaearth.
 We enforce the smoothness constraint by applying a flexible Gaussian process
 regularization to the bin heights.
 
-In the next section, we introduce the concept of hierarchical inference, how
+In the next \sectionname, we introduce the concept of hierarchical inference, how
 it applies to the problem at hand, and we derive the importance sampling
 approximation to the marginalized likelihood (this is a generalization of the
 method from \citealt{hogge}).
