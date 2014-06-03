@@ -22,8 +22,8 @@
 \usepackage{subfigure}
 
 \newcommand{\project}[1]{{\sffamily #1}}
-\newcommand{\emcee}{\project{emcee}}
 \newcommand{\kepler}{\project{Kepler}}
+\newcommand{\terra}{\project{TERRA}}
 \newcommand{\license}{MIT License}
 
 \newcommand{\paper}{\textsl{Article}}
@@ -31,6 +31,8 @@
 \newcommand{\foreign}[1]{\emph{#1}}
 \newcommand{\etal}{\foreign{et\,al.}}
 \newcommand{\etc}{\foreign{etc.}}
+\newcommand{\True}{\foreign{True}}
+\newcommand{\Truth}{\foreign{Truth}}
 
 \newcommand{\Fig}[1]{Figure~\ref{fig:#1}}
 \newcommand{\fig}[1]{\Fig{#1}}
@@ -93,13 +95,9 @@
 \begin{document}
 
 \title{%
-    Exoplanet population inference \& the rate of Earth analogs
+    Exoplanet population inference and the rate of Earth analogs \\
     from noisy, incomplete catalogs
 }
-% \title{%
-%   Inferring the distribution and rate of Earth-like exoplanets \\
-%   from noisy individual-planet inferences
-% }
 
 \newcommand{\nyu}{2}
 \newcommand{\mpia}{3}
@@ -134,9 +132,9 @@ periods, or else on year-long orbits but somewhat larger.
 Under strong assumptions, these exoplanet catalogs have been used to make an
 extrapolated estimate of the probability or rate at which Sun-like stars host
 Earth analogs.
-Complicating these studies are that every catalog is censored by non-trivial
-selection effects and detection efficiencies, and every system property
-measurement (period, radius, \etc) is noisy.
+These studies are complicated by the fact that every catalog is censored by
+non-trivial selection effects and detection efficiencies, and every property
+(period, radius, \etc) is measured noisily.
 Here we present a general hierarchical probabilistic framework for making
 justified inferences about the occurrence rate of exoplanets, taking into
 account survey completeness and, for the first time, \emph{observational
@@ -194,7 +192,7 @@ around Sun-like stars.}.
 their independent analysis of the \kepler\ light curves for 42,000 Sun-like
 stars.
 This study was especially novel because the authors developed an independent
-planet search pipeline (TERRA; \citealt{petigura-a}) and determined the
+planet search pipeline (\terra; \citealt{petigura-a}) and determined the
 detection efficiency of their analysis empirically by injecting synthetic
 signals into real light curves measured by \kepler.
 The occurrence rate function determined by \citet{petigura} agreed
@@ -278,7 +276,11 @@ the parameters),
 
 \item the detection efficiency of the pipeline is known, and
 
-\item the true occurrence rate function is \emph{smooth}\footnote{We give our
+\item the \True\footnote{In this \paper, we use ``\True'' to describe an
+observable (for example, the exoplanet occurrence rate function) that would be
+trivially measured in the limit of very high signal-to-noise data.
+We use ``true'' to describe a simulation quantity with a value exactly known
+to us.} occurrence rate function is \emph{smooth}\footnote{We give our
 definition of ``smooth'' in more detail below but our model is very flexible
 so this is not a strong restriction.}.
 
@@ -362,7 +364,7 @@ In this framework, the occurrence rate function can be ``parametric''---for
 example, a power law---or a ``non-parametric'' function---such as a histogram
 where the bin heights are the parameters \ratepars.
 The light curve for a particular target $k$ is called $\data_k$ and the
-\emph{true} set of physical parameters for that same object are given by
+\True\ set of physical parameters for that same object are given by
 $\entry_k$.
 A catalog provides a set of constraints on the parameters $\{\entry_k\}$
 conditioned on the set light curves $\{\data_k\}$.
@@ -399,7 +401,7 @@ from above---like the orbital period and planetary radius.
 If we take this set of parameters $\{\entry_k\}$ as \emph{sufficient
 statistics} of the data then we can, in theory, compute \eq{crazylike}---up to
 an unimportant constant---without ever looking at the raw data again.
-This is true because the catalog provides constraints on the posterior
+This is permitted because the catalog provides constraints on the posterior
 probability of the parameters $\{\entry_k\}$ under some choice of
 \emph{interim prior} \interim
 \begin{eqnarray}\eqlabel{crazypost}
@@ -408,14 +410,8 @@ p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) &=&
      {p(\{\data_k\}\,|\,\interim)} \quad.
 \end{eqnarray}
 The interim prior $p(\{\entry_k\}\,|\,\interim)$ is the prior
-function---parameterized by \interim---that the author of the catalog choose
+function---parameterized by \interim---that the author of the catalog chose
 when making their measurements.
-
-\dfmtodo{Can we incorporate Tim's comment: There's the additional level that
-the catalog also distills detections from non-detections.  I don't know if
-there's a place to state that here, I just thought of it.  Because the whole
-"survey" is a collection of detections and non-detections.  Might be beyond
-the scope of this paragraph; just thought I'd mention.}
 
 It turns out that we can use these posterior measurements to simplify
 \eq{crazylike} to a form that can, in many common cases, be evaluated
@@ -495,17 +491,31 @@ The main thing to note here is that $\obs{\rate}_\ratepars$ is the rate of
 exoplanets that you would expect to observe taking into account the geometric
 transit probability and any other detection efficiencies.
 In practice, we can model the observable rate as
-\begin{eqnarray}
+\begin{eqnarray}\eqlabel{obs-rate}
 \obs{\rate}_\ratepars(\entry) &=&
     \completeness(\entry)\,\rate_\ratepars(\entry)
 \end{eqnarray}
-where $\completeness(\entry)$ is the detection efficiency at \entry\ and
-$\rate_\ratepars(\entry)$ is the object that we want to infer: the true
-occurrence rate.
+where $\completeness(\entry)$ is the detection efficiency (including transit
+probability) at \entry\ and $\rate_\ratepars(\entry)$ is the object that we
+want to infer: the \True\ occurrence rate.
 Up to this point, we haven't discussed any specific functional form for
 $\rate_\ratepars(\entry)$ and all of this derivation is equally applicable
 whether we model the occurrence rate as (for example) a broken power law or
 a histogram.
+
+The observed rate \obs{\rate} is a quantitative description of the rate at
+which planets appear in the \citet{petigura} catalog; it is not a description
+of the \True\ rate of exoplanets.
+Inasmuch as the detection efficiency $\completeness(\entry)$ is calculated
+correctly, the function $\rate_\ratepars(\entry)$ will represent the \True\
+rate of exoplanets, at least where there is support in the data.
+In practice, an estimate of the detection efficiency will not include every
+decision or effect in the pipeline.
+One example in this case is that the completeness function does not account
+for the explicit removal of second (and third, and so on) planets.
+In principle a more complete description of the detection efficiency can be
+included and as this function becomes more accurate, our inferences about the
+\True\ rate $\rate_\ratepars(\entry)$ will be less biased.
 
 For the results in this \paper, we will assume that the completeness function
 $\completeness(\entry)$ is known empirically but that is not a requirement for
@@ -674,6 +684,9 @@ really be called a ``prior'' anymore and the constraints on the bin heights
 There is a very efficient algorithm called elliptical slice sampling (ESS;
 \citealt{ess, ess-hyper}) for sampling the bin heights \ratepars\ from the
 density in \eq{joint-posterior}.
+In practice, for problems with this specific structure, ESS outperforms more
+traditional MCMC methods commonly employed in astrophysics
+(e.g.,~\citealt{emcee}).
 Our implementation is adapted from Jo Bovy's BSD licensed ESS
 code\footnote{\url{https://github.com/jobovy/bovy_mcmc/blob/master/bovy_mcmc/%
 elliptical_slice.py}}.
@@ -749,8 +762,8 @@ Since we are modeling the distribution in the period--radius plane, we need to
 compute the transit probability marginalized over stellar radius and mass.
 This marginalized distribution scales only with the period of the orbit as
 $\propto \period^{-2/3}$.
-In theory, this marginalization should be over the true distribution of these
-parameters in the selected stellar catalog but we'll approximate it by
+In theory, this marginalization should be over the \True\ distribution of
+these parameters in the selected stellar catalog but we'll approximate it by
 the empirical distribution; a reasonable approximation given the size of the
 dataset.
 At a period of 10 days\footnote{This period is chosen arbitrarily because the
@@ -820,7 +833,7 @@ analysis in both cases.
 In particular, the side panels compare the marginalized occurrence rate
 functions in period and radius to the true functions that were used to
 generate the catalogs.
-\Fig{smooth-results} shows that even if the true occurrence rate is a smooth
+\Fig{smooth-results} shows that even if the \True\ occurrence rate is a smooth
 function, the rate inferred by the inverse-detection-efficiency method can
 appear to have sharp features.
 In this first example---where the true distribution is well described by our
@@ -1143,6 +1156,9 @@ Dressing, C.~D., \& Charbonneau, D.\ 2013, \apj, 767, 95 (\arxiv{1302.1647})
 
 \bibitem[Fang \& Margot(2012)]{fang}
 Fang, J., \& Margot, J.-L.\ 2012, \apj, 761, 92 (\arxiv{1207.5250})
+
+\bibitem[Foreman-Mackey \etal(2012)]{emcee}
+\dfmtodo{THE FUCK}
 
 \bibitem[Fressin \etal(2013)]{fressin-fp}
 Fressin, F., Torres, G., Charbonneau, D., \etal\ 2013, \apj, 766, 81
