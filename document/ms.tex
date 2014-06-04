@@ -864,11 +864,10 @@ Inferences about the occurrence rate function based on the simulated catalog
 simulated incomplete catalog, the contours show the survey completeness
 function (\citealt{petigura}), and the grayscale shows the median posterior
 occurrence surface.
-\emph{Top and left:} the red dashed line shows the \emph{true} distribution
-that was used to generate the catalog, the points with error bars show the
-results of the inverse-detection-efficiency procedure, and the histograms are
-posterior samples from the marginalized occurrence rate as inferred by our
-method.
+\emph{Top and left:} the red dashed line shows the true distribution that was
+used to generate the catalog, the points with error bars show the results of
+the inverse-detection-efficiency procedure, and the histograms are posterior
+samples from the marginalized occurrence rate as inferred by our method.
 \figlabel{smooth-results}}
 \end{figure}
 
@@ -999,8 +998,15 @@ for the same quantity (indicated as the vertical lines in \fig{real-rate}).
 \includegraphics[width=\textwidth]{figures/results/results.pdf}
 \end{center}
 \caption{%
+{\bf Real data}.
 The same as \fig{smooth-results} when applied to the observed data from
 \citet{petigura}.
+\emph{Center:} the points with error bars show the catalog measurements, the
+contours show the survey completeness function, and the grayscale shows the
+median posterior occurrence surface.
+\emph{Top and left:} the points with error bars show the results of the
+inverse-detection-efficiency procedure, and the histograms are posterior
+samples from the marginalized occurrence rate as inferred by our method.
 \figlabel{real-results}}
 \end{figure}
 
@@ -1009,7 +1015,15 @@ The same as \fig{smooth-results} when applied to the observed data from
 \includegraphics{figures/results/period.pdf}
 \end{center}
 \caption{%
-The period distribution.
+{\bf Real data}.
+The occurrence rate as a function of logarithmic period integrated over bins
+in logarithmic radius.
+The lines with error bars show the posterior sample median and 68th
+percentile and the line style specifies the radius bin.
+The period distribution for the largest planets in the sample
+($8 \le R/R_\oplus < 32$) continues to increase (as a function of
+$\ln\period$) for all periods while the distribution seems to flatten and
+turn over at periods around 50 days.
 \figlabel{period}}
 \end{figure}
 
@@ -1018,7 +1032,13 @@ The period distribution.
 \includegraphics{figures/results/radius.pdf}
 \end{center}
 \caption{%
-The radius distribution.
+{\bf Real data}.
+The occurrence rate as a function of logarithmic radius integrated over bins
+in logarithmic period.
+The lines with error bars show the posterior sample median and 68th
+percentile and the line style specifies the period bin.
+The distributions in all the period bins are qualitatively consistent and
+there are plausibly features near $R\sim3\,R_\oplus$ and $R\sim10\,R_\oplus$.
 \figlabel{radius}}
 \end{figure}
 
@@ -1027,7 +1047,9 @@ The radius distribution.
 \includegraphics{figures/results/linear-radius.pdf}
 \end{center}
 \caption{%
-The radius distribution.
+{\bf Real data}.
+The same as \fig{radius} but presented as a density in radius instead of
+logarithmic radius.
 \figlabel{linear-radius}}
 \end{figure}
 
@@ -1158,7 +1180,8 @@ Dressing, C.~D., \& Charbonneau, D.\ 2013, \apj, 767, 95 (\arxiv{1302.1647})
 Fang, J., \& Margot, J.-L.\ 2012, \apj, 761, 92 (\arxiv{1207.5250})
 
 \bibitem[Foreman-Mackey \etal(2012)]{emcee}
-\dfmtodo{THE FUCK}
+Foreman-Mackey, D., Hogg, D.~W., Lang, D., \& Goodman, J.\ 2013, \pasp, 125,
+306 (\arxiv{1202.3665})
 
 \bibitem[Fressin \etal(2013)]{fressin-fp}
 Fressin, F., Torres, G., Charbonneau, D., \etal\ 2013, \apj, 766, 81
