@@ -34,7 +34,8 @@
 \newcommand{\True}{\foreign{True}}
 \newcommand{\Truth}{\foreign{Truth}}
 
-\newcommand{\Fig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\figref}[1]{\ref{fig:#1}}
+\newcommand{\Fig}[1]{Figure~\figref{#1}}
 \newcommand{\fig}[1]{\Fig{#1}}
 \newcommand{\figlabel}[1]{\label{fig:#1}}
 \newcommand{\Tab}[1]{Table~\ref{tab:#1}}
@@ -322,7 +323,8 @@ constrain the rate of small exoplanets orbiting Sun-like stars.
 As part of this analysis we also place probabilistic constraints on the rate
 of Earth analogs \gammaearth\ which we define as \emph{the number of planets
 per star per natural logarithmic bin in period and radius, evaluated at the
-period and radius of Earth} % Prof Tremaine, you owe us a beer.
+period and radius of Earth}
+% A certain distinguished prof at the IAS owes us beer.
 \begin{eqnarray}
 \gammaearth &=&
 \left.\frac{\dd N}{\dd\ln\period\,\dd\ln\radius}\right|
@@ -848,9 +850,10 @@ results using the inverse-detection-efficiency method.
 This effect is most apparent in the parts of parameter space where the
 detection efficiency is low---long period and small radius.
 
-\dfmtodo{Add more discussion here about how (because it is high variance) the
-inv-det-eff method tends to find a lot of structure in the occurrence rate
-function even when there shouldn't be.}
+When applied to either simulated catalog, the inverse-detection-efficiency
+method gives a high-variance estimate of the true occurrence rate.
+One effect of this variance is that the inferred distribution will appear to
+have more small-scale structure than the true underlying distribution.
 
 \begin{figure}[p]
 \begin{center}
@@ -884,58 +887,94 @@ The same as \fig{smooth-results} for \modelb.
 \section{Extrapolation to Earth}
 \sectlabel{extrap}
 
-\dfmtodo{Justify our choice of definition. Not habitability.}
-
-As well as inferring the ocurrence distribution of exoplanets, this dataset
+As well as inferring the occurrence distribution of exoplanets, this dataset
 can also be used to constrain the rate of Earth analogs.
-Explicitly, we constrain the rate of exoplanets \emph{evaluated at the
-location of Earth}
-\begin{eqnarray}
+Explicitly, we constrain the occurrence rate of exoplanets orbiting
+``Sun-like'' stars, as defined by \citet{petigura}, evaluated at the location
+of Earth:
+\begin{eqnarray}\eqlabel{gammaearth}
 \gammaearth &=& \rate (\ln\period_\oplus,\,\ln\radius_\oplus) \\
 &=&
 \left.\frac{\dd N}{\dd\ln\period\,\dd\ln\radius}\right|
 _{\radius=\radius_\oplus,\,\period=\period_\oplus}\quad.
 \end{eqnarray}
 That is, \gammaearth\ is the average number of exoplanets around a
-``Sun-like'' star---per natural logarithmic bins in period and
-radius---evaluated at the period and radius of Earth.
+Sun-like star---per natural logarithmic bins in period and radius---evaluated
+at the period and radius of Earth.
 This is also the quantity that \citet{petigura} estimated but in different
 units.
+
+In \eq{gammaearth}, we define ``Earth analog'' in terms of measurable
+quantities with no mention of habitability or composition.
+To some readers, this might seem an unsatisfying choice.
+That being said, the composition of an exoplanet is notoriously difficult to
+measure even with large uncertainty and any definition of habitability is
+still extremely subjective.
+With this in mind, we stick to the observable definition for this \paper.
 
 Since no Earth analogs have been found, any constraints on this rate must be
 extrapolated from the existing observations.
 This is generally done by assuming a functional form for the occurrence rate
 function, constraining it using the observed candidates and extrapolating.
-All published extrapolations are based on rigid models like a power law
-(\citealt{catanzarite, traub}) or linear in the cumulative period distribution
-(\citealt{petigura}).
-All of these results are sensitive to this choice of function and to the other
-implicit decisions (for example the size of bin that is considered Earth-like
-by \citealt{petigura}).
+All published extrapolations are based on rigid models of the occurrence rate
+function (for example, a power law) fit to the catalog and evaluated at the
+location of Earth (\citealt{catanzarite, traub}).
+\citet{petigura} used their catalog of planet candidates to constrain the rate
+of Earth analogs---using a definition similar to our definition in
+\eq{gammaearth}---assuming an extremely rigid model of the occurrence rate
+function: \emph{flat in logarithmic period}.
+These results are sensitive to the choice of extrapolation function and the
+specific definition of ``Earth analog''.
 
 We weaken the assumptions necessary for extrapolation by only assuming that
-the distribution is smooth using the Gaussian process model described in
-\sect{model}.
+the distribution is smooth using the Gaussian process regularization described
+in \sect{model}.
 Under this model, the occurrence rate in bins where no objects have been
-detected will be constrained by the height of nearby bins.
+detected will be constrained---with large uncertainty---by the heights of
+nearby bins.
+Therefore, even though there are no candidates that qualify as Earth analogs,
+we simply fit our model of the occurrence rate function in a large enough
+region of parameter space (including Earth) and compute the posterior
+constraints on \gammaearth.
+This works because the Gaussian process regularization actually captures our
+prior beliefs about the shape of the occurrence rate function.
+This model---and any other extrapolation---will, of course, break down if
+there is an unmeasured sharp feature in the occurrence rate function near the
+location of Earth and our method is the most conservative extrapolation
+technique published to date.
 
+For comparison, we also implemented and applied the extrapolation technique
+applied by \citet{petigura}.
+Their method assumes that, for small planets ($1 \le \radius/\radius_\oplus <
+2$) on long periods ($\period > 50\,\mathrm{days}$), the occurrence rate flat
+in logarithmic period or, equivalently, the cumulative rate is linear.
+\citet{petigura} used the candidates in their catalog to estimate the slope of
+the empirical cumulative period distribution and used that function to
+extrapolate.
+Instead of defining \gammaearth\ differentially, as we did in \eq{gammaearth},
+\citet{petigura} constrained the integral of the occurrence rate over a box in
+period and radius ($1 \le \radius/\radius_\oplus < 2$ and $200 \le
+\period/\mathrm{day} < 400$).
+Since their model implicitly assumes a constant occurrence rate across the
+bin, the differential rate is just their number divided by the bin area.
 
-This model will, of course, break down if there is a sharp feature in the
-occurrence rate function right at the location of Earth but otherwise this is
-the most conservative extrapolation method published up to this point.
-
-The results of our extrapolation method, when applied to the synthetic
-catalogs described in the previous section, are shown in \fig{smooth-rate} and
-\fig{simulation-rate}.
-We implemented the extrapolation method from \citet{petigura}.
-
- that assumes a
-linear relation in the cumulative period distribution for small planets and
-compared these results---converting to the correct units---to our method and
-the truth.
+Figures~\figref{smooth-rate} and~\figref{simulation-rate} compare our results
+and the results of the \citet{petigura} extrapolation procedure when applied
+to the synthetic catalogs.
+Since these catalogs were simulated from a known population model, we know the
+true value of \gammaearth\ and it is indicated in the Figures with a vertical
+gray line.
 In both cases, our method returns a less precise but more accurate result for
 the occurrence rate and the error bars given by the functional extrapolation
 are overly optimistic.
+One major effect that leads to this bias is that the period distribution is
+not flat.
+Restricting the result to only include uniform models is equivalent to
+applying an extremely informative prior that doesn't have enough freedom to
+capture the complexity of the problem.
+As a result, the posterior constraints on \gammaearth\ are dominated by this
+prior choice and the resulting uncertainties are much smaller than they should
+be.
 
 \begin{figure}[p]
 \begin{center}
@@ -973,12 +1012,29 @@ This is a great test case because those authors empirically measured the
 detection efficiency of their pipeline as a function of the parameters of
 interest.
 
+We directly applied our method to the \citet{petigura} sample and generated
+MCMC samples from the posterior probability for the occurrence rate bin
+heights, marginalizing over the hyperparameters of the Gaussian process model.
+The resulting MCMC chain is available online at \dfmtodo{ADD SOME URL}.
+
 \Fig{real-results} shows posterior samples from the inferred occurrence rate
 distribution as a function of period and radius conditioned on the catalog.
 The marginalized distributions are qualitatively consistent with the
-occurrence rate functions measured by \citet{petigura}.
-The MCMC chain used to generate this figure is available online at
-\dfmtodo{ADD SOME URL}.
+occurrence rate functions measured using the inverse-detection-efficiency
+method with larger uncertainties.
+
+The period distribution integrated over various radius ranges is shown in
+\fig{period}.
+In agreement with \citet{dong}, we find that the period distribution of large
+planets ($R > 8\,R_\oplus$) is inconsistent with the distribution of smaller
+planets.
+The occurrence rate of large planets appears to monotonically increase as a
+function of log period while the distribution for small planets seems to turn
+over at a relatively short period (around 50 days) and decrease for larger
+periods.
+
+The equivalent Figures for the radius distribution (integrated over period
+bins) are shown in Figures~\figref{radius} and~\figref{linear-radius}.
 
 Our constraint on the rate of Earth analogs (as defined in \sect{extrap}) is
 in tension---even though our result has large fractional uncertainty---with
