@@ -754,7 +754,7 @@ uncertainties in the stellar parameters, it is not possible to use the
 published catalog (\citealt{petigura}) to compute constraints on radius
 ratios.
 In the future, this problem would be solved by publishing a representation of
-\emph{the full posterior PDF for each object in the catalog}.
+\emph{the full posterior density functino for each object in the catalog}.
 In this case, the most useful data product would be \emph{posterior samples
 for each target's radius ratio and stellar radius}.
 
@@ -1033,16 +1033,29 @@ function of log period while the distribution for small planets seems to turn
 over at a relatively short period (around 50 days) and decrease for larger
 periods.
 
-The equivalent Figures for the radius distribution (integrated over period
-bins) are shown in Figures~\figref{radius} and~\figref{linear-radius}.
+The equivalent Figures for the radius distribution are shown in
+Figures~\figref{radius} and~\figref{linear-radius}.
+\Fig{radius} shows the log-radius occurrence rate integrated over various
+logarithmic bins in period.
+The distributions in each period bin are qualitatively consistent; the
+rate is dominated by small planets (around two Earth radii) with potential
+``features'' near $\radius\sim3\radius_\oplus$ and $\radius\sim
+10\radius_\oplus$.
+These features appear in every period bin and they were also detected---using
+a completely different dataset and technique---by \citet{dong} and a similar
+result is visible in the occurrence rate determined by \citet[][their Figure
+7]{fressin-fp} at low signal-to-noise.
+\Fig{linear-radius} shows the same result but presented as a function of
+linear radius.
+In these coordinates, the occurrence rate in a single bin is no longer
+uniform; instead, scales as inverse radius.
 
 Our constraint on the rate of Earth analogs (as defined in \sect{extrap}) is
 in tension---even though our result has large fractional uncertainty---with
 the result from \citet{petigura}.
 This is shown in \fig{real-rate} where we compare the marginalized posterior
-PDF for \gammaearth\ to the published value and uncertainty.
-Quantitatively, we find that the rate of Earth analogs---the average number of
-Earth-sized planets orbiting a Sun-like on a year-long period---is
+probability function for \gammaearth\ to the published value and uncertainty.
+Quantitatively, we find that the rate of Earth analogs is
 \begin{eqnarray}
 \gammaearth &=& 0.017^{+0.018}_{-0.009} \quad.
 \end{eqnarray}
@@ -1208,7 +1221,6 @@ This research made use of the NASA \project{Astrophysics Data System}.
 Adams, R.~P., Murray, I., \& MacKay, D.~J.~C.\ 2009, ICML, 2009, 9
 (\href{http://homepages.inf.ed.ac.uk/imurray2/pub/09poisson/}{online})
 
-% Just a little bit of semi-justified self-citation.
 \bibitem[Ambikasaran \etal(2014)]{dfm-gp}
 Ambikasaran, S., Foreman-Mackey, D., Greengard, L., Hogg, D.~W.,
 \& O'Neil, M.\ 2014, \arxiv{1403.6015}
