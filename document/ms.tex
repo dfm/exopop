@@ -131,18 +131,17 @@ Although no true extra-Solar Earth analog is known, hundreds of planets have
 been found around Sun-like stars that are either Earth-sized but on shorter
 periods, or else on year-long orbits but somewhat larger.
 Under strong assumptions, these exoplanet catalogs have been used to make an
-extrapolated estimate of the probability or rate at which Sun-like stars host
-Earth analogs.
+extrapolated estimate of the rate at which Sun-like stars host Earth analogs.
 These studies are complicated by the fact that every catalog is censored by
 non-trivial selection effects and detection efficiencies, and every property
 (period, radius, \etc) is measured noisily.
 Here we present a general hierarchical probabilistic framework for making
-justified inferences about the occurrence rate of exoplanets, taking into
-account survey completeness and, for the first time, \emph{observational
+justified inferences about the population of exoplanets, taking into account
+survey completeness and, for the first time, \emph{observational
 uncertainties}.
 We are able to make fewer assumptions about the distribution than previous
-studies; we only require that the occurrence rate be a smooth function of
-period and radius (employing a Gaussian process).
+studies; we only require that the occurrence rate density be a smooth function
+of period and radius (employing a Gaussian process).
 By applying our method to synthetic catalogs, we demonstrate that it produces
 more accurate estimates of the whole population than standard procedures based
 on weighting by inverse detection efficiency.
@@ -150,8 +149,8 @@ We apply the method to an existing catalog of small planet candidates around G
 dwarf stars (Petigura \etal\ 2013).
 We confirm a previous result that the radius distribution changes slope near
 Earth radius.
-We find that the rate of Earth analogs is about 0.02 (per star per natural
-logarithmic bin in period and radius) with large uncertainty.
+We find that the rate density of Earth analogs is about 0.02 (per star per
+natural logarithmic bin in period and radius) with large uncertainty.
 This number is much smaller than previous estimates made with the same data
 but stronger assumptions.
 
@@ -181,13 +180,12 @@ Many of these planets orbit Sun-like stars (\citealt{petigura}), where the
 definition of Sun-like is given in terms of the star's temperature and surface
 gravity.
 Given these catalogs, it is interesting to ask what we can say about the
-occurrence rate of exoplanets as a function of their physical parameters
+population of exoplanets as a function of their physical parameters
 (period, radius, \etc).
-Observational constraints on the population can inform theories
-of planet formation (\dfmtodo{CITE}) and place probabilistic bounds on the
-rate of Earth analogs\footnote{We define, in detail, what we mean by ``Earth
-analog'' below but, roughly, we mean Earth-sized planets on year-long orbits
-around Sun-like stars.}.
+Observational constraints on the population can inform theories of planet
+formation (\dfmtodo{CITE}) and place probabilistic bounds on the abundance of
+Earth analogs\footnote{For our purposes, an ``Earth analog'' is an Earth-sized
+exoplanet orbiting a Sun-like star with a year-long period.}.
 
 \citet{petigura} recently published constraints on this function based on
 their independent analysis of the \kepler\ light curves for 42,000 Sun-like
@@ -204,13 +202,13 @@ logarithmic radius) for planets around Earth's radius.
 Even though no Earth analogs were discovered in their search, \citet{petigura}
 used the small candidates that the did find to place an extrapolated
 constraint on the frequency of Earth-like exoplanets, assuming a flat
-occurrence rate in logarithmic period.
+occurrence rate density in logarithmic period.
 
-A very important component of any study of exoplanet occurrence rates is the
+A very important component of any study of exoplanet populations is the
 treatment of detection efficiency.
 Speaking qualitatively, in a transit survey, small planets with long periods
 are much harder to detect than large planets orbiting close to their star.
-This effect is degenerate with any inferences about the rate function and it
+This effect is degenerate with any inferences about the rate density and it
 can be hard to constraint quantitatively.
 In practice, there are three methods for taking this effect into account:
 \emph{(a)} making conservative cuts on the candidates and assuming that the
@@ -219,38 +217,39 @@ resulting catalog is complete (\citealt{catanzarite, traub, tremaine}),
 function of approximate signal-to-noise (\citealt{youdin, howard, dressing,
 dong, fressin-fp, morton-swift}), and \emph{(c)} determining the detection
 efficiency empirically by injecting synthetic signals into the raw data and
-testing recovery rates (\citealt{petigura-a, petigura}).
+testing recovery (\citealt{petigura-a, petigura}).
 
 There are two pedagogically different methods that are commonly used to infer
-the occurrence rate from a catalog and a detection efficiency specification.
+the occurrence rate density from a catalog and a detection efficiency
+specification.
 The first is an intuitive method that we will refer to as
 inverse-detection-efficiency procedure and the second is based on the
-likelihood function of the catalog given a parametric rate function.
+likelihood function of the catalog given a parametric rate density.
 The inverse-detection-efficiency method involves making a histogram of the
 objects in the catalog where each point is weighted by its inverse detection
 probability.
 This method is very popular in the literature (\citealt{howard, dong,
 dressing, swift, petigura}) even though it is not motivated probabilistically.
 The alternative ``likelihood'' method models the catalog as a Poisson
-realization of the \emph{observable} rate function of exoplanets taking the
+realization of the \emph{observable} rate density of exoplanets taking the
 survey detection efficiencies and transit probabilities into account.
 This technique has been used to constrain parametric models---a broken power
-law, for example---for the occurrence rate function (\citealt{tabachnik,
+law, for example---for the occurrence rate density (\citealt{tabachnik,
 youdin, dong}).
 There are many reasons to prefer a result based on an optimization of a
 likelihood function and as we show in \sect{model}, if we model the occurrence
-rate as a piecewise constant function, the inverse-detection-efficiency method
-can be derived as a special case of the likelihood method with a specific set
-of assumptions.
+rate density as a piecewise constant function, the
+inverse-detection-efficiency method can be derived as a special case of the
+likelihood method with a specific set of assumptions.
 
-In every previous study of the occurrence rate function, the authors have
+In every previous study of exoplanet occurrence rates, the authors have
 assumed that the measurement uncertainties are negligible.
 This assumption is not justified because these uncertainties---especially on
 measurements (like exoplanet radius) that depend on the stellar
 parameters---can be large compared to the scales of interest.
 In this \paper, we develop a flexible framework for probabilistic inference of
-exoplanet occurrence rates that can be applied to incomplete catalogs with
-\emph{non-negligible observational uncertainties}.
+exoplanet occurrence rate density that can be applied to incomplete catalogs
+with \emph{non-negligible observational uncertainties}.
 We generalize the inference method introduced by \citet{hogge} to account for
 survey detection efficiencies.
 We run tests on simulated datasets---comparing results with the standard
@@ -266,8 +265,8 @@ but they do simplify the specific procedures we employ.
 Specifically, we assume that
 \begin{itemize}
 
-\item the candidates in the catalog are independent Poisson draws from the
-censored occurrence rate,
+\item the candidates in the catalog are independent draws from an
+inhomogeneous Poisson process set by the censored occurrence rate density,
 
 \item every candidate is a real exoplanet (there are no false positives),
 
@@ -278,10 +277,10 @@ the parameters),
 \item the detection efficiency of the pipeline is known, and
 
 \item the \True\footnote{In this \paper, we use ``\True'' to describe an
-observable (for example, the exoplanet occurrence rate function) that would be
+observable (for example, the exoplanet occurrence rate density) that would be
 trivially measured in the limit of very high signal-to-noise data.
 We use ``true'' to describe a simulation quantity with a value exactly known
-to us.} occurrence rate function is \emph{smooth}\footnote{We give our
+to us.} occurrence rate density is \emph{smooth}\footnote{We give our
 definition of ``smooth'' in more detail below but our model is very flexible
 so this is not a strong restriction.}.
 
@@ -319,11 +318,15 @@ interpreted with this caveat in mind.
 
 Conditioned on our assumptions and the choices made in planet detection,
 vetting and characterization pipeline (\citealt{petigura-a, petigura}), we
-constrain the rate of small exoplanets orbiting Sun-like stars.
+constrain the rate density of small exoplanets orbiting Sun-like stars.
 As part of this analysis we also place probabilistic constraints on the rate
-of Earth analogs \gammaearth\ which we define as \emph{the number of planets
-per star per natural logarithmic bin in period and radius, evaluated at the
-period and radius of Earth}
+density\footnote{In this \paper, we use the word ``rate'' to indicate the
+dimensionless expectation value of a Poisson process and the words ``rate
+density'' to indicate a quantity that must be integrated over a finite bin in
+period and radius to deliver a rate.} of Earth analogs \gammaearth\ which we
+define as \emph{the expected number of planets per star per natural
+logarithmic bin in period and radius, evaluated at the period and radius of
+Earth}
 % A certain distinguished prof at the IAS owes us beer.
 \begin{eqnarray}
 \gammaearth &=&
@@ -336,8 +339,8 @@ extrapolation in both period and radius.
 distribution of planets in a small bin in radius is flat, obtaining
 $\gammaearth \approx 0.12$.
 We relax this assumption and extrapolate only by assuming that the occurrence
-rate is a smooth function of period and radius; we find a much lower value for
-\gammaearth.
+rate density is a smooth function of period and radius; we find a much lower
+value for \gammaearth.
 We enforce the smoothness constraint by applying a flexible Gaussian process
 regularization to the bin heights.
 
@@ -350,19 +353,19 @@ this model and derive a probabilistic motivation for the standard
 inverse-detection-efficiency weighting procedure.
 After testing our method on synthetic catalogs in \sect{valid}, we use the
 catalog of planet candidates and the empirically determined detection
-efficiency from \citet{petigura} to measure the occurrence rate of Earth
-analogs.
+efficiency from \citet{petigura} to measure the occurrence rate density of
+Earth analogs.
 
 \section{A brief introduction to hierarchical inference}
 
 In this \paper, we are asking the question: \emph{what constraints can we put
-on the occurrence rate of exoplanets given all the light curves measured by
-\kepler?}
+on the occurrence rate density of exoplanets given all the light curves
+measured by \kepler?}
 Throughout this \paper, we use the notation $\rate_\ratepars(\entry)$ for the
-occurrence rate \rate---parameterized by the parameters \ratepars---as a
-function of the physical parameters \entry\ (orbital period, planetary radius,
-\etc).
-In this framework, the occurrence rate function can be ``parametric''---for
+occurrence rate density \rate---parameterized by the parameters \ratepars---as
+a function of the physical parameters \entry\ (orbital period, planetary
+radius, \etc).
+In this framework, the occurrence rate density can be ``parametric''---for
 example, a power law---or a ``non-parametric'' function---such as a histogram
 where the bin heights are the parameters \ratepars.
 The light curve for a particular target $k$ is called $\data_k$ and the
@@ -371,7 +374,7 @@ $\entry_k$.
 A catalog provides a set of constraints on the parameters $\{\entry_k\}$
 conditioned on the set light curves $\{\data_k\}$.
 
-Any inference about the rate function parameters can be formally addressed by
+Any inference about the rate density parameters can be formally addressed by
 evaluating the \emph{marginalized likelihood function}
 \begin{eqnarray}\eqlabel{crazylike}
 p(\{\data_k\}\,|\,\ratepars) &=&
@@ -381,12 +384,12 @@ p(\{\data_k\}\,|\,\ratepars) &=&
 \end{eqnarray}
 where, as we mentioned above, $\{\data_k\}$ is the set of all light curves,
 one light curve $\data_k$ per target $k$, \ratepars\ is the vector of
-parameters describing the population occurrence rate function
+parameters describing the population occurrence rate density
 $\rate_\ratepars(\entry)$ and $\entry_k$ is the vector of physical parameters
 describing the planetary system (orbital periods, radius ratios, stellar
 radius, \etc) around target $k$.
 In this equation, our only assumption is that the datasets depend on the
-occurrence rate of exoplanets only through the catalog $\{\entry_k\}$.
+rate density of exoplanets only through the catalog $\{\entry_k\}$.
 In our case, this assumption qualitatively means that the signals found in the
 light curves depend only on the actual planet properties and not on the
 distributions from which they are drawn.
@@ -459,7 +462,7 @@ probability for the catalog measurements.
 
 A very simple example is the familiar procedure of making a histogram.
 If you model the function $p(\{\entry_k\}\,|\,\ratepars)$ as a piecewise
-constant rate function---where the bin heights are the parameters---and if the
+constant rate density---where the bin heights are the parameters---and if the
 uncertainties on the catalog are negligible compared to the bin widths then
 the maximum marginalized likelihood solution for \ratepars\ is a histogram of
 the catalog entries.
@@ -470,9 +473,9 @@ method similar to the one discussed here.
 \sectlabel{model}
 
 In the inference procedure described above, we only discussed an abstract
-occurrence rate function.
+occurrence rate density.
 To make it more concrete, we'll model the catalog as a Poisson draw from the
-\emph{observable} rate function $\obs{\rate}_\ratepars$.
+\emph{observable} rate density $\obs{\rate}_\ratepars$.
 This leads to the previously known result (see \citealt{tabachnik,youdin} for
 some of the examples from the exoplanet literature)
 \begin{eqnarray}\eqlabel{poisson-like}
@@ -483,41 +486,42 @@ p(\{\entry_k\}\,|\,\ratepars) &=&
 In this equation, the integral in the normalization term is the expected
 number of observable exoplanets in the sample.
 A further assumption that we have made in \eq{poisson-like} is that each
-object is an independent sample from the rate function.
+object is an independent sample from the inhomogeneous Poisson process set by
+the rate density.
 This assumption---though it is often made---cannot be correct when we consider
 systems of multiple planets.
 It is possible to relax this assumption (see \citealt{tremaine} for a related
 technique) but this generalization is beyond the scope of the current \paper.
 
-The main thing to note here is that $\obs{\rate}_\ratepars$ is the rate of
-exoplanets that you would expect to observe taking into account the geometric
-transit probability and any other detection efficiencies.
-In practice, we can model the observable rate as
+The main thing to note here is that $\obs{\rate}_\ratepars$ is the rate
+density of exoplanets that you would expect to observe taking into account the
+geometric transit probability and any other detection efficiencies.
+In practice, we can model the observable rate density as
 \begin{eqnarray}\eqlabel{obs-rate}
 \obs{\rate}_\ratepars(\entry) &=&
     \completeness(\entry)\,\rate_\ratepars(\entry)
 \end{eqnarray}
 where $\completeness(\entry)$ is the detection efficiency (including transit
 probability) at \entry\ and $\rate_\ratepars(\entry)$ is the object that we
-want to infer: the \True\ occurrence rate.
+want to infer: the \True\ occurrence rate density.
 Up to this point, we haven't discussed any specific functional form for
 $\rate_\ratepars(\entry)$ and all of this derivation is equally applicable
-whether we model the occurrence rate as (for example) a broken power law or
+whether we model the rate density as (for example) a broken power law or
 a histogram.
 
-The observed rate \obs{\rate} is a quantitative description of the rate at
-which planets appear in the \citet{petigura} catalog; it is not a description
-of the \True\ rate of exoplanets.
+The observed rate density \obs{\rate} is a quantitative description of the
+rate density at which planets appear in the \citet{petigura} catalog; it is
+not a description of the \True\ rate density of exoplanets.
 Inasmuch as the detection efficiency $\completeness(\entry)$ is calculated
 correctly, the function $\rate_\ratepars(\entry)$ will represent the \True\
-rate of exoplanets, at least where there is support in the data.
+rate density of exoplanets, at least where there is support in the data.
 In practice, an estimate of the detection efficiency will not include every
 decision or effect in the pipeline.
 One example in this case is that the completeness function does not account
 for the explicit removal of second (and third, and so on) planets.
 In principle a more complete description of the detection efficiency can be
 included and as this function becomes more accurate, our inferences about the
-\True\ rate $\rate_\ratepars(\entry)$ will be less biased.
+\True\ rate density $\rate_\ratepars(\entry)$ will be less biased.
 
 For the results in this \paper, we will assume that the completeness function
 $\completeness(\entry)$ is known empirically but that is not a requirement for
@@ -544,7 +548,7 @@ In other words, we have per-object posterior samples
 \end{eqnarray}
 \Eq{money} is the \emph{money equation} for our method.
 It lets us efficiently compute the \emph{marginalized likelihood of the entire
-set of light curves for a particular occurrence rate function}.
+set of light curves for a particular occurrence rate density}.
 
 \paragraph{Inverse-detection-efficiency}
 It's now interesting to take a brief aside and discuss the connection between
@@ -557,8 +561,8 @@ probabilistic justification or interpretation.
 \hoggtodo{Find the papers that Tremaine suggested that we look at re:vmax and
 discuss the motivation in those cases.}
 
-If we model the occurrence rate as a histogram with $J$ fixed bin volumes
-$\binarea_j$
+If we model the occurrence rate density as a histogram with $J$ fixed bin
+volumes $\binarea_j$
 \begin{eqnarray}
 \rate_\ratepars (\entry) &=& \left\{\begin{array}{ll}
 \ratepar_1 & \entry \in \binarea_1,\\
@@ -591,29 +595,28 @@ curvature of the log-likelihood function near the maximum and find
 \end{eqnarray}
 
 Since \eq{ml-ide} gives the maximum likelihood solution, this result is the
-minimum-variance estimator for the occurrence rate when the completeness
-function $\completeness(\entry)$ is known and the catalog uncertainties are
-negligible.
+minimum-variance estimator for the rate density when the completeness function
+$\completeness(\entry)$ is known and the catalog uncertainties are negligible.
 This is \emph{almost} the same as the inverse-detection-efficiency procedure
 and if the completeness function is constant in each bin \binarea, both
 methods give the same result.
 If the completeness function is not piecewise-constant on the same grid as the
-occurrence rate inference, the inverse-detection-efficiency procedure will
-give a higher variance estimate of the occurrence rate.
+rate density inference, the inverse-detection-efficiency procedure will
+give a higher variance estimate of the occurrence rate density.
 
-\paragraph{Occurrence rate parameterization \& priors}
-For the remainder of this \paper, we also model the occurrence rate as a
+\paragraph{Occurrence rate density parameterization \& priors}
+For the remainder of this \paper, we also model the rate density as a
 two-dimensional histogram with fixed logarithmic bins in period and radius.
 When we include observational uncertainties---using \eq{money}---the maximum
 likelihood result is no longer analytic; \eq{ml-ide} is no longer applicable
 when the uncertainties are non-negligible.
-Therefore, if we want to compute the ``best-fit'' occurrence rate, we can use a
+Therefore, if we want to compute the ``best-fit'' rate density, we can use a
 standard non-linear optimization algorithm.
 In the regions of parameter space that we tend to care about, the completeness
 is low and there are only a few observations with large uncertainties.
 In this case, we're especially interested in probabilistic constraints on the
-occurrence rate; not just the best-fit model.
-To do this, we must apply a prior $p(\ratepars)$ on the occurrence rate
+occurrence rate density; not just the best-fit model.
+To do this, we must apply a prior $p(\ratepars)$ on the rate density
 parameters and generate samples from the posterior probability
 \begin{eqnarray}\eqlabel{posterior}
 p(\ratepars\,|\,\{\data_k\}) &\propto&
@@ -626,18 +629,18 @@ $p(\ratepars)$.
 In the well-sampled parts of parameter space there are a lot of
 detected planets and the choice of prior makes little difference, but in the
 regions that we care about, the detection efficiency is low and applying a
-prior that captures our beliefs about the occurrence rate is necessary.
-This will be especially important when we extrapolate the occurrence rate
+prior that captures our beliefs about the rate density is necessary.
+This will be especially important when we extrapolate the rate density
 function to the location of Earth---in \sect{extrap}---where no exoplanets
 have been found.
 Therefore, instead of using an uninformative prior, we want to use a prior
-that encourages the occurrence rate to be ``smooth'' but it should be flexible
-enough to capture structure that is supported by the data.
+that encourages the occurrence rate density to be ``smooth'' but it should be
+flexible enough to capture structure that is supported by the data.
 To achieve this, we model the logarithmic bin heights as being drawn from a
 Gaussian process (\citealt{gp, gibson-gp, dfm-gp}).
 This model encodes our prior belief that, on the grid scale that we consider,
-the occurrence rate should be smooth but it is otherwise very flexible about
-the form of the function.
+the rate density should be smooth but it is otherwise very flexible about the
+form of the function.
 
 Mathematically, the Gaussian process density is
 \begin{eqnarray}
@@ -729,7 +732,7 @@ their transit search pipeline.
 Instead of choosing a functional form for the detection efficiency of the
 pipeline as a function of the parameters of interest, \citet{petigura}
 injected synthetic signals of known period and radius into the raw aperture
-photometry and determined the empirical recovery rate after the full analysis.
+photometry and determined the empirical recovery after the full analysis.
 
 We use all the injected samples from \citet{petigura} to compute the mean
 (marginalized) detection efficiency in bins of $\ln\period$ and $\ln\radius$.
@@ -791,23 +794,23 @@ experiments, the results do not seem to be very sensitive to this choice.
 In order to get a feeling for the constraints provided by our method and to
 explore any biases introduced by ignoring the observational uncertainties, we
 start by ``observing'' a few synthetic catalogs from qualitatively different
-known occurrence rate functions.
+known occurrence rate density functions.
 For each of these simulations, we'll take the completeness function computed
 by \citet{petigura} as given.
 In general, \eq{poisson-like} can be sampled using a procedure called thinning
 (\citealt{poisson}) but for our purposes, we'll simply consider a piecewise
-constant rate function evaluated on a fine grid in log-period and log-radius.
+constant rate density evaluated on a fine grid in log-period and log-radius.
 For this discrete function, the generative procedure is simple;
 \begin{enumerate}
 {\item loop over each grid cell $i$,}
 {\item draw Poisson random integer $K_i\sim\mathrm{Poissson}(\obs{\rate}_i)$
-with the observable rate evaluated in the cell, and}
+with the observable rate density in the cell, and}
 {\item distribute $K_i$ catalog entries in the cell randomly.}
 \end{enumerate}
 We then choose fractional observational uncertainties on the radii from the
 \citet{petigura} catalog and apply them to the true catalog as Gaussian noise.
 
-We generate synthetic catalogs from two qualitatively different rate
+We generate synthetic catalogs from two qualitatively different rate density
 functions.
 Both distributions are generated by a separable model
 \begin{eqnarray}
@@ -833,25 +836,25 @@ process regularization.
 \Fig{smooth-results} and \fig{simulation-results} show the results of this
 analysis in both cases.
 In particular, the side panels compare the marginalized occurrence rate
-functions in period and radius to the true functions that were used to
+density in period and radius to the true functions that were used to
 generate the catalogs.
-\Fig{smooth-results} shows that even if the \True\ occurrence rate is a smooth
-function, the rate inferred by the inverse-detection-efficiency method can
+\Fig{smooth-results} shows that even if the \True\ rate density is a smooth
+function, the density inferred by the inverse-detection-efficiency method can
 appear to have sharp features.
 In this first example---where the true distribution is well described by our
-Gaussian process model---the probabilistic inference of the occurrence rate is
-both more precise and accurate.
+Gaussian process model---the probabilistic inference of the occurrence rate
+density is both more precise and accurate.
 
-In the second example, the true rate function includes a sharp feature chosen
+In the second example, the true rate density includes a sharp feature chosen
 to reproduce the result published by \citet{petigura}.
 In this case, \fig{simulation-results} shows that the probabilistic
-constraints on the occurrence rate are less precise but more accurate than
+constraints on the rate density are less precise but more accurate than
 results using the inverse-detection-efficiency method.
 This effect is most apparent in the parts of parameter space where the
 detection efficiency is low---long period and small radius.
 
 When applied to either simulated catalog, the inverse-detection-efficiency
-method gives a high-variance estimate of the true occurrence rate.
+method gives a high-variance estimate of the true occurrence rate density.
 One effect of this variance is that the inferred distribution will appear to
 have more small-scale structure than the true underlying distribution.
 
@@ -861,8 +864,7 @@ have more small-scale structure than the true underlying distribution.
 \end{center}
 \caption{%
 {\bf Simulated data}.
-Inferences about the occurrence rate function based on the simulated catalog
-\modela.
+Inferences about the rate density based on the simulated catalog \modela.
 \emph{Center:} the points with error bars show the exoplanet candidates in the
 simulated incomplete catalog, the contours show the survey completeness
 function (\citealt{petigura}), and the grayscale shows the median posterior
@@ -870,7 +872,7 @@ occurrence surface.
 \emph{Top and left:} the red dashed line shows the true distribution that was
 used to generate the catalog, the points with error bars show the results of
 the inverse-detection-efficiency procedure, and the histograms are posterior
-samples from the marginalized occurrence rate as inferred by our method.
+samples from the marginalized rate density as inferred by our method.
 \figlabel{smooth-results}}
 \end{figure}
 
@@ -888,21 +890,20 @@ The same as \fig{smooth-results} for \modelb.
 \sectlabel{extrap}
 
 As well as inferring the occurrence distribution of exoplanets, this dataset
-can also be used to constrain the rate of Earth analogs.
-Explicitly, we constrain the occurrence rate of exoplanets orbiting
-``Sun-like'' stars, as defined by \citet{petigura}, evaluated at the location
-of Earth:
+can also be used to constrain the rate density of Earth analogs.
+Explicitly, we constrain the occurrence rate density of exoplanets orbiting
+``Sun-like'' stars\footnote{In this \paper, we adopt the \citet{petigura}
+sample of G-stars as our definition of ``Sun-like''.}, evaluated at the
+location of Earth:
 \begin{eqnarray}\eqlabel{gammaearth}
 \gammaearth &=& \rate (\ln\period_\oplus,\,\ln\radius_\oplus) \\
 &=&
 \left.\frac{\dd N}{\dd\ln\period\,\dd\ln\radius}\right|
 _{\radius=\radius_\oplus,\,\period=\period_\oplus}\quad.
 \end{eqnarray}
-That is, \gammaearth\ is the average number of exoplanets around a
-Sun-like star---per natural logarithmic bins in period and radius---evaluated
-at the period and radius of Earth.
-This is also the quantity that \citet{petigura} estimated but in different
-units.
+That is, \gammaearth\ is the rate density of exoplanets around a Sun-like
+star (expected number of planets per star per natural logarithm of period per
+natural logarithm of radius), evaluated at the period and radius of Earth.
 
 In \eq{gammaearth}, we define ``Earth analog'' in terms of measurable
 quantities with no mention of habitability or composition.
@@ -912,51 +913,53 @@ measure even with large uncertainty and any definition of habitability is
 still extremely subjective.
 With this in mind, we stick to the observable definition for this \paper.
 
-Since no Earth analogs have been found, any constraints on this rate must be
-extrapolated from the existing observations.
+Since no Earth analogs have been found, any constraints on this density must
+be extrapolated from the existing observations.
 This is generally done by assuming a functional form for the occurrence rate
-function, constraining it using the observed candidates and extrapolating.
+density, constraining it using the observed candidates and extrapolating.
 All published extrapolations are based on rigid models of the occurrence rate
-function (for example, a power law) fit to the catalog and evaluated at the
+density (for example, a power law) fit to the catalog and evaluated at the
 location of Earth (\citealt{catanzarite, traub}).
 \citet{petigura} used their catalog of planet candidates to constrain the rate
-of Earth analogs---using a definition similar to our definition in
-\eq{gammaearth}---assuming an extremely rigid model of the occurrence rate
-function: \emph{flat in logarithmic period}.
+of Earth analogs in a specific period--radius bin assuming an extremely rigid
+model: \emph{flat in logarithmic period}.
 These results are sensitive to the choice of extrapolation function and the
 specific definition of ``Earth analog''.
 
 We weaken the assumptions necessary for extrapolation by only assuming that
 the distribution is smooth using the Gaussian process regularization described
 in \sect{model}.
-Under this model, the occurrence rate in bins where no objects have been
-detected will be constrained---with large uncertainty---by the heights of
-nearby bins.
+Under this model, the occurrence rate density at periods and radii where no
+objects have been detected will be constrained---with large uncertainty---by
+the heights of nearby bins.
 Therefore, even though there are no candidates that qualify as Earth analogs,
-we simply fit our model of the occurrence rate function in a large enough
+we simply fit our model of the occurrence rate density in a large enough
 region of parameter space (including Earth) and compute the posterior
 constraints on \gammaearth.
 This works because the Gaussian process regularization actually captures our
-prior beliefs about the shape of the occurrence rate function.
+prior beliefs about the shape of the rate density function.
 This model---and any other extrapolation---will, of course, break down if
-there is an unmeasured sharp feature in the occurrence rate function near the
+there is an unmeasured sharp feature in the occurrence rate density near the
 location of Earth and our method is the most conservative extrapolation
 technique published to date.
 
 For comparison, we also implemented and applied the extrapolation technique
 applied by \citet{petigura}.
 Their method assumes that, for small planets ($1 \le \radius/\radius_\oplus <
-2$) on long periods ($\period > 50\,\mathrm{days}$), the occurrence rate flat
-in logarithmic period or, equivalently, the cumulative rate is linear.
+2$) on long periods ($\period > 50\,\mathrm{days}$), the occurrence rate
+density is a flat function of logarithmic period or, equivalently, the
+cumulative rate is linear.
 \citet{petigura} used the candidates in their catalog to estimate the slope of
 the empirical cumulative period distribution and used that function to
 extrapolate.
 Instead of defining \gammaearth\ differentially, as we did in \eq{gammaearth},
-\citet{petigura} constrained the integral of the occurrence rate over a box in
+\citet{petigura} constrained the integral of the rate density over a box in
 period and radius ($1 \le \radius/\radius_\oplus < 2$ and $200 \le
 \period/\mathrm{day} < 400$).
-Since their model implicitly assumes a constant occurrence rate across the
-bin, the differential rate is just their number divided by the bin area.
+Since their model implicitly assumes a constant rate density across the bin,
+the differential rate is just their number divided by the bin area.
+This rate density (rate divided by bin volume) is what is shown as a
+comparison to our results in the figures.
 
 Figures~\figref{smooth-rate} and~\figref{simulation-rate} compare our results
 and the results of the \citet{petigura} extrapolation procedure when applied
@@ -965,7 +968,7 @@ Since these catalogs were simulated from a known population model, we know the
 true value of \gammaearth\ and it is indicated in the Figures with a vertical
 gray line.
 In both cases, our method returns a less precise but more accurate result for
-the occurrence rate and the error bars given by the functional extrapolation
+the rate density and the error bars given by the functional extrapolation
 are overly optimistic.
 One major effect that leads to this bias is that the period distribution is
 not flat.
@@ -982,12 +985,12 @@ be.
 \end{center}
 \caption{%
 {\bf Simulated data}.
-The extrapolated rate of Earth analogs \gammaearth\ as inferred by the
+The extrapolated rate density of Earth analogs \gammaearth\ as inferred by the
 different techniques applied to the \modela\ simulation.
 Applying the method used by \citet{petigura} gives a constraint indicated by
 the vertical black line with error bars shown as dashed lines.
 The histogram is the MCMC estimate of our posterior constraint on this rate
-and the true value is indicated as the thick gray vertical line.
+density and the true value is indicated as the thick gray vertical line.
 \figlabel{smooth-rate}}
 \end{figure}
 
@@ -1003,9 +1006,9 @@ The same as \fig{smooth-rate} for \modelb.
 
 \section{Results from real data}
 
-Having developed this probabilistic framework for occurrence rate inferences
-and demonstrating that it produces reasonable results when applied to
-simulated datasets, we now turn to real data.
+Having developed this probabilistic framework for exoplanet population
+inferences and demonstrating that it produces reasonable results when applied
+to simulated datasets, we now turn to real data.
 As described in \sect{data}, we will use the catalog of small exoplanet
 candidates orbiting Sun-like stars published by \citet{petigura}.
 This is a great test case because those authors empirically measured the
@@ -1013,14 +1016,15 @@ detection efficiency of their pipeline as a function of the parameters of
 interest.
 
 We directly applied our method to the \citet{petigura} sample and generated
-MCMC samples from the posterior probability for the occurrence rate bin
-heights, marginalizing over the hyperparameters of the Gaussian process model.
+MCMC samples from the posterior probability for the occurrence rate density
+step heights, marginalizing over the hyperparameters of the Gaussian process
+model.
 The resulting MCMC chain is available online at \dfmtodo{ADD SOME URL}.
 
 \Fig{real-results} shows posterior samples from the inferred occurrence rate
-distribution as a function of period and radius conditioned on the catalog.
+density as a function of period and radius conditioned on the catalog.
 The marginalized distributions are qualitatively consistent with the
-occurrence rate functions measured using the inverse-detection-efficiency
+occurrence rate density measured using the inverse-detection-efficiency
 method with larger uncertainties.
 
 The period distribution integrated over various radius ranges is shown in
@@ -1028,18 +1032,18 @@ The period distribution integrated over various radius ranges is shown in
 In agreement with \citet{dong}, we find that the period distribution of large
 planets ($R > 8\,R_\oplus$) is inconsistent with the distribution of smaller
 planets.
-The occurrence rate of large planets appears to monotonically increase as a
+The rate density of large planets appears to monotonically increase as a
 function of log period while the distribution for small planets seems to turn
 over at a relatively short period (around 50 days) and decrease for larger
 periods.
 
 The equivalent Figures for the radius distribution are shown in
 Figures~\figref{radius} and~\figref{linear-radius}.
-\Fig{radius} shows the log-radius occurrence rate integrated over various
-logarithmic bins in period.
+\Fig{radius} shows the log-radius occurrence rate density integrated over
+various logarithmic bins in period.
 The distributions in each period bin are qualitatively consistent; the
-rate is dominated by small planets (around two Earth radii) with potential
-``features'' near $\radius\sim3\radius_\oplus$ and $\radius\sim
+rate density is dominated by small planets (around two Earth radii) with
+potential ``features'' near $\radius\sim3\radius_\oplus$ and $\radius\sim
 10\radius_\oplus$.
 These features appear in every period bin and they were also detected---using
 a completely different dataset and technique---by \citet{dong} and a similar
@@ -1047,15 +1051,15 @@ result is visible in the occurrence rate determined by \citet[][their Figure
 7]{fressin-fp} at low signal-to-noise.
 \Fig{linear-radius} shows the same result but presented as a function of
 linear radius.
-In these coordinates, the occurrence rate in a single bin is no longer
+In these coordinates, the rate density in a single bin is no longer
 uniform; instead, scales as inverse radius.
 
-Our constraint on the rate of Earth analogs (as defined in \sect{extrap}) is
-in tension---even though our result has large fractional uncertainty---with
-the result from \citet{petigura}.
+Our constraint on the rate density of Earth analogs (as defined in
+\sect{extrap}) is in tension---even though our result has large fractional
+uncertainty---with the result from \citet{petigura}.
 This is shown in \fig{real-rate} where we compare the marginalized posterior
 probability function for \gammaearth\ to the published value and uncertainty.
-Quantitatively, we find that the rate of Earth analogs is
+Quantitatively, we find that the rate density of Earth analogs is
 \begin{eqnarray}
 \gammaearth &=& 0.017^{+0.018}_{-0.009} \quad.
 \end{eqnarray}
@@ -1075,7 +1079,7 @@ contours show the survey completeness function, and the grayscale shows the
 median posterior occurrence surface.
 \emph{Top and left:} the points with error bars show the results of the
 inverse-detection-efficiency procedure, and the histograms are posterior
-samples from the marginalized occurrence rate as inferred by our method.
+samples from the marginalized rate density as inferred by our method.
 \figlabel{real-results}}
 \end{figure}
 
@@ -1085,8 +1089,8 @@ samples from the marginalized occurrence rate as inferred by our method.
 \end{center}
 \caption{%
 {\bf Real data}.
-The occurrence rate as a function of logarithmic period integrated over bins
-in logarithmic radius.
+The occurrence rate density as a function of logarithmic period integrated
+over bins in logarithmic radius.
 The lines with error bars show the posterior sample median and 68th
 percentile and the line style specifies the radius bin.
 The period distribution for the largest planets in the sample
@@ -1102,8 +1106,8 @@ turn over at periods around 50 days.
 \end{center}
 \caption{%
 {\bf Real data}.
-The occurrence rate as a function of logarithmic radius integrated over bins
-in logarithmic period.
+The occurrence rate density as a function of logarithmic radius integrated
+over bins in logarithmic period.
 The lines with error bars show the posterior sample median and 68th
 percentile and the line style specifies the period bin.
 The distributions in all the period bins are qualitatively consistent and
@@ -1127,7 +1131,13 @@ logarithmic radius.
 \includegraphics[width=0.6\textwidth]{figures/results/rate.pdf}
 \end{center}
 \caption{%
-The same as \fig{smooth-rate} but applied to the catalog from \citet{petigura}.
+The extrapolated rate density of Earth analogs \gammaearth\ (the same as
+\fig{smooth-rate} but applied to the catalog from \citealt{petigura}).
+The histogram is the MCMC estimate of our posterior constraint on this rate
+density.
+The vertical black line with error bars shown as dashed lines is the result
+from \citet{petigura} converted to a rate density by dividing by their bin
+volume.
 \figlabel{real-rate}}
 \end{figure}
 
