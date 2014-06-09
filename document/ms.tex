@@ -1061,7 +1061,7 @@ uncertainty---with the result from \citet{petigura}.
 This is shown in \fig{real-rate} where we compare the marginalized posterior
 probability function for \gammaearth\ to the published value and uncertainty.
 Quantitatively, we find that the rate density of Earth analogs is
-\begin{eqnarray}
+\begin{eqnarray}\eqlabel{ge-result}
 \gammaearth &=& 0.017^{+0.018}_{-0.009}~\densityunit
 \end{eqnarray}
 where the ``\densityunit'' indicates that this quantity is a rate density, per
@@ -1073,7 +1073,7 @@ This rate density is \emph{exactly} what Petigura's extrapolation model
 predicts but, for comparison, we can also integrate our inferred rate density
 over their choice of ``Earth-like'' bin ($200 \le \period/\mathrm{day} < 400$
 and $1 \le \radius/\radius_\oplus < 2$) to find a \emph{rate} of
-Earth-analogs.
+Earth analogs.
 The published rate is $0.057_{-0.017}^{+0.022}$ (\citealt{petigura}) and our
 posterior constraint is
 \begin{eqnarray}
@@ -1086,6 +1086,17 @@ posterior constraint is
 0.016_{-0.007}^{+0.011}
 \quad.
 \end{eqnarray}
+
+Our inferred rate density of Earth analogs (\eqalt{ge-result}) is not
+consistent with the previously published result even though we use
+\emph{exactly the same dataset}.
+This inconsistency is due to the different assumptions made.
+In particular, for their analysis, \citet{petigura} asserted that the period
+distribution for small planets on long orbits is flat in logarithmic period.
+If we enforce the same constraint, we reproduce their result but we relax this
+assumption, allowing the data to constrain the period distribution, we find
+evidence for a \emph{decreasing} period distribution as a function of
+logarithmic period (see \fig{period}).
 
 \begin{figure}[p]
 \begin{center}
