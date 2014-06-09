@@ -18,6 +18,8 @@ import numpy as np
 import cPickle as pickle
 import matplotlib.pyplot as pl
 
+from emcee.autocorr import integrated_time
+
 import load_data
 
 bp = sys.argv[1]
@@ -57,12 +59,29 @@ pl.clf()
 pl.plot(lnprob)
 pl.savefig(os.path.join(bp, "time-lnprob.png"))
 
-samples = samples[-200000:, :]  # [::50, :]
+nstar = 42557.0
+ntot = 200000
+samples = samples[-ntot:, :]  # [::50, :]
+
+# Reformat the samples and save the samples.
+thin_by = int(np.min(integrated_time(samples, axis=0)))
+thinned = samples[::thin_by, :]
+grids = thinned.reshape((len(thinned), pop.shape[0], pop.shape[1]))
+print(grids.shape)
+print([b.shape for b in pop.bins])
+
+with h5py.File(os.path.join(bp, "samples.h5"), "w") as f:
+    f.create_dataset("hyperparameter_samples", data=hyper[-ntot:][::thin_by])
+    f.create_dataset("ln_occurrence_rate_samples", data=grids)
+    f.create_dataset("ln_period_bin_edges", data=pop.bins[0])
+    f.create_dataset("ln_radius_bin_edges", data=pop.bins[1])
+
+assert 0
 
 # Load the true gamma earth if it exists.
 fn = os.path.join(bp, "gamma.txt")
 if os.path.exists(fn):
-    gamma = [np.exp(float(open(fn).read())) / 42557.0]
+    gamma = [np.exp(float(open(fn).read())) / nstar]
 else:
     gamma = None  # [5.7 / 100, 1.7 / 100, 2.2 / 100]
 
