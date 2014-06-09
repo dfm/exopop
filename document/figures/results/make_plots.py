@@ -14,6 +14,15 @@ with h5py.File("samples.h5", "r") as f:
     ln_period_bin_edges = f["ln_period_bin_edges"][...]
     ln_radius_bin_edges = f["ln_radius_bin_edges"][...]
 
+# Integrate the rate over EP's bin.
+ep_inds = (slice(None), 5, slice(2, 4))
+ep_area = (np.diff(ln_period_bin_edges)[ep_inds[1]]
+           * np.diff(ln_radius_bin_edges)[ep_inds[2]])
+rate = np.sum(ep_area * np.exp(samples[ep_inds] - np.log(42557.0)), axis=1)
+q = quantile(rate, [0.16, 0.5, 0.84])
+print("Integrated rate: {0:.3f}_{{-{1:.3f}}}^{{+{2:.3f}}}"
+      .format(q[1], *(np.diff(q))))
+
 bins = [ln_period_bin_edges, ln_radius_bin_edges]
 labels = ["R / R_\oplus", "P / \mathrm{day}"]
 slices = [
@@ -108,8 +117,8 @@ def plot_results(a):
     ax_right.legend(loc="center left", bbox_to_anchor=(1, 0.5), prop=prop)
 
     if a == 1:
-        ax_right2.set_xlim(0, 8)
-        ax_right2.set_ylim(-7.5, 0.2)
+        ax_right2.set_xlim(0, 16)
+        ax_right2.set_ylim(-8.9, 0.2)
 
     ax_right2.set_yticklabels([])
     ax2.set_ylim(np.exp(ax_right2.get_ylim()))

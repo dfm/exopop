@@ -56,6 +56,7 @@
 \newcommand{\appropto}{\mathrel{\vcenter{
   \offinterlineskip\halign{\hfil$##$\cr
     \propto\cr\noalign{\kern2pt}\sim\cr\noalign{\kern-2pt}}}}}
+\newcommand{\densityunit}{{\ensuremath{\mathrm{nat}^{-2}}}}
 
 % TO DOS
 \newcommand{\todo}[3]{{\color{#2} \emph{#1} TODO: #3}}
@@ -1061,10 +1062,30 @@ This is shown in \fig{real-rate} where we compare the marginalized posterior
 probability function for \gammaearth\ to the published value and uncertainty.
 Quantitatively, we find that the rate density of Earth analogs is
 \begin{eqnarray}
-\gammaearth &=& 0.017^{+0.018}_{-0.009} \quad.
+\gammaearth &=& 0.017^{+0.018}_{-0.009}~\densityunit
 \end{eqnarray}
-Converted to these units, \citet{petigura} measured $0.119_{-0.046}^{+0.035}$
-for the same quantity (indicated as the vertical lines in \fig{real-rate}).
+where the ``\densityunit'' indicates that this quantity is a rate density, per
+natural logarithmic period per natural logarithmic radius.
+Converted to these units, \citet{petigura} measured
+$0.119_{-0.046}^{+0.035}~\densityunit$ for the same quantity (indicated as the
+vertical lines in \fig{real-rate}).
+This rate density is \emph{exactly} what Petigura's extrapolation model
+predicts but, for comparison, we can also integrate our inferred rate density
+over their choice of ``Earth-like'' bin ($200 \le \period/\mathrm{day} < 400$
+and $1 \le \radius/\radius_\oplus < 2$) to find a \emph{rate} of
+Earth-analogs.
+The published rate is $0.057_{-0.017}^{+0.022}$ (\citealt{petigura}) and our
+posterior constraint is
+\begin{eqnarray}
+\int_{\period=200\,\mathrm{day}}^{400\,\mathrm{day}}
+\int_{\radius=1\,\radius_\oplus}^{2\,\radius_\oplus}
+\rate_\ratepars (\ln\period,\,\ln\radius)
+\dd[\ln\radius]
+\dd[\ln\period]
+&=&
+0.016_{-0.007}^{+0.011}
+\quad.
+\end{eqnarray}
 
 \begin{figure}[p]
 \begin{center}
