@@ -23,7 +23,7 @@
 \usepackage{amssymb,amsmath}
 \usepackage{subfigure}
 
-\newcommand{\project}[1]{{\sffamily #1}}
+\newcommand{\project}[1]{\emph{#1}}
 \newcommand{\kepler}{\project{Kepler}}
 \newcommand{\terra}{\project{TERRA}}
 \newcommand{\license}{MIT License}
@@ -129,7 +129,7 @@
 
 \begin{abstract}
 
-No true extra-Solar Earth analog is known.
+No true extrasolar Earth analog is known.
 Hundreds of planets have been found around Sun-like stars that are either
 Earth-sized but on shorter periods, or else on year-long orbits but somewhat
 larger.
@@ -239,11 +239,13 @@ detection efficiencies and transit probabilities into account.
 This technique has been used to constrain parametric models---a broken power
 law, for example---for the occurrence rate density (\citealt{tabachnik,
 youdin, dong}).
-There are many reasons to prefer a result based on an optimization of a
-likelihood function and as we show in \sect{model}, if we model the occurrence
-rate density as a piecewise constant function, the
-inverse-detection-efficiency method can be derived as a special case of the
-likelihood method with a specific set of assumptions.
+A result based on an optimization of a likelihood function will---under any
+stated assumptions---saturate the Cram\'er--Rao bound and give an estimator of
+the population with the lowest possible variance.
+As we show in \sect{model}, if we model the occurrence rate density as a
+piecewise constant function, the inverse-detection-efficiency method can be
+derived as a special case of the likelihood method with a specific set of
+assumptions.
 
 In every previous study of exoplanet occurrence rates, the authors have
 assumed that the measurement uncertainties are negligible.
@@ -448,21 +450,27 @@ as a list of $N$ samples $\{\entry_k\}^{(n)}$ from the posterior
 \begin{eqnarray}\eqlabel{samples}
 \{\entry_k\}^{(n)} &\sim& p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) \quad.
 \end{eqnarray}
-We can use these samples to approximately compute the integral in
-\eq{simplemarglike} as
+We can use these samples and the Monte Carlo integral approximation to
+estimate the marginalized likelihood from \eq{simplemarglike}---up to an
+irrelevant constant---as
 \begin{eqnarray}\eqlabel{importance}
-\frac{p(\{\data_k\}\,|\,\ratepars)}{p(\{\data_k\}\,|\,\interim)} &\approx&
-    \frac{1}{N} \sum_{n=1}^N
+p(\{\data_k\}\,|\,\ratepars) &\approx&
+    \frac{\mathcal{Z}}{N} \sum_{n=1}^N
     \frac{p(\{\entry_k\}^{(n)}\,|\,\ratepars)}
-         {p(\{\entry_k\}^{(n)}\,|\,\interim)} \quad.
+         {p(\{\entry_k\}^{(n)}\,|\,\interim)}
 \end{eqnarray}
+where the constant $\mathcal{Z} = p(\{\data_k\}\,|\,\interim)$ is not a
+function of the parameters.
 This is very efficient to compute as long as an evaluation of
-$p(\{\entry_k\}^{(n)}\,|\,\ratepars)$ is not very expensive.
+$p(\{\entry_k\}\,|\,\ratepars)$ is not very expensive.
 That being said, this could be a high variance estimator, depending on the
-initial choice of $p(\{\entry_k\}\,|\,\interim)$.
+number of independent samples $N$ and the initial choice of
+$p(\{\entry_k\}\,|\,\interim)$.
 Additionally, the support of $p(\{\entry_k\}\,|\,\ratepars)$ in $\{\entry_k\}$
 space is restricted to be narrower than that of
 $p(\{\entry_k\}\,|\,\interim)$.
+Besides this caveat, in the limit of infinite samples, the approximation in
+\eq{importance} becomes exact.
 \Eq{importance} is the \emph{importance sampling approximation} to the
 integral in \eq{simplemarglike} where the trial density is the posterior
 probability for the catalog measurements.
@@ -549,6 +557,10 @@ following expression for the marginalized likelihood
 \end{eqnarray}
 In this equation, we're making the further assumption that the catalog treated
 the objects independently.
+This is a somewhat subtle point if we were to consider targets with more than
+one transiting planet---a point that we will return to below---but for the
+considerations of the dataset considered in this \paper, it is a justified
+simplification.
 In other words, we have per-object posterior samples
 \begin{eqnarray}
 \entry_k^{(n)} &\sim& p(\entry_k\,|\,\data_k,\,\interim) \quad.
@@ -610,7 +622,10 @@ rate density inference, the inverse-detection-efficiency procedure will
 give a higher variance estimate of the occurrence rate density than
 \eq{ml-ide}.
 In this \paper, we don't use either of these inverse-detection-efficiency
-procedures because we are righteous.
+procedures because they both fundamentally rely on the assumption of
+\emph{negligible observational uncertainties}.
+By applying \eq{money}, we derive the probabilistic generalization of this
+model in the next section but the result is no longer analytic.
 
 \paragraph{Occurrence rate density parameterization \& priors}
 For the remainder of this \paper, we also model the rate density as a
@@ -712,7 +727,10 @@ For all the results below, we run a Markov chain with $10^6$ steps for the bin
 heights and update the hyperparameters every 10 steps.
 We only keep the final $2 \times 10^5$ steps and discard the earlier samples
 as burn-in.
-The remaining samples provide an approximation to the marginalized probability
+This results in approximately 4000 independent posterior samples estimated
+using the empirical integrated autocorrelation time of the chain
+(\citealt{goodman}).
+These samples provide an approximation to the marginalized probability
 distribution for \ratepars.
 
 \section{Data and completeness function}
@@ -897,10 +915,9 @@ natural logarithm of radius), evaluated at the period and radius of Earth.
 
 In \eq{gammaearth}, we define ``Earth analog'' in terms of measurable
 quantities with no mention of habitability or composition.
-To some readers, this might seem an unsatisfying choice.
-That being said, the composition of an exoplanet is notoriously difficult to
-measure even with large uncertainty and any definition of habitability is
-still extremely subjective.
+This might seem unsatisfying but the composition of an exoplanet is
+notoriously difficult to measure even with large uncertainty and any
+definition of habitability is still extremely subjective.
 With this in mind, we stick to the observable definition for this \paper.
 
 Since no Earth analogs have been found, any constraints on this density must
@@ -1248,8 +1265,9 @@ We would like to thank Erik Petigura (Berkeley) for freely sharing his data
 and code.
 It is a pleasure to thank
 Ruth Angus (Oxford),
-Jo Bovy (IAS), and
-Eric Ford (PSU)
+Jo Bovy (IAS),
+Eric Ford (PSU), and
+Ben Montet (Caltech/CfA)
 for helpful contributions to the ideas and code presented here.
 This project was partially supported by the NSF (grant AST-0908357), NASA
 (grant NNX08AJ48G), and the Moore--Sloan Data Science Environment at NYU.
@@ -1302,6 +1320,10 @@ Fressin, F., Torres, G., Charbonneau, D., \etal\ 2013, \apj, 766, 81
 \bibitem[Gibson \etal(2012)]{gibson-gp}
 Gibson, N.~P., Aigrain, S., Roberts, S., \etal\ 2012, \mnras, 419, 2683
 (\arxiv{1109.3251})
+
+\bibitem[Goodman~\&\ Weare(2010)]{goodman}
+Goodman,~J. \& Weare,\ J.,
+2010, Comm.\ App.\ Math.\ Comp.\ Sci., 5, 65
 
 \bibitem[Hogg \etal(2013)]{hoggwhitepaper}
 Hogg, D.~W., Angus, R., Barclay, T., et al.\ 2013, \arxiv{1309.0653}
