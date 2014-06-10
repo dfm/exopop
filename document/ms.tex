@@ -443,7 +443,7 @@ For our purposes, this is the \emph{definition} of hierarchical inference.
 
 The constraints in \eq{crazypost} can always be---and often are---propagated
 as a list of $N$ samples $\{\entry_k\}^{(n)}$ from the posterior
-\begin{eqnarray}
+\begin{eqnarray}\eqlabel{samples}
 \{\entry_k\}^{(n)} &\sim& p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) \quad.
 \end{eqnarray}
 We can use these samples to approximately compute the integral in
@@ -732,6 +732,16 @@ For the rest of this \paper, we'll make the simplifying assumption that these
 weights are constant in log-period and log-radius but the results don't seem
 to be sensitive to this specific choice.
 
+\citet{petigura} did not publish or share posterior samples of their
+measurements of the physical parameter (\eqalt{samples}).
+They did publish a list of periods, radii and radius uncertainties based on
+their analysis.
+Assuming that there is no measurement uncertainty on the period measurement
+and that the radius posterior is Gaussian in linear radius (with a standard
+deviation given by the published uncertainty), we draw 256 samples for
+$\entry_k$ and use these as an approximation to the posterior probability
+function.
+
 A huge benefit of this dataset is that Erik Petigura and collaborators
 published a rigorous analysis of the empirical end-to-end completeness of
 their transit search pipeline.
@@ -763,7 +773,7 @@ uncertainties in the stellar parameters, it is not possible to use the
 published catalog (\citealt{petigura}) to compute constraints on radius
 ratios.
 In the future, this problem would be solved by publishing a representation of
-\emph{the full posterior density functino for each object in the catalog}.
+\emph{the full posterior density function for each object in the catalog}.
 In this case, the most useful data product would be \emph{posterior samples
 for each target's radius ratio and stellar radius}.
 
@@ -864,34 +874,6 @@ method gives a high-variance estimate of the true occurrence rate density.
 One effect of this variance is that the inferred distribution will appear to
 have more small-scale structure than the true underlying distribution.
 
-\begin{figure}[p]
-\begin{center}
-\includegraphics[width=\textwidth]{figures/smooth/results.pdf}
-\end{center}
-\caption{%
-{\bf Simulated data}.
-Inferences about the rate density based on the simulated catalog \modela.
-\emph{Center:} the points with error bars show the exoplanet candidates in the
-simulated incomplete catalog, the contours show the survey completeness
-function (\citealt{petigura}), and the grayscale shows the median posterior
-occurrence surface.
-\emph{Top and left:} the red dashed line shows the true distribution that was
-used to generate the catalog, the points with error bars show the results of
-the inverse-detection-efficiency procedure, and the histograms are posterior
-samples from the marginalized rate density as inferred by our method.
-\figlabel{smooth-results}}
-\end{figure}
-
-\begin{figure}[p]
-\begin{center}
-\includegraphics[width=\textwidth]{figures/simulation/results.pdf}
-\end{center}
-\caption{%
-{\bf Simulated data}.
-The same as \fig{smooth-results} for \modelb.
-\figlabel{simulation-results}}
-\end{figure}
-
 \section{Extrapolation to Earth}
 \sectlabel{extrap}
 
@@ -984,31 +966,6 @@ capture the complexity of the problem.
 As a result, the posterior constraints on \gammaearth\ are dominated by this
 prior choice and the resulting uncertainties are much smaller than they should
 be.
-
-\begin{figure}[p]
-\begin{center}
-\includegraphics[width=0.6\textwidth]{figures/smooth/rate.pdf}
-\end{center}
-\caption{%
-{\bf Simulated data}.
-The extrapolated rate density of Earth analogs \gammaearth\ as inferred by the
-different techniques applied to the \modela\ simulation.
-Applying the method used by \citet{petigura} gives a constraint indicated by
-the vertical black line with error bars shown as dashed lines.
-The histogram is the MCMC estimate of our posterior constraint on this rate
-density and the true value is indicated as the thick gray vertical line.
-\figlabel{smooth-rate}}
-\end{figure}
-
-\begin{figure}[p]
-\begin{center}
-\includegraphics[width=0.6\textwidth]{figures/simulation/rate.pdf}
-\end{center}
-\caption{%
-{\bf Simulated data}.
-The same as \fig{smooth-rate} for \modelb.
-\figlabel{simulation-rate}}
-\end{figure}
 
 \section{Results from real data}
 \sectlabel{real}
@@ -1104,81 +1061,6 @@ assumption, allowing the data to constrain the period distribution, we find
 evidence for a \emph{decreasing} period distribution as a function of
 logarithmic period (see \fig{period}).
 
-\begin{figure}[p]
-\begin{center}
-\includegraphics[width=\textwidth]{figures/results/results.pdf}
-\end{center}
-\caption{%
-{\bf Real data}.
-The same as \fig{smooth-results} when applied to the observed data from
-\citet{petigura}.
-\emph{Center:} the points with error bars show the catalog measurements, the
-contours show the survey completeness function, and the grayscale shows the
-median posterior occurrence surface.
-\emph{Top and left:} the points with error bars show the results of the
-inverse-detection-efficiency procedure, and the histograms are posterior
-samples from the marginalized rate density as inferred by our method.
-\figlabel{real-results}}
-\end{figure}
-
-\begin{figure}[p]
-\begin{center}
-\includegraphics{figures/results/period.pdf}
-\end{center}
-\caption{%
-{\bf Real data}.
-The occurrence rate density as a function of logarithmic period integrated
-over bins in logarithmic radius.
-The lines with error bars show the posterior sample median and 68th
-percentile and the line style specifies the radius bin.
-The period distribution for the largest planets in the sample
-($8 \le R/R_\oplus < 32$) continues to increase (as a function of
-$\ln\period$) for all periods while the distribution seems to flatten and
-turn over at periods around 50 days.
-\figlabel{period}}
-\end{figure}
-
-\begin{figure}[p]
-\begin{center}
-\includegraphics{figures/results/radius.pdf}
-\end{center}
-\caption{%
-{\bf Real data}.
-The occurrence rate density as a function of logarithmic radius integrated
-over bins in logarithmic period.
-The lines with error bars show the posterior sample median and 68th
-percentile and the line style specifies the period bin.
-The distributions in all the period bins are qualitatively consistent and
-there are plausibly features near $R\sim3\,R_\oplus$ and $R\sim10\,R_\oplus$.
-\figlabel{radius}}
-\end{figure}
-
-\begin{figure}[p]
-\begin{center}
-\includegraphics{figures/results/linear-radius.pdf}
-\end{center}
-\caption{%
-{\bf Real data}.
-The same as \fig{radius} but presented as a density in radius instead of
-logarithmic radius.
-\figlabel{linear-radius}}
-\end{figure}
-
-\begin{figure}[p]
-\begin{center}
-\includegraphics[width=0.6\textwidth]{figures/results/rate.pdf}
-\end{center}
-\caption{%
-The extrapolated rate density of Earth analogs \gammaearth\ (the same as
-\fig{smooth-rate} but applied to the catalog from \citealt{petigura}).
-The histogram is the MCMC estimate of our posterior constraint on this rate
-density.
-The vertical black line with error bars shown as dashed lines is the result
-from \citet{petigura} converted to a rate density by dividing by their bin
-volume.
-\figlabel{real-rate}}
-\end{figure}
-
 \section{Discussion}
 
 We have developed a hierarchical probabilistic framework for inferring the
@@ -1229,8 +1111,8 @@ extrapolation function.
 \dfmtodo{This is another illustration that the use of flexible models makes
 probabilistic data analysis more conservative.}
 
-In contrast to previous work (\dfmtodo{CITE?}), we don't define ``Earth
-analog'' in terms of habitability or composition.
+In contrast to previous work, we don't define ``Earth analog'' in terms of
+habitability or composition.
 Instead, we advocate for a definition in terms of more directly observable
 quantities (in this case, period and radius).
 Furthermore, we define \gammaearth\ as a rate density (per star per
@@ -1238,13 +1120,16 @@ logarithmic period per logarithmic radius) so that its value doesn't depend on
 choices about the ``Earth-like'' bin.
 
 In our analysis we make a few simplifying assumptions.
+Every assumption has an effect on the results and could be relaxed as an
+extension of this project.
+For completeness, we list and discuss the effects of our assumptions below.
 \begin{itemize}
 
 \item {\bf Conditional independence}\quad
-We assumed that every object in the catalog was a conditionally independent
-Poisson draw from the observable occurrence rate function.
-This is an interesting assumption to consider when applying this method to a
-different catalog where multiple transiting systems are included.
+We assume that every object in the catalog was a conditionally independent
+draw from the observable occurrence rate density.
+This is probably a bad assumption when applying this method to a different
+catalog where multiple transiting systems are included.
 In practice, the best first step towards relaxing this assumption is probably
 to follow \citet{tremaine} and assume that the mutual inclination distribution
 is the only source of conditional dependence between planets.
@@ -1253,20 +1138,63 @@ because the dataset explicitly includes only systems with a single transiting
 exoplanet.
 
 \item {\bf False positives}\quad
-Makes our estimates overestimates.
-Go to a mixture model.
+In our inferences, we assume that all of the candidates in the catalog are
+\True\ exoplanets.
+The rate of false positives in the \kepler\ catalog has been shown to be low
+but not negligible (\citealt{morton, fressin-fp}).
+Since some of the objects in the catalog are probably false positives, our
+inferences about the occurrence rate density are biased high but without
+explicitly including a model of false positives, it's hard to say in detail
+what effect this would have on the distributions.
+In an extension of this work, we could incorporate the effects of false
+positives by switching to a mixture model where each object is modeled as a
+mixture of \True\ exoplanet and false positive (\citealt{hogg-line}).
 
 \item {\bf Known observational uncertainties}\quad
-Assumed Gaussian. Would be better with samples.
+To apply the importance sampling approximation to the published catalog, we
+assume that the measurement uncertainties are known and, in this case,
+Gaussian.
+The assumption of normally distributed uncertainties could be relaxed given
+a sampling representation of the posterior probability function for the
+physical parameters (period, radius, \etc).
+It is also possible to relax the noise model---to include effects like the
+underestimation of uncertainties---but inference would be substantially more
+computationally expensive.
 
 \item {\bf Given empirical detection efficiency}\quad
-Single vs multi.
-In detail there are limitations: radius vs ratio. Stellar params.
+\citet{petigura} determined the end-to-end detection efficiency of their
+planet detection pipeline as a function of \True\ period and radius by
+injecting synthetic signals into real light curves and testing recovery.
+We used these simulations as an exact representation of the detection
+efficiency of the catalog but there are several missing components.
+The biggest effect is probably the fact that this formulation doesn't include
+the fact that only the \emph{most detectable signal} in each light curve was
+included in the catalog.
+This bias will have the largest effect in the parts of parameter space where
+the baseline detection efficiency is lowest: at long periods and small radius.
+As a result, our inferences (and the results from \citealt{petigura}) about
+the occurrence rate of small planets on long periods should be seen as
+\emph{lower limits}.
+In detail there is another limitation due to the fact that the stellar
+parameters are only known noisily and the transit light curve only constrains
+the radius ratio.
+This means that the marginalized detection efficiency should be measured as a
+function of radius ratio and the interpretation in terms of \True\ radius is
+only approximately correct.
+Given the size of the dataset and the number of injection simulations, this
+effect should be small.
 
 \item {\bf Smooth rate function}\quad
-No reason for the function to be smooth.
-Phase transitions.
-Composition etc.
+Throughout our analysis, we make the prior assumption that the occurrence rate
+density is a smooth function of logarithmic period and radius.
+This model is useful because it allows us to make probabilistically justified
+inferences about the exoplanet population in regions of parameter space with
+low detection efficiency.
+The assumption that the rate density should be smooth is intuitive but there
+is no theoretical indication that it must be true at all scales.
+That being said, the Gaussian process regularization that we use to enforce
+smoothness is flexible enough to capture substantial departures from smooth if
+they were supported by the data.
 
 \end{itemize}
 Our assumptions are severe but we believe that this is the most conservative
@@ -1355,8 +1283,11 @@ Gibson, N.~P., Aigrain, S., Roberts, S., \etal\ 2012, \mnras, 419, 2683
 \bibitem[Hogg \etal(2013)]{hoggwhitepaper}
 Hogg, D.~W., Angus, R., Barclay, T., et al.\ 2013, \arxiv{1309.0653}
 
-\bibitem[Hogg \etal(2010)]{hogge}
-Hogg, D.~W., Myers, A.~D., \& Bovy, J.\ 2010, \apj, 725, 2166
+\bibitem[Hogg \etal(2010a)]{hogg-line}
+Hogg, D.~W., Bovy, J., \& Lang, D.\ 2010a, \arxiv{1008.4686}
+
+\bibitem[Hogg \etal(2010b)]{hogge}
+Hogg, D.~W., Myers, A.~D., \& Bovy, J.\ 2010b, \apj, 725, 2166
 (\arxiv{1008.4146})
 
 \bibitem[Howard \etal(2012)]{howard}
@@ -1421,5 +1352,135 @@ Tremaine, S., \& Dong, S.\ 2012, \aj, 143, 94 (\arxiv{1106.5403})
 Youdin, A.~N.\ 2011, \apj, 742, 38 (\arxiv{1105.1782})
 
 \end{thebibliography}
+
+\clearpage
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics[width=\textwidth]{figures/smooth/results.pdf}
+\end{center}
+\caption{%
+{\bf Simulated data}.
+Inferences about the rate density based on the simulated catalog \modela.
+\emph{Center:} the points with error bars show the exoplanet candidates in the
+simulated incomplete catalog, the contours show the survey completeness
+function (\citealt{petigura}), and the grayscale shows the median posterior
+occurrence surface.
+\emph{Top and left:} the red dashed line shows the true distribution that was
+used to generate the catalog, the points with error bars show the results of
+the inverse-detection-efficiency procedure, and the histograms are posterior
+samples from the marginalized rate density as inferred by our method.
+\figlabel{smooth-results}}
+\end{figure}
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics[width=\textwidth]{figures/simulation/results.pdf}
+\end{center}
+\caption{%
+{\bf Simulated data}.
+The same as \fig{smooth-results} for \modelb.
+\figlabel{simulation-results}}
+\end{figure}
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{figures/smooth/rate.pdf}
+\end{center}
+\caption{%
+{\bf Simulated data}.
+The extrapolated rate density of Earth analogs \gammaearth\ as inferred by the
+different techniques applied to the \modela\ simulation.
+Applying the method used by \citet{petigura} gives a constraint indicated by
+the vertical black line with error bars shown as dashed lines.
+The histogram is the MCMC estimate of our posterior constraint on this rate
+density and the true value is indicated as the thick gray vertical line.
+\figlabel{smooth-rate}}
+\end{figure}
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{figures/simulation/rate.pdf}
+\end{center}
+\caption{%
+{\bf Simulated data}.
+The same as \fig{smooth-rate} for \modelb.
+\figlabel{simulation-rate}}
+\end{figure}
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics[width=\textwidth]{figures/results/results.pdf}
+\end{center}
+\caption{%
+{\bf Real data}.
+The same as \fig{smooth-results} when applied to the observed data from
+\citet{petigura}.
+\emph{Center:} the points with error bars show the catalog measurements, the
+contours show the survey completeness function, and the grayscale shows the
+median posterior occurrence surface.
+\emph{Top and left:} the points with error bars show the results of the
+inverse-detection-efficiency procedure, and the histograms are posterior
+samples from the marginalized rate density as inferred by our method.
+\figlabel{real-results}}
+\end{figure}
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics{figures/results/period.pdf}
+\end{center}
+\caption{%
+{\bf Real data}.
+The occurrence rate density as a function of logarithmic period integrated
+over bins in logarithmic radius.
+The lines with error bars show the posterior sample median and 68th
+percentile and the line style specifies the radius bin.
+The period distribution for the largest planets in the sample
+($8 \le R/R_\oplus < 32$) continues to increase (as a function of
+$\ln\period$) for all periods while the distribution seems to flatten and
+turn over at periods around 50 days.
+\figlabel{period}}
+\end{figure}
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics{figures/results/radius.pdf}
+\end{center}
+\caption{%
+{\bf Real data}.
+The occurrence rate density as a function of logarithmic radius integrated
+over bins in logarithmic period.
+The lines with error bars show the posterior sample median and 68th
+percentile and the line style specifies the period bin.
+The distributions in all the period bins are qualitatively consistent and
+there are plausibly features near $R\sim3\,R_\oplus$ and $R\sim10\,R_\oplus$.
+\figlabel{radius}}
+\end{figure}
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics{figures/results/linear-radius.pdf}
+\end{center}
+\caption{%
+{\bf Real data}.
+The same as \fig{radius} but presented as a density in radius instead of
+logarithmic radius.
+\figlabel{linear-radius}}
+\end{figure}
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{figures/results/rate.pdf}
+\end{center}
+\caption{%
+The extrapolated rate density of Earth analogs \gammaearth\ (the same as
+\fig{smooth-rate} but applied to the catalog from \citealt{petigura}).
+The histogram is the MCMC estimate of our posterior constraint on this rate
+density.
+The vertical black line with error bars shown as dashed lines is the result
+from \citet{petigura} converted to a rate density by dividing by their bin
+volume.
+\figlabel{real-rate}}
+\end{figure}
 
 \end{document}
