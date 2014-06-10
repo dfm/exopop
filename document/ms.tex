@@ -793,7 +793,7 @@ probability in the selected sample of stars is $5.061\%$ so we model the
 transit probability\footnote{We are using the letter $Q$ to indicate
 probabilities since we are already using $P$ to mean period.} as a function of
 period as
-\begin{eqnarray}
+\begin{eqnarray}\eqlabel{transitprob}
 \transitprob (\period) &=&
     0.05061\,\left[\frac{\period}{10\,\mathrm{days}}\right]^{-2/3} \quad.
 \end{eqnarray}
@@ -1108,8 +1108,8 @@ about the period distribution.
 Our extrapolation is less confident than previous measurements.
 Again, this difference is due to the fact that we allow a much more flexible
 extrapolation function.
-\dfmtodo{This is another illustration that the use of flexible models makes
-probabilistic data analysis more conservative.}
+This is another illustration that, against the standard data analysis
+folklore, the correct use of flexible models is \emph{conservative}.
 
 In contrast to previous work, we don't define ``Earth analog'' in terms of
 habitability or composition.
@@ -1200,19 +1200,39 @@ they were supported by the data.
 Our assumptions are severe but we believe that this is the most conservative
 population inference method currently on the market.
 
-\dfmtodo{%
-Predicted number of observable Earth analogs in the \kepler\ dataset.
-Low but not zero.
-}
+Under the assumptions that we have made here, our inference of the occurrence
+rate density of exoplanets places a probabilistic constraint on the number of
+transiting Earth analogs in the existing \kepler\ dataset.
+If we adopt the definition of ``Earth-like'' from \citet[][$200 \le
+\period/\mathrm{day} < 400$ and $1 \le \radius/\radius_\oplus < 2$]{petigura},
+and integrate the product inferred rate density function and the geometric
+transit probability (\eqalt{transitprob}) over this bin, we find that there
+should be
+\begin{eqnarray}\eqlabel{ntransit}
+N_{\oplus,\,\mathrm{transiting}} &=& 9.2_{-4.0}^{+5.9}
+\end{eqnarray}
+Earth-like exoplanets transiting the stars in the sample of Sun-like stars
+chosen by \citet{petigura}.
+This is an exciting result because it means that, if we can improve the
+sensitivity of exoplanet search pipelines to small planets orbiting on long
+periods then we should find some Earth analogs in the existing data.
+Furthermore, because of the treatment of multiple transiting systems in the
+catalog, the number in \eq{ntransit} is probably a lower limit on the expected
+number of Earth-like exoplanets transiting Sun-like stars!
 
-\dfmtodo{%
-{\bf Advice:} \quad
-Remind us that we want a representation of the full posterior (samples)
-because that would let us do better things with the completeness (modeled as
-r/R, \etc).
-Must explicitly include priors too.
-}
-
+Some of the caveats on the results in this paper are due to assumptions made
+for computational simplicity but a much more robust study would be possible
+given a complete representation of the posterior probability function for the
+physical parameters in the catalog.
+The use of MCMC to fit models to observations is becoming standard practice in
+astronomy and the results in many catalogs (including \citealt{petigura}) are
+given as statistics computed on posterior samplings.
+For the sake of hierarchical inferences like the method presented here, it
+would be very useful if the authors of upcoming catalogs also published
+samples from these distributions \emph{along with the value of their prior
+function evaluated at each sample}.
+In this spirit, we have released the results of this paper as posterior
+samplings for the occurrence rate density function (\dfmtodo{ADD SOME URL}).
 
 All of the code used in this project is available from
 \url{http://github.com/dfm/exopop} under the MIT open-source software license.
