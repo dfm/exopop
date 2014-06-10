@@ -11,6 +11,8 @@
 
 \documentclass[12pt,preprint]{aastex}
 
+\pdfoutput=1
+
 \include{vc}
 
 \usepackage{color,hyperref}
@@ -411,7 +413,7 @@ statistics} of the data then we can, in theory, compute \eq{crazylike}---up to
 an unimportant constant---without ever looking at the raw data again.
 This is permitted because the catalog provides constraints on the posterior
 probability of the parameters $\{\entry_k\}$ under some choice of
-\emph{interim prior} \interim
+\emph{interim prior}
 \begin{eqnarray}\eqlabel{crazypost}
 p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) &=&
 \frac{p(\{\data_k\}\,|\,\{\entry_k\})\,p(\{\entry_k\}\,|\,\interim)}
@@ -675,9 +677,9 @@ where $\Sigma^{-1}$ is the diagonal matrix
 \end{array}\right) \quad.
 \end{eqnarray}
 
-The Gaussian process model for the bin heights given in \eq{gp} very flexible
-but the results will depend on the values of the hyperparameters \mean\ and
-\smoothpars.
+The Gaussian process model for the bin heights given in \eq{gp} is very
+flexible but the results will depend on the values of the hyperparameters
+\mean\ and \smoothpars.
 Therefore, instead of fixing these parameters to specific values, we add
 another level to our hierarchical probabilistic model and marginalize over
 this choice.
@@ -1077,8 +1079,9 @@ and radius.
 We extrapolate this measurement to the location of Earth and constrain the
 rate density of Earth analogs with large error bars.
 In order to perform this extrapolation, we don't assume a specific functional
-form for the rate density instead, we only assume that it is a smooth function
-of logarithmic period and radius.
+form for the rate density.
+Instead, we only assume that it is a smooth function of logarithmic period and
+radius.
 
 The occurrence rate density function that we infer is qualitatively consistent
 with previously published results using different inference techniques
