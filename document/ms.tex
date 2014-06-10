@@ -47,6 +47,7 @@
 \newcommand{\eqlabel}[1]{\label{eq:#1}}
 \newcommand{\Sect}[1]{Section~\ref{sect:#1}}
 \newcommand{\sect}[1]{\Sect{#1}}
+\newcommand{\sectalt}[1]{\ref{sect:#1}}
 \newcommand{\App}[1]{Appendix~\ref{sect:#1}}
 \newcommand{\app}[1]{\App{#1}}
 \newcommand{\sectlabel}[1]{\label{sect:#1}}
@@ -97,8 +98,8 @@
 \begin{document}
 
 \title{%
-    Exoplanet population inference and the rate of Earth analogs \\
-    from noisy, incomplete catalogs
+    Exoplanet population inference and the abundance \\
+    of Earth analogs from noisy, incomplete catalogs
 }
 
 \newcommand{\nyu}{2}
@@ -126,16 +127,15 @@
 
 \begin{abstract}
 
-Many exoplanets have been discovered and characterized; it is now possible to
-study the population as a whole.
-Although no true extra-Solar Earth analog is known, hundreds of planets have
-been found around Sun-like stars that are either Earth-sized but on shorter
-periods, or else on year-long orbits but somewhat larger.
-Under strong assumptions, these exoplanet catalogs have been used to make an
+No true extra-Solar Earth analog is known.
+Hundreds of planets have been found around Sun-like stars that are either
+Earth-sized but on shorter periods, or else on year-long orbits but somewhat
+larger.
+Under strong assumptions, exoplanet catalogs have been used to make an
 extrapolated estimate of the rate at which Sun-like stars host Earth analogs.
 These studies are complicated by the fact that every catalog is censored by
 non-trivial selection effects and detection efficiencies, and every property
-(period, radius, \etc) is measured noisily.
+(period, radius, \etc)\ is measured noisily.
 Here we present a general hierarchical probabilistic framework for making
 justified inferences about the population of exoplanets, taking into account
 survey completeness and, for the first time, \emph{observational
@@ -184,12 +184,12 @@ Given these catalogs, it is interesting to ask what we can say about the
 population of exoplanets as a function of their physical parameters
 (period, radius, \etc).
 Observational constraints on the population can inform theories of planet
-formation (\dfmtodo{CITE}) and place probabilistic bounds on the abundance of
-Earth analogs\footnote{For our purposes, an ``Earth analog'' is an Earth-sized
+formation and place probabilistic bounds on the abundance of Earth
+analogs\footnote{For our purposes, an ``Earth analog'' is an Earth-sized
 exoplanet orbiting a Sun-like star with a year-long period.}.
 
-\citet{petigura} recently published constraints on this function based on
-their independent analysis of the \kepler\ light curves for 42,000 Sun-like
+\citet{petigura} recently published an exoplanet population analysis based on
+an independent analysis of the \kepler\ light curves for 42,000 Sun-like
 stars.
 This study was especially novel because the authors developed an independent
 planet search pipeline (\terra; \citealt{petigura-a}) and determined the
@@ -201,7 +201,7 @@ qualitatively with previous studies of small planets orbiting Sun-like stars
 In particular, both papers describe a ``flattening'' rate function (in
 logarithmic radius) for planets around Earth's radius.
 Even though no Earth analogs were discovered in their search, \citet{petigura}
-used the small candidates that the did find to place an extrapolated
+used the small candidates that they did find to place an extrapolated
 constraint on the frequency of Earth-like exoplanets, assuming a flat
 occurrence rate density in logarithmic period.
 
@@ -210,7 +210,7 @@ treatment of detection efficiency.
 Speaking qualitatively, in a transit survey, small planets with long periods
 are much harder to detect than large planets orbiting close to their star.
 This effect is degenerate with any inferences about the rate density and it
-can be hard to constraint quantitatively.
+can be hard to constrain quantitatively.
 In practice, there are three methods for taking this effect into account:
 \emph{(a)} making conservative cuts on the candidates and assuming that the
 resulting catalog is complete (\citealt{catanzarite, traub, tremaine}),
@@ -220,20 +220,20 @@ dong, fressin-fp, morton-swift}), and \emph{(c)} determining the detection
 efficiency empirically by injecting synthetic signals into the raw data and
 testing recovery (\citealt{petigura-a, petigura}).
 
-There are two pedagogically different methods that are commonly used to infer
+There are two qualitatively different methods that are commonly used to infer
 the occurrence rate density from a catalog and a detection efficiency
 specification.
 The first is an intuitive method that we will refer to as
-inverse-detection-efficiency procedure and the second is based on the
-likelihood function of the catalog given a parametric rate density.
+``inverse-detection-efficiency'' and the second is based on the likelihood
+function of the catalog given a parametric rate density.
 The inverse-detection-efficiency method involves making a histogram of the
 objects in the catalog where each point is weighted by its inverse detection
 probability.
 This method is very popular in the literature (\citealt{howard, dong,
 dressing, swift, petigura}) even though it is not motivated probabilistically.
-The alternative ``likelihood'' method models the catalog as a Poisson
-realization of the \emph{observable} rate density of exoplanets taking the
-survey detection efficiencies and transit probabilities into account.
+The alternative likelihood method models the catalog as a Poisson realization
+of the \emph{observable} rate density of exoplanets taking the survey
+detection efficiencies and transit probabilities into account.
 This technique has been used to constrain parametric models---a broken power
 law, for example---for the occurrence rate density (\citealt{tabachnik,
 youdin, dong}).
@@ -251,8 +251,10 @@ parameters---can be large compared to the scales of interest.
 In this \paper, we develop a flexible framework for probabilistic inference of
 exoplanet occurrence rate density that can be applied to incomplete catalogs
 with \emph{non-negligible observational uncertainties}.
-We generalize the inference method introduced by \citet{hogge} to account for
-survey detection efficiencies.
+Our method takes the form of a hierarchical probabilistic (Bayesian)
+inference.
+We generalize the method introduced by \citet{hogge} to account for survey
+detection efficiencies.
 We run tests on simulated datasets---comparing results with the standard
 techniques that neglect observational uncertainties---and apply our method to
 a real catalog of small planets transiting Sun-like stars
@@ -292,14 +294,14 @@ transiting systems (\citealt{petigura}).
 This is a limitation of the input catalog.
 When considering other datasets it will be interesting and important to take
 multiple transiting systems into account (\citealt{lissauer, tremaine, fang})
-and this would be possible using a conditional distributions (as developed by
+and this would be possible using conditional distributions (as developed by
 \citealt{tremaine}).
 The second assumption---neglecting false positives---is also strong and only
 weakly justified by estimates of low false positive rates in the \kepler\ data
 (\citealt{fressin-fp, morton}).
 For this \paper, we will neglect this issue and only comment on the effects
-but the prior distributions published by \citet{fressin-fp} would be directly
-applicable in our method and this would be a very interesting generalization.
+but the prior distributions published by \citet{fressin-fp} could be directly
+applied in a generalization of our method.
 
 We must emphasize one very important consequence of our assumptions.
 We assume that the catalog of exoplanet candidates is only missing planets
@@ -317,14 +319,14 @@ The global effects of this selection is not trivial and an in-depth discussion
 is beyond the scope of this \paper\ but all of the results should be
 interpreted with this caveat in mind.
 
-Conditioned on our assumptions and the choices made in planet detection,
+Conditioned on our assumptions and the choices made in the planet detection,
 vetting and characterization pipeline (\citealt{petigura-a, petigura}), we
 constrain the rate density of small exoplanets orbiting Sun-like stars.
 As part of this analysis we also place probabilistic constraints on the rate
 density\footnote{In this \paper, we use the word ``rate'' to indicate the
 dimensionless expectation value of a Poisson process and the words ``rate
 density'' to indicate a quantity that must be integrated over a finite bin in
-period and radius to deliver a rate.} of Earth analogs \gammaearth\ which we
+period and radius to deliver a rate.} of Earth analogs \gammaearth, which we
 define as \emph{the expected number of planets per star per natural
 logarithmic bin in period and radius, evaluated at the period and radius of
 Earth}
@@ -340,8 +342,8 @@ extrapolation in both period and radius.
 distribution of planets in a small bin in radius is flat, obtaining
 $\gammaearth \approx 0.12$.
 We relax this assumption and extrapolate only by assuming that the occurrence
-rate density is a smooth function of period and radius; we find a much lower
-value for \gammaearth.
+rate density is a smooth function of period and radius; we find lower values
+for \gammaearth.
 We enforce the smoothness constraint by applying a flexible Gaussian process
 regularization to the bin heights.
 
@@ -352,10 +354,11 @@ method from \citealt{hogge}).
 Then, in \sect{model}, we describe how to include detection efficiencies in
 this model and derive a probabilistic motivation for the standard
 inverse-detection-efficiency weighting procedure.
-After testing our method on synthetic catalogs in \sect{valid}, we use the
-catalog of planet candidates and the empirically determined detection
-efficiency from \citet{petigura} to measure the occurrence rate density of
-Earth analogs.
+We test our method on synthetic catalogs in Sections~\sectalt{valid}
+and~\sectalt{extrap}.
+In \sect{real}, we use the catalog of planet candidates and the empirically
+determined detection efficiency from \citet{petigura} to measure the
+occurrence rate density of Earth analogs.
 
 \section{A brief introduction to hierarchical inference}
 
@@ -369,9 +372,8 @@ radius, \etc).
 In this framework, the occurrence rate density can be ``parametric''---for
 example, a power law---or a ``non-parametric'' function---such as a histogram
 where the bin heights are the parameters \ratepars.
-The light curve for a particular target $k$ is called $\data_k$ and the
-\True\ set of physical parameters for that same object are given by
-$\entry_k$.
+The light curve for a particular target $k$ is $\data_k$ and the \True\ set of
+physical parameters for that same object is given by $\entry_k$.
 A catalog provides a set of constraints on the parameters $\{\entry_k\}$
 conditioned on the set light curves $\{\data_k\}$.
 
@@ -398,8 +400,8 @@ It is worth emphasizing that---as we will discuss further below---the catalog
 only provides \emph{probabilistic constraints} on $\{\entry_k\}$; not perfect
 delta-function measurements.
 
-In other words, a catalog is a dimensionality reduction of the raw data with
-all the relevant information retained.
+In other words, we treat a catalog as being a dimensionality reduction of the
+raw data with all the relevant information retained.
 In the context of \kepler, the catalog reduces the set of downloaded pixel
 time series (approximately 70,000 data points for the typical \kepler\ target)
 to probabilistic constraints on a handful of physical parameters---\entry\
@@ -440,7 +442,7 @@ by the catalog $\{\entry_k\}$!
 For our purposes, this is the \emph{definition} of hierarchical inference.
 
 The constraints in \eq{crazypost} can always be---and often are---propagated
-as a list of $N$ samples $\{\entry_k^{(n)}\}$ from the posterior
+as a list of $N$ samples $\{\entry_k\}^{(n)}$ from the posterior
 \begin{eqnarray}
 \{\entry_k\}^{(n)} &\sim& p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) \quad.
 \end{eqnarray}
@@ -449,14 +451,16 @@ We can use these samples to approximately compute the integral in
 \begin{eqnarray}\eqlabel{importance}
 \frac{p(\{\data_k\}\,|\,\ratepars)}{p(\{\data_k\}\,|\,\interim)} &\approx&
     \frac{1}{N} \sum_{n=1}^N
-    \frac{p(\{\entry_k^{(n)}\}\,|\,\ratepars)}
-         {p(\{\entry_k^{(n)}\}\,|\,\interim)} \quad.
+    \frac{p(\{\entry_k\}^{(n)}\,|\,\ratepars)}
+         {p(\{\entry_k\}^{(n)}\,|\,\interim)} \quad.
 \end{eqnarray}
 This is very efficient to compute as long as an evaluation of
-$p(\{\entry_k^{(n)}\}\,|\,\ratepars)$ is not very expensive.
-That being said, this could be a high variance estimator depending on the
-initial choice of $p(\{\entry_k^{(n)}\}\,|\,\interim)$ but in our case, we'll
-show that not many samples are needed to get an accurate estimate.
+$p(\{\entry_k\}^{(n)}\,|\,\ratepars)$ is not very expensive.
+That being said, this could be a high variance estimator, depending on the
+initial choice of $p(\{\entry_k\}\,|\,\interim)$.
+Additionally, the support of $p(\{\entry_k\}\,|\,\ratepars)$ in $\{\entry_k\}$
+space is restricted to be narrower than that of
+$p(\{\entry_k\}\,|\,\interim)$.
 \Eq{importance} is the \emph{importance sampling approximation} to the
 integral in \eq{simplemarglike} where the trial density is the posterior
 probability for the catalog measurements.
@@ -527,8 +531,8 @@ included and as this function becomes more accurate, our inferences about the
 For the results in this \paper, we will assume that the completeness function
 $\completeness(\entry)$ is known empirically but that is not a requirement for
 the validity of this method.
-Instead, we could use a functional form for it and infer the parameters
-(\dfmtodo{cite all the papers that do the ramp, step function, whatever}).
+Instead, we could use a functional form for it and even infer its parameters
+along with the parameters of the rate density.
 
 Now, we can substitute \eq{poisson-like} into \eq{simplemarglike} and apply
 the importance sampling approximation (\eqalt{importance}) to derive the
@@ -559,8 +563,6 @@ This procedure involves making a weighted histogram of the catalog entries
 where the weight for object $\entry_k$ is $1/\completeness(\entry_k)$.
 This makes intuitive sense but the standard formulation does not have a clear
 probabilistic justification or interpretation.
-\hoggtodo{Find the papers that Tremaine suggested that we look at re:vmax and
-discuss the motivation in those cases.}
 
 If we model the occurrence rate density as a histogram with $J$ fixed bin
 volumes $\binarea_j$
@@ -603,7 +605,10 @@ and if the completeness function is constant in each bin \binarea, both
 methods give the same result.
 If the completeness function is not piecewise-constant on the same grid as the
 rate density inference, the inverse-detection-efficiency procedure will
-give a higher variance estimate of the occurrence rate density.
+give a higher variance estimate of the occurrence rate density than
+\eq{ml-ide}.
+In this \paper, we don't use either of these inverse-detection-efficiency
+procedures because we are righteous.
 
 \paragraph{Occurrence rate density parameterization \& priors}
 For the remainder of this \paper, we also model the rate density as a
@@ -1006,6 +1011,7 @@ The same as \fig{smooth-rate} for \modelb.
 \end{figure}
 
 \section{Results from real data}
+\sectlabel{real}
 
 Having developed this probabilistic framework for exoplanet population
 inferences and demonstrating that it produces reasonable results when applied
@@ -1180,7 +1186,7 @@ population of exoplanets based on noisy incomplete catalogs.
 This method incorporates systematic treatment of observational uncertainties
 and detection efficiency.
 One major benefit of this framework is that it provides the best possible
-constraints on the population under the stated assumptions.
+probabilistic measurements of the population under the stated assumptions.
 After demonstrating the validity of our method on two qualitatively different
 synthetic exoplanet catalogs, we run our inference on a published catalog of
 small exoplanet candidates orbiting Sun-like stars (\citealt{petigura}) to
@@ -1188,28 +1194,50 @@ determine the occurrence rate density of exoplanets as a function of period
 and radius.
 We extrapolate this measurement to the location of Earth and constrain the
 rate density of Earth analogs with large error bars.
+In order to perform this extrapolation, we don't assume a specific functional
+form for the rate density instead, we only assume that it is a smooth function
+of logarithmic period and radius.
 
+The occurrence rate density function that we infer is qualitatively consistent
+with previously published results using different inference techniques
+(\citealt{dong, fressin-fp, petigura}).
+In particular, we find (see \fig{radius}) previously recorded features in the
+radius distribution around $\radius\sim 3\,\radius_\oplus$ and $\radius\sim
+10\,\radius_\oplus$, although not at high signal-to-noise.
+We find that the period distributions for planets in different radius bins are
+different, in qualitative agreement with previous results (\citealt{dong}).
+\Fig{period} shows that larger planets tend to be on longer periods than
+smaller planets.
 
-Probabilistic framework justified by MATHS.
+In detail, any inference of the exoplanet population depends on the choices
+made in the pipeline that creates the catalog.
+Our results are based on a catalog that only includes single transiting
+systems (\citealt{petigura}) so our conclusions---and theirs---must be
+considered with this in mind.
+In particular, the exclusion of second planets must suppress the inferred rate
+density, especially at long periods and small radii.
 
-Disagrees in detail with Petigura esp.\ extrapolation.
+Our extrapolation of the rate density to the location of Earth is more general
+and conservative than any previously published method.
+Using this method, we find a rate density of Earth analogs that is
+inconsistent with the result published by \citet{petigura}.
+This discrepancy can be largely attributed to the rigidity of the assumptions
+about the period distribution.
+Our extrapolation is less confident than previous measurements.
+Again, this difference is due to the fact that we allow a much more flexible
+extrapolation function.
+\dfmtodo{This is another illustration that the use of flexible models makes
+probabilistic data analysis more conservative.}
 
-Agrees qualitatively with Petigura, Dong, Howard, \etc\ but hard to make
-quantitative comparisons to other ones (pipeline, stars, \etc).
-
-Why did we use the definition of \gammaearth?
-
-Our constraints are less confident---in a signal-to-noise sense---than
-previous measurements (made using stronger assumptions; \citealt{petigura})
-but, even so, our result is
-
-\dfmtodo{%
-Predicted number of observable Earth analogs in the \kepler\ dataset.
-Low but not zero.
-}
+In contrast to previous work (\dfmtodo{CITE?}), we don't define ``Earth
+analog'' in terms of habitability or composition.
+Instead, we advocate for a definition in terms of more directly observable
+quantities (in this case, period and radius).
+Furthermore, we define \gammaearth\ as a rate density (per star per
+logarithmic period per logarithmic radius) so that its value doesn't depend on
+choices about the ``Earth-like'' bin.
 
 In our analysis we make a few simplifying assumptions.
-Each of these could be relaxed and \dfmtodo{BLAH BLAH BLAH}.
 \begin{itemize}
 
 \item {\bf Conditional independence}\quad
@@ -1225,21 +1253,29 @@ because the dataset explicitly includes only systems with a single transiting
 exoplanet.
 
 \item {\bf False positives}\quad
+Makes our estimates overestimates.
+Go to a mixture model.
 
 \item {\bf Known observational uncertainties}\quad
+Assumed Gaussian. Would be better with samples.
 
 \item {\bf Given empirical detection efficiency}\quad
+Single vs multi.
+In detail there are limitations: radius vs ratio. Stellar params.
 
 \item {\bf Smooth rate function}\quad
+No reason for the function to be smooth.
+Phase transitions.
+Composition etc.
 
 \end{itemize}
+Our assumptions are severe but we believe that this is the most conservative
+population inference method currently on the market.
 
-Under these assumptions and the dataset, \etc, we stand by this analysis but
-really this is a model of the planets in Kepler convolved with any latent
-effects of the TERRA pipeline\ldots
-
-A major effect that isn't taken into account is the highest signal-to-noise
-blah blah blah\ldots our number is prolly low.
+\dfmtodo{%
+Predicted number of observable Earth analogs in the \kepler\ dataset.
+Low but not zero.
+}
 
 \dfmtodo{%
 {\bf Advice:} \quad
@@ -1264,11 +1300,11 @@ Ruth Angus (Oxford),
 Jo Bovy (IAS), and
 Eric Ford (PSU)
 for helpful contributions to the ideas and code presented here.
-This project was partially supported by the NSF (grant AST-0908357), and NASA
-(grant NNX08AJ48G).
-This research builds on collaborations between astronomers and statisticians
-forged during a three week workshop on ``Modern Statistical and Computational
-Methods for Analysis of Kepler Data'' at SAMSI in June 2013.
+This project was partially supported by the NSF (grant AST-0908357), NASA
+(grant NNX08AJ48G), and the Moore--Sloan Data Science Environment at NYU.
+This research builds on ideas generated at a three-week workshop on ``Modern
+Statistical and Computational Methods for Analysis of Kepler Data'' at SAMSI
+in 2013 June.
 This research made use of the NASA \project{Astrophysics Data System}.
 
 \newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
