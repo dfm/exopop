@@ -1116,8 +1116,9 @@ made in the pipeline that creates the catalog.
 Our results are based on a catalog that only includes single transiting
 systems (\citealt{petigura}) so our conclusions---and theirs---must be
 considered with this in mind.
-In particular, the exclusion of second planets must suppress the inferred rate
-density, especially at long periods and small radii.
+In particular, the exclusion of second (and third, and so on) planets must
+suppress the inferred rate density, especially at long periods and small
+radii.
 
 Our extrapolation of the rate density to the location of Earth is more general
 and conservative than any previously published method.
@@ -1167,8 +1168,12 @@ inferences about the occurrence rate density are biased high but without
 explicitly including a model of false positives, it's hard to say in detail
 what effect this would have on the distributions.
 In an extension of this work, we could incorporate the effects of false
-positives by switching to a mixture model where each object is modeled as a
-mixture of \True\ exoplanet and false positive (\citealt{hogg-line}).
+positives by switching to a mixture model (see \citealt{hogg-line}, for
+example) where each object is modeled as a mixture of \True\ exoplanet and
+false positive.
+In this mixture model, the false positives would be represented using prior
+distributions similar to those used by \citet{morton-fp} or
+\citet{fressin-fp}.
 
 \item {\bf Known observational uncertainties}\quad
 To apply the importance sampling approximation to the published catalog, we
@@ -1267,7 +1272,7 @@ It is a pleasure to thank
 Ruth Angus (Oxford),
 Jo Bovy (IAS),
 Eric Ford (PSU), and
-Ben Montet (Caltech/CfA)
+Ben Montet (Caltech/Harvard)
 for helpful contributions to the ideas and code presented here.
 This project was partially supported by the NSF (grant AST-0908357), NASA
 (grant NNX08AJ48G), and the Moore--Sloan Data Science Environment at NYU.
@@ -1346,6 +1351,9 @@ Lewis, P.~A.~W., \& Shedler, G.~S.\ 1979, Naval Research Logistics Quarterly,
 \bibitem[Lissauer \etal(2011)]{lissauer}
 Lissauer, J.~J., Ragozzine, D., Fabrycky, D.~C., et al.\ 2011, \apjs, 197, 8
 (\arxiv{1102.0543})
+
+\bibitem[Morton(2012)]{morton-fp}
+Morton, T.~D.\ 2012, \apj, 761, 6 (\arxiv{1206.1568})
 
 \bibitem[Morton \& Johnson(2011)]{morton}
 Morton, T.~D., \& Johnson, J.~A.\ 2011, \apj, 738, 170 (\arxiv{1101.5630})
