@@ -191,7 +191,7 @@ analogs\footnote{For our purposes, an ``Earth analog'' is an Earth-sized
 exoplanet orbiting a Sun-like star with a year-long period.}.
 
 \citet{petigura} recently published an exoplanet population analysis based on
-an independent analysis of the \kepler\ light curves for 42,000 Sun-like
+an independent analysis of the \kepler\ light curves for 42,557 Sun-like
 stars.
 This study was especially novel because the authors developed an independent
 planet search pipeline (\terra; \citealt{petigura-a}) and determined the
@@ -477,7 +477,7 @@ probability for the catalog measurements.
 
 A very simple example is the familiar procedure of making a histogram.
 If you model the function $p(\{\entry_k\}\,|\,\ratepars)$ as a piecewise
-constant rate density---where the bin heights are the parameters---and if the
+constant rate density---where the step heights are the parameters---and if the
 uncertainties on the catalog are negligible compared to the bin widths then
 the maximum marginalized likelihood solution for \ratepars\ is a histogram of
 the catalog entries.
@@ -582,10 +582,10 @@ If we model the occurrence rate density as a histogram with $J$ fixed bin
 volumes $\binarea_j$
 \begin{eqnarray}
 \rate_\ratepars (\entry) &=& \left\{\begin{array}{ll}
-\ratepar_1 & \entry \in \binarea_1,\\
-\ratepar_2 & \entry \in \binarea_2,\\
+\exp(\ratepar_1) & \entry \in \binarea_1,\\
+\exp(\ratepar_2) & \entry \in \binarea_2,\\
 \cdots \\
-\ratepar_J & \entry \in \binarea_J,\\
+\exp(\ratepar_J) & \entry \in \binarea_J,\\
 0 & \mathrm{otherwise}
 \end{array}\right.
 \end{eqnarray}
@@ -593,22 +593,25 @@ then \eq{poisson-like} becomes
 \begin{eqnarray}
 \ln p(\{\entry_k\}\,|\,\ratepars) &=&
     \sum_{k=1}^K \sum_{j=1}^J \mathbf{1}[\entry_k \in
-        \binarea_j]\,\ln\completeness(\entry_k)\,\ratepar_j
-    -\sum_{j=1}^J\ratepar_j\,\int_{\binarea_j} \completeness(\entry)\dd\entry
+        \binarea_j]\,[\ln\completeness(\entry_k)+\ratepar_j]
+    -\sum_{j=1}^J\exp(\ratepar_j)\,
+        \int_{\binarea_j} \completeness(\entry)\dd\entry
 \end{eqnarray}
 where the indicator function $\mathbf{1}[\cdot]$ is one if $\cdot$ is true and
 zero otherwise.
 If we take the gradient of this function with respect to \ratepars\ and set it
 equal to zero, we find the maximum likelihood result
 \begin{eqnarray}\eqlabel{ml-ide}
-{\ratepar_j}^* &=&
+\exp ({\ratepar_j}^*) &=&
 \frac{N_j}{\int_{\binarea_j} \completeness(\entry)\dd\entry}
 \end{eqnarray}
 where $N_j$ is the number of objects that fall within the bin $j$.
 We estimate the uncertainty $\delta\ratepar_j$ on this value by examining the
 curvature of the log-likelihood function near the maximum and find
 \begin{eqnarray}
-\frac{\delta\ratepar_j}{{\ratepar_j}^*} &=& \frac{1}{\sqrt{N_j}} \quad.
+\frac{\delta\exp({\ratepar_j}^*)}{\exp({\ratepar_j}^*)} &=&
+    \frac{1}{\sqrt{N_j}}
+\quad.
 \end{eqnarray}
 
 Since \eq{ml-ide} gives the maximum likelihood solution, this result is the
@@ -659,7 +662,7 @@ have been found.
 Therefore, instead of using an uninformative prior, we want to use a prior
 that encourages the occurrence rate density to be ``smooth'' but it should be
 flexible enough to capture structure that is supported by the data.
-To achieve this, we model the logarithmic bin heights as being drawn from a
+To achieve this, we model the logarithmic step heights as being drawn from a
 Gaussian process (\citealt{gp, gibson-gp, dfm-gp}).
 This model encodes our prior belief that, on the grid scale that we consider,
 the rate density should be smooth but it is otherwise very flexible about the
@@ -668,7 +671,7 @@ form of the function.
 Mathematically, the Gaussian process density is
 \begin{eqnarray}
 p(\ratepars) &=& p(\ratepars\,|\,\mean,\,\smooth) \nonumber\\
-&=& \mathcal{N} \left[\ln\ratepars;\,\mean\,\bvec{1},\,
+&=& \mathcal{N} \left[\ratepars;\,\mean\,\bvec{1},\,
 \cov(\{\binarea_j\},\,\smoothpars)\right]
 \eqlabel{gp}
 \end{eqnarray}
@@ -692,7 +695,7 @@ where $\Sigma^{-1}$ is the diagonal matrix
 \end{array}\right) \quad.
 \end{eqnarray}
 
-The Gaussian process model for the bin heights given in \eq{gp} is very
+The Gaussian process model for the step heights given in \eq{gp} is very
 flexible but the results will depend on the values of the hyperparameters
 \mean\ and \smoothpars.
 Therefore, instead of fixing these parameters to specific values, we add
@@ -706,11 +709,11 @@ p(\ratepars,\,\mean,\,\smoothpars\,|\,\{\data_k\}) &\propto&
     p(\{\data_k\}\,|\,\ratepars) \quad.
 \end{eqnarray}
 Strictly speaking, in this model, $p(\ratepars\,|\,\mean,\,\smoothpars)$ can't
-really be called a ``prior'' anymore and the constraints on the bin heights
-\ratepars\ are no longer independent.
+really be called a ``prior'' anymore and the constraints on the step heights
+are no longer independent.
 
 There is a very efficient algorithm called elliptical slice sampling (ESS;
-\citealt{ess, ess-hyper}) for sampling the bin heights \ratepars\ from the
+\citealt{ess, ess-hyper}) for sampling the step heights \ratepars\ from the
 density in \eq{joint-posterior}.
 In practice, for problems with this specific structure, ESS outperforms more
 traditional MCMC methods commonly employed in astrophysics
@@ -723,7 +726,7 @@ Metropolis--Hastings update from Algorithm 1 in \citet{ess-hyper}.
 We tune the Metropolis--Hastings proposal by hand until we get an acceptance
 fraction of $\sim0.2-0.4$ for the hyperparameters.
 
-For all the results below, we run a Markov chain with $10^6$ steps for the bin
+For all the results below, we run a Markov chain with $10^6$ steps for the
 heights and update the hyperparameters every 10 steps.
 We only keep the final $2 \times 10^5$ steps and discard the earlier samples
 as burn-in.
