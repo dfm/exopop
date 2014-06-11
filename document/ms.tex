@@ -1180,9 +1180,11 @@ Gaussian.
 The assumption of normally distributed uncertainties could be relaxed given
 a sampling representation of the posterior probability function for the
 physical parameters (period, radius, \etc).
-It is also possible to relax the noise model---to include effects like the
-underestimation of uncertainties---but inference would be substantially more
-computationally expensive.
+There is recent evidence that the stellar radii of \kepler\ targets might, on
+average, be underestimated (\citealt{bastien}), introducing another source of
+noise.
+It is possible to relax the noise model and include effects like this but
+inference would be substantially more computationally expensive.
 
 \item {\bf Given empirical detection efficiency}\quad
 \citet{petigura} determined the end-to-end detection efficiency of their
@@ -1291,6 +1293,10 @@ Adams, R.~P., Murray, I., \& MacKay, D.~J.~C.\ 2009, ICML, 2009, 9
 \bibitem[Ambikasaran \etal(2014)]{dfm-gp}
 Ambikasaran, S., Foreman-Mackey, D., Greengard, L., Hogg, D.~W.,
 \& O'Neil, M.\ 2014, \arxiv{1403.6015}
+
+\bibitem[Bastien \etal(2014)]{bastien}
+Bastien, F.~A., Stassun, K.~G., \& Pepper, J.\ 2014, \apjl, 788, L9
+(\arxiv{1405.0940})
 
 \bibitem[Batalha \etal(2013)]{kepler-catalog}
 Batalha, N.~M., Rowe, J.~F., Bryson, S.~T., et al.\ 2013, \apjs, 204, 24
