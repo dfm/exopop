@@ -4,7 +4,7 @@
 from __future__ import division, print_function
 
 __all__ = ["BrokenPowerLaw", "Histogram", "Population", "SeparablePopulation",
-           "Dataset", "CensoringFunction"]
+           "Dataset", "CensoringFunction", "SavedCensoringFunction"]
 
 from itertools import izip
 
@@ -600,6 +600,14 @@ class CensoringFunction(object):
     def get_lncompleteness(self, samples):
         i = self.index(samples)
         return self.lncompleteness[i]
+
+
+class SavedCensoringFunction(CensoringFunction):
+
+    def __init__(self, bins, lnprob, lncompleteness):
+        self.bins = bins
+        self.lnprob = lnprob
+        self.lncompleteness = lncompleteness
 
 
 class ProbabilisticModel(object):
