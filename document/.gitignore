@@ -10,3 +10,4 @@
 *.synctex.gz
 !figures/*/*.pdf
 vc.tex
+code
