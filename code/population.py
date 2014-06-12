@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+This module implements the probabilistic hierarchical model from
+Foreman-Mackey, Hogg & Morton (2014). It should (mostly) work in arbitrary
+latent dimensions but it has only been tested in 2D.
+
+Please cite our paper if you use this code.
+
+"""
+
 from __future__ import division, print_function
 
 __all__ = ["BrokenPowerLaw", "Histogram", "Population", "SeparablePopulation",
