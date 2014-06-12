@@ -3,7 +3,8 @@ Exoplanet population inference
 
 This repository contains the code and text for the paper [Exoplanet population
 inference and the abundance of Earth analogs from noisy, incomplete catalogs]()
-by Daniel Foreman-Mackey, David W. Hogg, and Timothy D. Morton.
+by Daniel Foreman-Mackey, David W. Hogg, and Timothy D. Morton and submitted
+to ApJ.
 
 The code lives in the `code` directory and the LaTeX source code for the paper
 is in `document`.
@@ -19,6 +20,12 @@ paper. You should look at the docstrings for details but the summary is:
 * `main.py` does the MCMC analysis on either real or simulated catalogs, and
 * `results.py` analyzes the results of the MCMC, makes some figures, and thins
   the chain to the published form.
+
+Results
+-------
+
+Our simulated catalogs and results are [available online on figshare](
+http://dx.doi.org/10.6084/m9.figshare.1051864).
 
 Attribution
 -----------
