@@ -2,7 +2,8 @@ Exoplanet population inference
 ==============================
 
 This repository contains the code and text for the paper [Exoplanet population
-inference and the abundance of Earth analogs from noisy, incomplete catalogs]()
+inference and the abundance of Earth analogs from noisy, incomplete catalogs](
+http://arxiv.org/abs/1406.3020)
 by Daniel Foreman-Mackey, David W. Hogg, and Timothy D. Morton and submitted
 to ApJ.
 
@@ -30,8 +31,9 @@ http://dx.doi.org/10.6084/m9.figshare.1051864).
 Attribution
 -----------
 
-This code is associated with and written specifically for [our paper](). If you
-make any use of it, please cite it:
+This code is associated with and written specifically for [our
+paper](http://arxiv.org/abs/1406.3020). If you make any use of it,
+please cite:
 
 ```
 @article{exopop,
@@ -40,8 +42,7 @@ make any use of it, please cite it:
              Earth analogs from noisy, incomplete catalogs},
   journal = {ArXiv --- submitted to ApJ},
      year = 2014,
-   eprint = {},
-      doi = {}
+   eprint = {1406.3020}
 }
 ```
 
