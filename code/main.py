@@ -92,7 +92,9 @@ def inverse_detection_efficiency(pop, censor, catalog, err, truth=None):
     return val, var, literature, fig, fig2, (q[1], np.diff(q))
 
 
-def main(bp, real_data, ep_bins=False):
+def main(bp, real_data, ep_bins=False, ignore_uncert=False):
+    if ignore_uncert:
+        bp = "{0}-no-uncert".format(bp)
     try:
         os.makedirs(bp)
     except os.error:
@@ -111,10 +113,13 @@ def main(bp, real_data, ep_bins=False):
         truth = None
         m = np.log(catalog[:, 0]) > np.min(x)
         catalog, err = catalog[m], err[m]
+        if ignore_uncert:
+            err = np.zeros_like(err)
     else:
         catalog, err, truth = \
             pickle.load(open(os.path.join(bp, "catalog.pkl")))
-    dataset = Dataset.sample(catalog, err, samples=256, censor=censor,
+    K = 1 if ignore_uncert else 256
+    dataset = Dataset.sample(catalog, err, samples=K, censor=censor,
                              functions=[np.log, np.log])
     print("{0} entries in catalog".format(dataset.catalogs.shape[1]))
 
@@ -199,7 +204,11 @@ def main(bp, real_data, ep_bins=False):
 
 if __name__ == "__main__":
     import sys
+    ignore = False
+    if "--ignore" in sys.argv:
+        sys.argv.remove("--ignore")
+        ignore = True
     if len(sys.argv) > 1:
-        main(sys.argv[1], False)
+        main(sys.argv[1], False, ignore_uncert=ignore)
     else:
-        main("results", True)
+        main("results", True, ignore_uncert=ignore)
