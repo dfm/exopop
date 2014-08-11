@@ -568,11 +568,7 @@ class CensoringFunction(object):
         img_all, self.bins = np.histogramdd(samples, bins=bins, range=range)
         img_yes, tmp = np.histogramdd(samples[recovery], bins=self.bins)
 
-        # Compute the bin widths, centers and areas using some crazy shit.
-        widths = map(np.diff, self.bins)
-        self.ln_bin_widths = map(np.log, widths)
-        self.bin_centers = [b[:-1] + 0.5*w for b, w in izip(self.bins, widths)]
-        self.ln_cell_area = reduce(np.add, np.ix_(*(self.ln_bin_widths)))
+        self.setup()
 
         # Compute the completeness asserting zero completeness where there
         # were no injections.
@@ -598,6 +594,13 @@ class CensoringFunction(object):
                                          dtype=float)
         self.lnprob[[slice(1, -1)] * len(self.bins)] = lnprob
 
+    def setup(self):
+        # Compute the bin widths, centers and areas using some crazy shit.
+        widths = map(np.diff, self.bins)
+        self.ln_bin_widths = map(np.log, widths)
+        self.bin_centers = [b[:-1] + 0.5*w for b, w in izip(self.bins, widths)]
+        self.ln_cell_area = reduce(np.add, np.ix_(*(self.ln_bin_widths)))
+
     def index(self, samples):
         return [np.digitize(x, b)
                 for x, b in izip(np.atleast_2d(samples).T, self.bins)]
@@ -617,6 +620,7 @@ class SavedCensoringFunction(CensoringFunction):
         self.bins = bins
         self.lnprob = lnprob
         self.lncompleteness = lncompleteness
+        self.setup()
 
 
 class ProbabilisticModel(object):
