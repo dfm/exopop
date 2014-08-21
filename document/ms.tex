@@ -239,10 +239,13 @@ detection efficiencies and transit probabilities into account.
 This technique has been used to constrain parametric models---a broken power
 law, for example---for the occurrence rate density (\citealt{tabachnik,
 youdin, dong}).
-As we show in \sect{model}, if we model the occurrence rate density as a
-piecewise constant function, the inverse-detection-efficiency method can be
-derived as a special case of the likelihood method with a specific set of
-assumptions.
+In this \paper, we start from the likelihood method but model the rate density
+non-parametrically as a piecewise-constant step function.
+Using this formulation of the problem, we derive a generalization that takes
+observational uncertainties into account.
+In \app{inv-det-eff}, we show that the inverse-detection-efficiency method can
+be derived as a special case of the likelihood method in the limit of a
+smoothly varying completeness function.
 
 In every previous study of exoplanet occurrence rates, the authors have
 assumed that the measurement uncertainties are negligible.
@@ -1211,8 +1214,10 @@ It is a pleasure to thank
 Ruth Angus (Oxford),
 Tom Barclay (NASA Ames),
 Jo Bovy (IAS),
-Eric Ford (PSU), and
-Ben Montet (Caltech/Harvard)
+Eric Ford (PSU),
+David Kipping (CfA),
+Ben Montet (Caltech/Harvard), and
+Scott Tremaine (IAS)
 for helpful contributions to the ideas and code presented here.
 We would also like to acknowlege the anonymous referee for suggestions that
 substantially improved the paper.
@@ -1228,6 +1233,7 @@ This research made use of the NASA \project{Astrophysics Data System}.
 \section*{APPENDIX}
 
 \section{Inverse-detection-efficiency}
+\sectlabel{inv-det-eff}
 
 It's now interesting to take a brief aside and discuss the connection between
 our model and the commonly used inverse-detection-efficiency procedure
