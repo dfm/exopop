@@ -560,67 +560,6 @@ In other words, we have per-object posterior samples
 It lets us efficiently compute the \emph{marginalized likelihood of the entire
 set of light curves for a particular occurrence rate density}.
 
-\paragraph{Inverse-detection-efficiency}
-It's now interesting to take a brief aside and discuss the connection between
-our model and the commonly used inverse-detection-efficiency procedure
-(\citealt{howard,dressing,petigura}).
-This procedure involves making a weighted histogram of the catalog entries
-where the weight for object $\entry_k$ is $1/\completeness(\entry_k)$.
-This makes intuitive sense but the standard formulation does not have a clear
-probabilistic justification or interpretation.
-
-If we model the occurrence rate density as a histogram with $J$ fixed bin
-volumes $\binarea_j$
-\begin{eqnarray}
-\rate_\ratepars (\entry) &=& \left\{\begin{array}{ll}
-\exp(\ratepar_1) & \entry \in \binarea_1,\\
-\exp(\ratepar_2) & \entry \in \binarea_2,\\
-\cdots \\
-\exp(\ratepar_J) & \entry \in \binarea_J,\\
-0 & \mathrm{otherwise}
-\end{array}\right.
-\end{eqnarray}
-then \eq{poisson-like} becomes
-\begin{eqnarray}
-\ln p(\{\entry_k\}\,|\,\ratepars) &=&
-    \sum_{k=1}^K \sum_{j=1}^J \mathbf{1}[\entry_k \in
-        \binarea_j]\,[\ln\completeness(\entry_k)+\ratepar_j]
-    -\sum_{j=1}^J\exp(\ratepar_j)\,
-        \int_{\binarea_j} \completeness(\entry)\dd\entry
-\end{eqnarray}
-where the indicator function $\mathbf{1}[\cdot]$ is one if $\cdot$ is true and
-zero otherwise.
-If we take the gradient of this function with respect to \ratepars\ and set it
-equal to zero, we find the maximum likelihood result
-\begin{eqnarray}\eqlabel{ml-ide}
-\exp ({\ratepar_j}^*) &=&
-\frac{N_j}{\int_{\binarea_j} \completeness(\entry)\dd\entry}
-\end{eqnarray}
-where $N_j$ is the number of objects that fall within the bin $j$.
-We estimate the uncertainty $\delta\ratepar_j$ on this value by examining the
-curvature of the log-likelihood function near the maximum and find
-\begin{eqnarray}
-\frac{\delta\exp({\ratepar_j}^*)}{\exp({\ratepar_j}^*)} &=&
-    \frac{1}{\sqrt{N_j}}
-\quad.
-\end{eqnarray}
-
-Since \eq{ml-ide} gives the maximum likelihood solution, this result is the
-minimum-variance estimator for the rate density when the completeness function
-$\completeness(\entry)$ is known and the catalog uncertainties are negligible.
-This is \emph{almost} the same as the inverse-detection-efficiency procedure
-and if the completeness function is constant in each bin \binarea, both
-methods give the same result.
-If the completeness function is not piecewise-constant on the same grid as the
-rate density inference, the inverse-detection-efficiency procedure will
-give a higher variance estimate of the occurrence rate density than
-\eq{ml-ide}.
-In this \paper, we don't use either of these inverse-detection-efficiency
-procedures because they both fundamentally rely on the assumption of
-\emph{negligible observational uncertainties}.
-By applying \eq{money}, we derive the probabilistic generalization of this
-model in the next section but the result is no longer analytic.
-
 \paragraph{Occurrence rate density parameterization \& priors}
 For the remainder of this \paper, we also model the rate density as a
 two-dimensional histogram with fixed logarithmic bins in period and radius.
@@ -1283,6 +1222,72 @@ This research builds on ideas generated at a three-week workshop supported by
 NSF Grant DMS-1127914 to the Statistical and Applied Mathematical Sciences
 Institute.
 This research made use of the NASA \project{Astrophysics Data System}.
+
+\appendix
+
+\section*{APPENDIX}
+
+\section{Inverse-detection-efficiency}
+
+It's now interesting to take a brief aside and discuss the connection between
+our model and the commonly used inverse-detection-efficiency procedure
+(\citealt{howard,dressing,petigura}).
+This procedure involves making a weighted histogram of the catalog entries
+where the weight for object $\entry_k$ is $1/\completeness(\entry_k)$.
+This makes intuitive sense but the standard formulation does not have a clear
+probabilistic justification or interpretation.
+
+If we model the occurrence rate density as a histogram with $J$ fixed bin
+volumes $\binarea_j$
+\begin{eqnarray}
+\rate_\ratepars (\entry) &=& \left\{\begin{array}{ll}
+\exp(\ratepar_1) & \entry \in \binarea_1,\\
+\exp(\ratepar_2) & \entry \in \binarea_2,\\
+\cdots \\
+\exp(\ratepar_J) & \entry \in \binarea_J,\\
+0 & \mathrm{otherwise}
+\end{array}\right.
+\end{eqnarray}
+then \eq{poisson-like} becomes
+\begin{eqnarray}
+\ln p(\{\entry_k\}\,|\,\ratepars) &=&
+    \sum_{k=1}^K \sum_{j=1}^J \mathbf{1}[\entry_k \in
+        \binarea_j]\,[\ln\completeness(\entry_k)+\ratepar_j]
+    -\sum_{j=1}^J\exp(\ratepar_j)\,
+        \int_{\binarea_j} \completeness(\entry)\dd\entry
+\end{eqnarray}
+where the indicator function $\mathbf{1}[\cdot]$ is one if $\cdot$ is true and
+zero otherwise.
+If we take the gradient of this function with respect to \ratepars\ and set it
+equal to zero, we find the maximum likelihood result
+\begin{eqnarray}\eqlabel{ml-ide}
+\exp ({\ratepar_j}^*) &=&
+\frac{N_j}{\int_{\binarea_j} \completeness(\entry)\dd\entry}
+\end{eqnarray}
+where $N_j$ is the number of objects that fall within the bin $j$.
+We estimate the uncertainty $\delta\ratepar_j$ on this value by examining the
+curvature of the log-likelihood function near the maximum and find
+\begin{eqnarray}
+\frac{\delta\exp({\ratepar_j}^*)}{\exp({\ratepar_j}^*)} &=&
+    \frac{1}{\sqrt{N_j}}
+\quad.
+\end{eqnarray}
+
+Since \eq{ml-ide} gives the maximum likelihood solution, this result is the
+minimum-variance estimator for the rate density when the completeness function
+$\completeness(\entry)$ is known and the catalog uncertainties are negligible.
+This is \emph{almost} the same as the inverse-detection-efficiency procedure
+and if the completeness function is constant in each bin \binarea, both
+methods give the same result.
+If the completeness function is not piecewise-constant on the same grid as the
+rate density inference, the inverse-detection-efficiency procedure will
+give a higher variance estimate of the occurrence rate density than
+\eq{ml-ide}.
+In this \paper, we don't use either of these inverse-detection-efficiency
+procedures because they both fundamentally rely on the assumption of
+\emph{negligible observational uncertainties}.
+By applying \eq{money}, we derive the probabilistic generalization of this
+model in the next section but the result is no longer analytic.
 
 \newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
 \begin{thebibliography}{}\raggedright
