@@ -56,9 +56,6 @@
 
 \newcommand{\dd}{\ensuremath{\,\mathrm{d}}}
 \newcommand{\bvec}[1]{\ensuremath{\boldsymbol{#1}}}
-\newcommand{\appropto}{\mathrel{\vcenter{
-  \offinterlineskip\halign{\hfil$##$\cr
-    \propto\cr\noalign{\kern2pt}\sim\cr\noalign{\kern-2pt}}}}}
 \newcommand{\densityunit}{{\ensuremath{\mathrm{nat}^{-2}}}}
 
 % TO DOS
@@ -351,18 +348,20 @@ for \gammaearth.
 We enforce the smoothness constraint by applying a flexible Gaussian process
 regularization to the bin heights.
 
-In the next Section, we introduce the concept of hierarchical inference, how
-it applies to the problem at hand, and we derive the importance sampling
-approximation to the marginalized likelihood (this is a generalization of the
-method from \citealt{hogge}).
-Then, in \sect{model}, we describe how to include detection efficiencies in
-this model and derive a probabilistic motivation for the standard
-inverse-detection-efficiency weighting procedure.
+In the next Section, we introduce our method for incorporating the effects of
+observational uncertainties into the derivation of occurrence rates.
+The technical term for this procedure is \emph{hierarchical inference} and
+while a general discussion of this field is beyond the scope of this \paper,
+in the next section, we present the basic probabilistic question and derive a
+computationally tractable method for inferring the population of exoplanets.
+In \sect{model}, we explain how to incorporate the effects of survey
+completeness into our inferences and derive the key equation for our method:
+\eq{money}.
 We test our method on synthetic catalogs in Sections~\sectalt{valid}
 and~\sectalt{extrap}.
 In \sect{real}, we use the catalog of planet candidates and the empirically
 determined detection efficiency from \citet{petigura} to measure the
-occurrence rate density of Earth analogs.
+occurrence rate density of small planets with long orbital periods.
 
 \section{A brief introduction to hierarchical inference}
 
@@ -1219,7 +1218,7 @@ David Kipping (CfA),
 Ben Montet (Caltech/Harvard), and
 Scott Tremaine (IAS)
 for helpful contributions to the ideas and code presented here.
-We would also like to acknowlege the anonymous referee for suggestions that
+We would also like to acknowledge the anonymous referee for suggestions that
 substantially improved the paper.
 This project was partially supported by the NSF (grant AST-0908357), NASA
 (grant NNX08AJ48G), and the Moore--Sloan Data Science Environment at NYU.
