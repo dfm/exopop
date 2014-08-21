@@ -411,26 +411,37 @@ to probabilistic constraints on a handful of physical parameters---\entry\
 from above---like the orbital period and planetary radius.
 If we take this set of parameters $\{\entry_k\}$ as \emph{sufficient
 statistics} of the data then we can, in theory, compute \eq{crazylike}---up to
-an unimportant constant---without ever looking at the raw data again.
-This is permitted because the catalog provides constraints on the posterior
-probability of the parameters $\{\entry_k\}$ under some choice of
-\emph{interim prior}
-\begin{eqnarray}\eqlabel{crazypost}
-p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) &=&
-\frac{p(\{\data_k\}\,|\,\{\entry_k\})\,p(\{\entry_k\}\,|\,\interim)}
-     {p(\{\data_k\}\,|\,\interim)} \quad.
-\end{eqnarray}
-The interim prior $p(\{\entry_k\}\,|\,\interim)$ is the prior
-function---parameterized by \interim---that the author of the catalog chose
-when making their measurements.
+an unimportant constant---without ever looking at the raw data again!
+This is important because the high-dimensional integral in \eq{crazylike}
+won't generally have an analytic solution and each evaluation of the
+per-object likelihood $p(\data_k\,|\,\entry_k)$ is expensive, making numerical
+methods intractable.
 
-It turns out that we can use these posterior measurements to simplify
-\eq{crazylike} to a form that can, in many common cases, be evaluated
-efficiently.
+Instead, we will reuse the hard work that went into building the catalog.
+We must first notice that each entry in a catalog is a representation of the
+posterior probability
+\begin{eqnarray}\eqlabel{crazypost}
+p(\entry_k\,|\,\data_k,\,\interim) &=&
+\frac{p(\data_k\,|\,\entry_k)\,p(\entry_k\,|\,\interim)}
+     {p(\data_k\,|\,\interim)}
+\end{eqnarray}
+of the parameters $\entry_k$ conditioned on the observations of that object
+$\data_k$.
+The notation \interim\ is a reminder that the catalog was produced under a
+specific choice of some---probably ``uninformative''---\emph{interim prior}
+$p(\entry_k\,|\,\interim)$.
+This prior was chosen by the author of the catalog and it is different from
+the distribution that we want to infer: $p(\entry_k\,|\,\ratepars)$.
+
+Now, we can use these posterior measurements to simplify \eq{crazylike} to a
+form that can, in many common cases, be evaluated efficiently.
 To find this result, multiply the integrand in \eq{crazylike} by
 \begin{eqnarray}
 \frac{p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)}
-     {p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)}
+     {p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)} &=&
+\prod_{k=1}^K
+\frac{p(\entry_k\,|\,\data_k,\,\interim)}
+     {p(\entry_k\,|\,\data_k,\,\interim)}
 \end{eqnarray}
 and use \eq{crazypost} to find
 \begin{eqnarray}\eqlabel{simplemarglike}
