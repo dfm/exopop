@@ -292,11 +292,6 @@ so this is not a strong restriction.}.
 The first assumption---conditional independence of the candidates---is
 reasonable since the dataset that we consider explicitly includes only single
 transiting systems (\citealt{petigura}).
-This is a limitation of the input catalog.
-When considering other datasets it will be interesting and important to take
-multiple transiting systems into account (\citealt{lissauer, tremaine, fang})
-and this would be possible using conditional distributions (as developed by
-\citealt{tremaine}).
 The second assumption---neglecting false positives---is also strong and only
 weakly justified by estimates of low false positive rates in the \kepler\ data
 (\citealt{fressin-fp, morton}).
@@ -415,12 +410,9 @@ Inasmuch as the detection efficiency $\completeness(\entry)$ is calculated
 correctly, the function $\rate_\ratepars(\entry)$ will represent the \True\
 rate density of exoplanets, at least where there is support in the data.
 In practice, an estimate of the detection efficiency will not include every
-decision or effect in the pipeline.
-One example in this case is that the completeness function does not account
-for the explicit removal of second (and third, and so on) planets.
-In principle a more complete description of the detection efficiency can be
-included and as this function becomes more accurate, our inferences about the
-\True\ rate density $\rate_\ratepars(\entry)$ will be less biased.
+decision or effect in the pipeline and as this function becomes more accurate,
+our inferences about the \True\ rate density $\rate_\ratepars(\entry)$ will be
+less biased.
 
 For the results in this \paper, we will assume that the completeness function
 $\completeness(\entry)$ is known empirically on a grid in period and radius
@@ -439,8 +431,8 @@ a piecewise constant step function
 0 & \mathrm{otherwise}
 \end{array}\right.
 \end{eqnarray}
-where the parameters $\ratepar_j$ are the log step heights and the bin edges
-are fixed \foreign{a priori}.
+where the parameters $\ratepar_j$ are the log step heights and the bins
+$\binarea_j$ are fixed \foreign{a priori}.
 
 In \app{inv-det-eff}, we use the model in \eq{rate-model} and neglect
 observational uncertainties, we can derive the analytic maximum likelihood
@@ -1092,14 +1084,14 @@ different, in qualitative agreement with previous results (\citealt{dong}).
 \Fig{period} shows that larger planets tend to be on longer periods than
 smaller planets.
 
-In detail, any inference of the exoplanet population depends on the choices
-made in the pipeline that creates the catalog.
-Our results are based on a catalog that only includes single transiting
-systems (\citealt{petigura}) so our conclusions---and theirs---must be
-considered with this in mind.
-In particular, the exclusion of second (and third, and so on) planets must
-suppress the inferred rate density, especially at long periods and small
-radii.
+% In detail, any inference of the exoplanet population depends on the choices
+% made in the pipeline that creates the catalog.
+% Our results are based on a catalog that only includes single transiting
+% systems (\citealt{petigura}) so our conclusions---and theirs---must be
+% considered with this in mind.
+% In particular, the exclusion of second (and third, and so on) planets must
+% suppress the inferred rate density, especially at long periods and small
+% radii.
 
 Our extrapolation of the rate density to the location of Earth is more general
 and conservative than any previously published method.
@@ -1261,7 +1253,8 @@ David Kipping (CfA),
 Ben Montet (Caltech/Harvard), and
 Scott Tremaine (IAS)
 for helpful contributions to the ideas and code presented here.
-We would also like to acknowledge the anonymous referee for suggestions that
+We would also like to acknowledge the anonymous referee and the Scientific
+Editor, Eric Feigelson, for suggestions that
 substantially improved the paper.
 This project was partially supported by the NSF (grant AST-0908357), NASA
 (grant NNX08AJ48G), and the Moore--Sloan Data Science Environment at NYU.
@@ -1277,26 +1270,34 @@ This research made use of the NASA \project{Astrophysics Data System}.
 \section{Inverse-detection-efficiency}
 \sectlabel{inv-det-eff}
 
-It's now interesting to take a brief aside and discuss the connection between
-our model and the commonly used inverse-detection-efficiency procedure
-(\citealt{howard,dressing,petigura}).
-This procedure involves making a weighted histogram of the catalog entries
-where the weight for object $\entry_k$ is $1/\completeness(\entry_k)$.
-This makes intuitive sense but the standard formulation does not have a clear
-probabilistic justification or interpretation.
+One huge benefit of the inverse-detection-efficiency procedure is its
+simplicity.
+Therefore, it's worth noting that there is a probabilistically justified
+procedure that will always provide less biased results while being only
+marginally more complicated.
+
+The standard procedure involves making a weighted histogram of the catalog
+entries where the weight for object $\entry_k$ is $1/\completeness(\entry_k)$.
+This makes intuitive sense but it does not have a clear probabilistic
+justification or interpretation.
+As we will show below, the maximum likelihood result involves weighting the
+points by the inverse of the \emph{integral} of the completeness function over
+the bin area.
+
+To motivate this derivation, let's start by considering the following
+pathological example: a single bin where the completeness sharply drops from
+one to zero halfway across the bin.
+If we observe $K$ objects in this bin, we would have observed about $2K$
+objects in a complete sample.
+If we apply the inverse-detection-efficiency procedure to this dataset, each
+sample will get unit weight because they are all found in the part of the bin
+where the completeness is one.
+Therefore, we would \emph{underestimate} the true rate in the bin by half.
+It's clear in this specific case that giving the points a weight of two would
+give a better solution and we'll derive the general result below.
 
 If we model the occurrence rate density as a histogram with $J$ fixed bin
-volumes $\binarea_j$
-\begin{eqnarray}
-\rate_\ratepars (\entry) &=& \left\{\begin{array}{ll}
-\exp(\ratepar_1) & \entry \in \binarea_1,\\
-\exp(\ratepar_2) & \entry \in \binarea_2,\\
-\cdots \\
-\exp(\ratepar_J) & \entry \in \binarea_J,\\
-0 & \mathrm{otherwise}
-\end{array}\right.
-\end{eqnarray}
-then \eq{poisson-like} becomes
+volumes $\binarea_j$ (\eqalt{rate-model}) then \eq{poisson-like} becomes
 \begin{eqnarray}
 \ln p(\{\entry_k\}\,|\,\ratepars) &=&
     \sum_{k=1}^K \sum_{j=1}^J \mathbf{1}[\entry_k \in
@@ -1306,36 +1307,31 @@ then \eq{poisson-like} becomes
 \end{eqnarray}
 where the indicator function $\mathbf{1}[\cdot]$ is one if $\cdot$ is true and
 zero otherwise.
-If we take the gradient of this function with respect to \ratepars\ and set it
+Taking the gradient of this function with respect to \ratepars\ and setting it
 equal to zero, we find the maximum likelihood result
 \begin{eqnarray}\eqlabel{ml-ide}
 \exp ({\ratepar_j}^*) &=&
-\frac{N_j}{\int_{\binarea_j} \completeness(\entry)\dd\entry}
+\frac{K_j}{\int_{\binarea_j} \completeness(\entry)\dd\entry}
 \end{eqnarray}
-where $N_j$ is the number of objects that fall within the bin $j$.
+where $K_j$ is the number of objects that fall within the bin $j$.
 We estimate the uncertainty $\delta\ratepar_j$ on this value by examining the
 curvature of the log-likelihood function near the maximum and find
 \begin{eqnarray}
-\frac{\delta\exp({\ratepar_j}^*)}{\exp({\ratepar_j}^*)} &=&
-    \frac{1}{\sqrt{N_j}}
+\frac{\delta\exp({\ratepar_j}^*)}{\exp({\ratepar_j}^*)}
+&=& \frac{1}{\sqrt{K_j}}
 \quad.
 \end{eqnarray}
 
-Since \eq{ml-ide} gives the maximum likelihood solution, this result is the
-minimum-variance estimator for the rate density when the completeness function
-$\completeness(\entry)$ is known and the catalog uncertainties are negligible.
-This is \emph{almost} the same as the inverse-detection-efficiency procedure
-and if the completeness function is constant in each bin \binarea, both
-methods give the same result.
-If the completeness function is not piecewise-constant on the same grid as the
-rate density inference, the inverse-detection-efficiency procedure will
-give a higher variance estimate of the occurrence rate density than
-\eq{ml-ide}.
-In this \paper, we don't use either of these inverse-detection-efficiency
-procedures because they both fundamentally rely on the assumption of
-\emph{negligible observational uncertainties}.
-By applying \eq{money}, we derive the probabilistic generalization of this
-model in the next section but the result is no longer analytic.
+In our pathological example from above, the integral of the completeness
+function over the bin is $1/2$, giving each sample the expected weight of $2$.
+In more realistic cases, where the completeness function varies smoothly, the
+inverse-detection-efficiency result will begin to agree with \eq{ml-ide} but
+the severity of this bias will be very problem dependent.
+Therefore, if you have a dataset with negligible observational uncertainties,
+we recommend that you always apply \eq{ml-ide} instead of the standard
+inverse-detection-efficiency procedure.
+As the uncertainties become more significant, there is no longer an analytic
+result and the method derived in this \paper\ is necessary.
 
 \newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
 \begin{thebibliography}{}\raggedright
