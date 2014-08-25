@@ -76,6 +76,16 @@ grids = thinned.reshape((len(thinned), pop.shape[0], pop.shape[1]))
 print(grids.shape)
 print([b.shape for b in pop.bins])
 
+
+def xmap(f, i):
+    return (f(*x) for x in i)
+
+h_mu = np.mean(np.exp(0.5 * hyper[-ntot:][::thin_by, 2:]), axis=0)
+h_std = np.std(np.exp(0.5 * hyper[-ntot:][::thin_by, 2:]), axis=0)
+print("Hyper:")
+print("\n".join(xmap("{0} ± {1}".format, zip(h_mu, h_std))))
+print()
+
 with h5py.File(os.path.join(bp, "samples.h5"), "w") as f:
     f.create_dataset("hyperparameter_samples", data=hyper[-ntot:][::thin_by])
     f.create_dataset("ln_occurrence_rate_samples", data=grids)
@@ -123,13 +133,14 @@ ax.axvline(np.log(ext[0]), color="k")
 # ax.axvline(c, color="k", ls="dashed")
 # ax.axvline(a, color="k", ls="dashed")
 
+ax.set_xlim(-7, -1)
 ax.set_xlabel(r"$\ln \Gamma_\oplus$")
 ax.set_ylabel(r"$p(\ln \Gamma_\oplus)$")
 
 a2 = ax.twiny()
-a2.set_xlim(100 * np.exp(ax.get_xlim()))
+a2.set_xlim(np.exp(ax.get_xlim()))
 a2.set_xscale("log")
-a2.set_xlabel(r"$\Gamma_\oplus\,[\%]$")
+a2.set_xlabel(r"$\Gamma_\oplus$")
 
 fig.subplots_adjust(top=0.85)
 

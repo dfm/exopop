@@ -118,7 +118,7 @@ def main(bp, real_data, ep_bins=False, ignore_uncert=False):
     else:
         catalog, err, truth = \
             pickle.load(open(os.path.join(bp, "catalog.pkl")))
-    K = 1 if ignore_uncert else 256
+    K = 1 if ignore_uncert else 512
     dataset = Dataset.sample(catalog, err, samples=K, censor=censor,
                              functions=[np.log, np.log])
     print("{0} entries in catalog".format(dataset.catalogs.shape[1]))
