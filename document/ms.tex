@@ -56,9 +56,6 @@
 
 \newcommand{\dd}{\ensuremath{\,\mathrm{d}}}
 \newcommand{\bvec}[1]{\ensuremath{\boldsymbol{#1}}}
-\newcommand{\appropto}{\mathrel{\vcenter{
-  \offinterlineskip\halign{\hfil$##$\cr
-    \propto\cr\noalign{\kern2pt}\sim\cr\noalign{\kern-2pt}}}}}
 \newcommand{\densityunit}{{\ensuremath{\mathrm{nat}^{-2}}}}
 
 % TO DOS
@@ -239,10 +236,13 @@ detection efficiencies and transit probabilities into account.
 This technique has been used to constrain parametric models---a broken power
 law, for example---for the occurrence rate density (\citealt{tabachnik,
 youdin, dong}).
-As we show in \sect{model}, if we model the occurrence rate density as a
-piecewise constant function, the inverse-detection-efficiency method can be
-derived as a special case of the likelihood method with a specific set of
-assumptions.
+In this \paper, we start from the likelihood method but model the rate density
+non-parametrically as a piecewise-constant step function.
+Using this formulation of the problem, we derive a generalization that takes
+observational uncertainties into account.
+In \app{inv-det-eff}, we show that the inverse-detection-efficiency method can
+be derived as a special case of the likelihood method in the limit of a
+smoothly varying completeness function.
 
 In every previous study of exoplanet occurrence rates, the authors have
 assumed that the measurement uncertainties are negligible.
@@ -292,11 +292,6 @@ so this is not a strong restriction.}.
 The first assumption---conditional independence of the candidates---is
 reasonable since the dataset that we consider explicitly includes only single
 transiting systems (\citealt{petigura}).
-This is a limitation of the input catalog.
-When considering other datasets it will be interesting and important to take
-multiple transiting systems into account (\citealt{lissauer, tremaine, fang})
-and this would be possible using conditional distributions (as developed by
-\citealt{tremaine}).
 The second assumption---neglecting false positives---is also strong and only
 weakly justified by estimates of low false positive rates in the \kepler\ data
 (\citealt{fressin-fp, morton}).
@@ -348,24 +343,30 @@ for \gammaearth.
 We enforce the smoothness constraint by applying a flexible Gaussian process
 regularization to the bin heights.
 
-In the next Section, we introduce the concept of hierarchical inference, how
-it applies to the problem at hand, and we derive the importance sampling
-approximation to the marginalized likelihood (this is a generalization of the
-method from \citealt{hogge}).
-Then, in \sect{model}, we describe how to include detection efficiencies in
-this model and derive a probabilistic motivation for the standard
-inverse-detection-efficiency weighting procedure.
+In the next Section, we summarize the likelihood method for exoplanet
+population inference and in \sect{hier}, we describe how to include the
+effects of observational uncertainties.
+The technical term for this procedure is \emph{hierarchical inference} and
+while a general discussion of this field is beyond the scope of this \paper,
+in the \sect{hier}, we present the basic probabilistic question and derive a
+computationally tractable inference procedure.
+In \sect{model}, we summarize the technique and derive the key equation for
+our method: \eq{money}.
 We test our method on synthetic catalogs in Sections~\sectalt{valid}
 and~\sectalt{extrap}.
 In \sect{real}, we use the catalog of planet candidates and the empirically
 determined detection efficiency from \citet{petigura} to measure the
-occurrence rate density of Earth analogs.
+occurrence rate density of small planets with long orbital periods.
 
-\section{A brief introduction to hierarchical inference}
+\section{The likelihood method}
+\sectlabel{likelihood}
 
-In this \paper, we are asking the question: \emph{what constraints can we put
-on the occurrence rate density of exoplanets given all the light curves
-measured by \kepler?}
+The first ingredient for any probabilistic inference is a likelihood function;
+a description of the probability of observing a specific dataset given a set
+of model parameters.
+In this particular project, the dataset is a catalog of exoplanet measurements
+and the model parameters are the values that set the shape and normalization
+of the occurrence rate density.
 Throughout this \paper, we use the notation $\rate_\ratepars(\entry)$ for the
 occurrence rate density \rate---parameterized by the parameters \ratepars---as
 a function of the physical parameters \entry\ (orbital period, planetary
@@ -373,25 +374,97 @@ radius, \etc).
 In this framework, the occurrence rate density can be ``parametric''---for
 example, a power law---or a ``non-parametric'' function---such as a histogram
 where the bin heights are the parameters \ratepars.
-The light curve for a particular target $k$ is $\data_k$ and the \True\ set of
-physical parameters for that same object is given by $\entry_k$.
-A catalog provides a set of constraints on the parameters $\{\entry_k\}$
-conditioned on the set light curves $\{\data_k\}$.
 
-Any inference about the rate density parameters can be formally addressed by
-evaluating the \emph{marginalized likelihood function}
+We'll model the catalog as a draw from the inhomogeneous Poisson process set
+by the \emph{observable} rate density $\obs{\rate}_\ratepars$.
+This leads to the previously known result (see \citealt{tabachnik,youdin} for
+some of the examples from the exoplanet literature)
+\begin{eqnarray}\eqlabel{poisson-like}
+p(\{\entry_k\}\,|\,\ratepars) &=&
+    \exp\left(-\int \obs{\rate}_\ratepars (\entry) \dd\entry\right) \,
+    \prod_{k=1}^K \obs{\rate}_\ratepars (\entry_k)\quad.
+\end{eqnarray}
+In this equation, the integral in the normalization term is the expected
+number of observable exoplanets in the sample.
+
+The main thing to note here is that $\obs{\rate}_\ratepars$ is the rate
+density of exoplanets that you would expect to observe taking into account the
+geometric transit probability and any other detection efficiencies.
+In practice, we can model the observable rate density as
+\begin{eqnarray}\eqlabel{obs-rate}
+\obs{\rate}_\ratepars(\entry) &=&
+    \completeness(\entry)\,\rate_\ratepars(\entry)
+\end{eqnarray}
+where $\completeness(\entry)$ is the detection efficiency (including transit
+probability) at \entry\ and $\rate_\ratepars(\entry)$ is the object that we
+want to infer: the \True\ occurrence rate density.
+We haven't yet discussed any specific functional form for
+$\rate_\ratepars(\entry)$ and all of this derivation is equally applicable
+whether we model the rate density as, for example, a broken power law or a
+histogram.
+
+The observed rate density \obs{\rate} is a quantitative description of the
+rate density at which planets appear in the \citet{petigura} catalog; it is
+not a description of the \True\ rate density of exoplanets.
+Inasmuch as the detection efficiency $\completeness(\entry)$ is calculated
+correctly, the function $\rate_\ratepars(\entry)$ will represent the \True\
+rate density of exoplanets, at least where there is support in the data.
+In practice, an estimate of the detection efficiency will not include every
+decision or effect in the pipeline and as this function becomes more accurate,
+our inferences about the \True\ rate density $\rate_\ratepars(\entry)$ will be
+less biased.
+
+For the results in this \paper, we will assume that the completeness function
+$\completeness(\entry)$ is known empirically on a grid in period and radius
+but that is not a requirement for the validity of this method.
+Instead, we could use a functional form for the completeness and even infer
+its parameters along with the parameters of the rate density.
+
+Finally, for all the results in this \paper, we'll model the rate density as
+a piecewise constant step function
+\begin{eqnarray}\eqlabel{rate-model}
+\rate_\ratepars (\entry) &=& \left\{\begin{array}{ll}
+\exp(\ratepar_1) & \entry \in \binarea_1,\\
+\exp(\ratepar_2) & \entry \in \binarea_2,\\
+\cdots \\
+\exp(\ratepar_J) & \entry \in \binarea_J,\\
+0 & \mathrm{otherwise}
+\end{array}\right.
+\end{eqnarray}
+where the parameters $\ratepar_j$ are the log step heights and the bins
+$\binarea_j$ are fixed \foreign{a priori}.
+
+In \app{inv-det-eff}, we use the model in \eq{rate-model} and neglect
+observational uncertainties, we can derive the analytic maximum likelihood
+solution for the step heights.
+This result is similar to and just as simple as the
+inverse-detection-efficiency method and it is guaranteed to provide a lower
+variance estimate of the rate density than the standard procedure.
+
+One major benefit of expressing the problem of occurrence rate inference
+probabilistically is that it can now be formally extended to include the
+effects of observational uncertainties.
+
+\section{A brief introduction to hierarchical inference}
+\sectlabel{hier}
+
+The general question that we are trying to answer in this \paper\ is:
+\emph{what constraints can we put on the occurrence rate density of exoplanets
+given all the light curves measured by \kepler?}
+In the case of negligible measurement uncertainties, this is equivalent to
+optimizing \eq{poisson-like} but when this approximation is no longer valid,
+we must instead compute the \emph{marginalized likelihood}
 \begin{eqnarray}\eqlabel{crazylike}
 p(\{\data_k\}\,|\,\ratepars) &=&
     \int p(\{\data_k\}\,|\,\{\entry_k\})
     \,p(\{\entry_k\}\,|\,\ratepars)
     \dd\{\entry_k\}
 \end{eqnarray}
-where, as we mentioned above, $\{\data_k\}$ is the set of all light curves,
-one light curve $\data_k$ per target $k$, \ratepars\ is the vector of
-parameters describing the population occurrence rate density
-$\rate_\ratepars(\entry)$ and $\entry_k$ is the vector of physical parameters
-describing the planetary system (orbital periods, radius ratios, stellar
-radius, \etc) around target $k$.
+where $\{\data_k\}$ is the set of all light curves, one light curve $\data_k$
+per target $k$, \ratepars\ is the vector of parameters describing the
+population occurrence rate density $\rate_\ratepars(\entry)$ and $\entry_k$ is
+the vector of physical parameters describing the planetary system (orbital
+periods, radius ratios, stellar radius, \etc) around target $k$.
 In this equation, our only assumption is that the datasets depend on the
 rate density of exoplanets only through the catalog $\{\entry_k\}$.
 In our case, this assumption qualitatively means that the signals found in the
@@ -401,34 +474,45 @@ It is worth emphasizing that---as we will discuss further below---the catalog
 only provides \emph{probabilistic constraints} on $\{\entry_k\}$; not perfect
 delta-function measurements.
 
-In other words, we treat a catalog as being a dimensionality reduction of the
-raw data with all the relevant information retained.
+In other words, we treat the catalog as being a dimensionality reduction of
+the raw data with all the relevant information retained.
 In the context of \kepler, the catalog reduces the set of downloaded pixel
 time series (approximately 70,000 data points for the typical \kepler\ target)
 to probabilistic constraints on a handful of physical parameters---\entry\
 from above---like the orbital period and planetary radius.
 If we take this set of parameters $\{\entry_k\}$ as \emph{sufficient
 statistics} of the data then we can, in theory, compute \eq{crazylike}---up to
-an unimportant constant---without ever looking at the raw data again.
-This is permitted because the catalog provides constraints on the posterior
-probability of the parameters $\{\entry_k\}$ under some choice of
-\emph{interim prior}
-\begin{eqnarray}\eqlabel{crazypost}
-p(\{\entry_k\}\,|\,\{\data_k\},\,\interim) &=&
-\frac{p(\{\data_k\}\,|\,\{\entry_k\})\,p(\{\entry_k\}\,|\,\interim)}
-     {p(\{\data_k\}\,|\,\interim)} \quad.
-\end{eqnarray}
-The interim prior $p(\{\entry_k\}\,|\,\interim)$ is the prior
-function---parameterized by \interim---that the author of the catalog chose
-when making their measurements.
+an unimportant constant---without ever looking at the raw data again!
+This is important because the high-dimensional integral in \eq{crazylike}
+won't generally have an analytic solution and each evaluation of the
+per-object likelihood $p(\data_k\,|\,\entry_k)$ is expensive, making numerical
+methods intractable.
 
-It turns out that we can use these posterior measurements to simplify
-\eq{crazylike} to a form that can, in many common cases, be evaluated
-efficiently.
+Instead, we will reuse the hard work that went into building the catalog.
+We must first notice that each entry in a catalog is a representation of the
+posterior probability
+\begin{eqnarray}\eqlabel{crazypost}
+p(\entry_k\,|\,\data_k,\,\interim) &=&
+\frac{p(\data_k\,|\,\entry_k)\,p(\entry_k\,|\,\interim)}
+     {p(\data_k\,|\,\interim)}
+\end{eqnarray}
+of the parameters $\entry_k$ conditioned on the observations of that object
+$\data_k$.
+The notation \interim\ is a reminder that the catalog was produced under a
+specific choice of a---probably ``uninformative''---\emph{interim prior}
+$p(\entry_k\,|\,\interim)$.
+This prior was chosen by the author of the catalog and it is different from
+the likelihood $p(\entry_k\,|\,\ratepars)$ from \eq{poisson-like}.
+
+Now, we can use these posterior measurements to simplify \eq{crazylike} to a
+form that can, in many common cases, be evaluated efficiently.
 To find this result, multiply the integrand in \eq{crazylike} by
 \begin{eqnarray}
 \frac{p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)}
-     {p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)}
+     {p(\{\entry_k\}\,|\,\{\data_k\},\,\interim)} &=&
+\prod_{k=1}^K
+\frac{p(\entry_k\,|\,\data_k,\,\interim)}
+     {p(\entry_k\,|\,\data_k,\,\interim)}
 \end{eqnarray}
 and use \eq{crazypost} to find
 \begin{eqnarray}\eqlabel{simplemarglike}
@@ -484,57 +568,6 @@ method similar to the one discussed here.
 \section{Model generalities}
 \sectlabel{model}
 
-In the inference procedure described above, we only discussed an abstract
-occurrence rate density.
-To make it more concrete, we'll model the catalog as a draw from the
-inhomogeneous Poisson process set by the \emph{observable} rate density
-$\obs{\rate}_\ratepars$.
-This leads to the previously known result (see \citealt{tabachnik,youdin} for
-some of the examples from the exoplanet literature)
-\begin{eqnarray}\eqlabel{poisson-like}
-p(\{\entry_k\}\,|\,\ratepars) &=&
-    \exp\left(-\int \obs{\rate}_\ratepars (\entry) \dd\entry\right) \,
-    \prod_{k=1}^K \obs{\rate}_\ratepars (\entry_k)\quad.
-\end{eqnarray}
-In this equation, the integral in the normalization term is the expected
-number of observable exoplanets in the sample.
-
-The main thing to note here is that $\obs{\rate}_\ratepars$ is the rate
-density of exoplanets that you would expect to observe taking into account the
-geometric transit probability and any other detection efficiencies.
-In practice, we can model the observable rate density as
-\begin{eqnarray}\eqlabel{obs-rate}
-\obs{\rate}_\ratepars(\entry) &=&
-    \completeness(\entry)\,\rate_\ratepars(\entry)
-\end{eqnarray}
-where $\completeness(\entry)$ is the detection efficiency (including transit
-probability) at \entry\ and $\rate_\ratepars(\entry)$ is the object that we
-want to infer: the \True\ occurrence rate density.
-Up to this point, we haven't discussed any specific functional form for
-$\rate_\ratepars(\entry)$ and all of this derivation is equally applicable
-whether we model the rate density as, for example, a broken power law or
-a histogram.
-
-The observed rate density \obs{\rate} is a quantitative description of the
-rate density at which planets appear in the \citet{petigura} catalog; it is
-not a description of the \True\ rate density of exoplanets.
-Inasmuch as the detection efficiency $\completeness(\entry)$ is calculated
-correctly, the function $\rate_\ratepars(\entry)$ will represent the \True\
-rate density of exoplanets, at least where there is support in the data.
-In practice, an estimate of the detection efficiency will not include every
-decision or effect in the pipeline.
-One example in this case is that the completeness function does not account
-for the explicit removal of second (and third, and so on) planets.
-In principle a more complete description of the detection efficiency can be
-included and as this function becomes more accurate, our inferences about the
-\True\ rate density $\rate_\ratepars(\entry)$ will be less biased.
-
-For the results in this \paper, we will assume that the completeness function
-$\completeness(\entry)$ is known empirically on a grid in period and radius
-but that is not a requirement for the validity of this method.
-Instead, we could use a functional form for the completeness and even infer
-its parameters along with the parameters of the rate density.
-
 Now, we can substitute \eq{poisson-like} into \eq{simplemarglike} and apply
 the importance sampling approximation (\eqalt{importance}) to derive the
 following expression for the marginalized likelihood
@@ -544,91 +577,32 @@ following expression for the marginalized likelihood
     \prod_{k=1}^K
     \frac{1}{N_k} \sum_{n=1}^{N_k}
     \frac{\obs{\rate}_\ratepars (\entry_k^{(n)})}
-         {p(\entry_k^{(n)}\,|\,\interim)} \quad.
+         {p(\entry_k^{(n)}\,|\,\interim)}
 \end{eqnarray}
-In this equation, we're making the further assumption that the catalog treated
-the objects independently.
-This is a somewhat subtle point if we were to consider targets with more than
-one transiting planet---a point that we will return to below---but for the
-considerations of the dataset considered in this \paper, it is a justified
-simplification.
-In other words, we have per-object posterior samples
+where the values $\{{\entry_k}^{(n)}\}$ are samples drawn from the posterior
+probability
 \begin{eqnarray}
-\entry_k^{(n)} &\sim& p(\entry_k\,|\,\data_k,\,\interim) \quad.
+{\entry_k}^{(n)} &\sim& p(\entry_k\,|\,\data_k,\,\interim)
 \end{eqnarray}
+as described in the previous section.
 \Eq{money} is the \emph{money equation} for our method.
 It lets us efficiently compute the \emph{marginalized likelihood of the entire
 set of light curves for a particular occurrence rate density}.
 
-\paragraph{Inverse-detection-efficiency}
-It's now interesting to take a brief aside and discuss the connection between
-our model and the commonly used inverse-detection-efficiency procedure
-(\citealt{howard,dressing,petigura}).
-This procedure involves making a weighted histogram of the catalog entries
-where the weight for object $\entry_k$ is $1/\completeness(\entry_k)$.
-This makes intuitive sense but the standard formulation does not have a clear
-probabilistic justification or interpretation.
+In this equation, we're making the further assumption that the catalog treated
+the objects independently.
+This is a somewhat subtle point if we were to consider targets with more than
+one transiting planet---a point that we will return to below---but for the
+considerations of the dataset considered here, it is a justified
+simplification.
 
-If we model the occurrence rate density as a histogram with $J$ fixed bin
-volumes $\binarea_j$
-\begin{eqnarray}
-\rate_\ratepars (\entry) &=& \left\{\begin{array}{ll}
-\exp(\ratepar_1) & \entry \in \binarea_1,\\
-\exp(\ratepar_2) & \entry \in \binarea_2,\\
-\cdots \\
-\exp(\ratepar_J) & \entry \in \binarea_J,\\
-0 & \mathrm{otherwise}
-\end{array}\right.
-\end{eqnarray}
-then \eq{poisson-like} becomes
-\begin{eqnarray}
-\ln p(\{\entry_k\}\,|\,\ratepars) &=&
-    \sum_{k=1}^K \sum_{j=1}^J \mathbf{1}[\entry_k \in
-        \binarea_j]\,[\ln\completeness(\entry_k)+\ratepar_j]
-    -\sum_{j=1}^J\exp(\ratepar_j)\,
-        \int_{\binarea_j} \completeness(\entry)\dd\entry
-\end{eqnarray}
-where the indicator function $\mathbf{1}[\cdot]$ is one if $\cdot$ is true and
-zero otherwise.
-If we take the gradient of this function with respect to \ratepars\ and set it
-equal to zero, we find the maximum likelihood result
-\begin{eqnarray}\eqlabel{ml-ide}
-\exp ({\ratepar_j}^*) &=&
-\frac{N_j}{\int_{\binarea_j} \completeness(\entry)\dd\entry}
-\end{eqnarray}
-where $N_j$ is the number of objects that fall within the bin $j$.
-We estimate the uncertainty $\delta\ratepar_j$ on this value by examining the
-curvature of the log-likelihood function near the maximum and find
-\begin{eqnarray}
-\frac{\delta\exp({\ratepar_j}^*)}{\exp({\ratepar_j}^*)} &=&
-    \frac{1}{\sqrt{N_j}}
-\quad.
-\end{eqnarray}
-
-Since \eq{ml-ide} gives the maximum likelihood solution, this result is the
-minimum-variance estimator for the rate density when the completeness function
-$\completeness(\entry)$ is known and the catalog uncertainties are negligible.
-This is \emph{almost} the same as the inverse-detection-efficiency procedure
-and if the completeness function is constant in each bin \binarea, both
-methods give the same result.
-If the completeness function is not piecewise-constant on the same grid as the
-rate density inference, the inverse-detection-efficiency procedure will
-give a higher variance estimate of the occurrence rate density than
-\eq{ml-ide}.
-In this \paper, we don't use either of these inverse-detection-efficiency
-procedures because they both fundamentally rely on the assumption of
-\emph{negligible observational uncertainties}.
-By applying \eq{money}, we derive the probabilistic generalization of this
-model in the next section but the result is no longer analytic.
-
-\paragraph{Occurrence rate density parameterization \& priors}
-For the remainder of this \paper, we also model the rate density as a
+For the remainder of this \paper, we model the rate density as a
 two-dimensional histogram with fixed logarithmic bins in period and radius.
 When we include observational uncertainties---using \eq{money}---the maximum
-likelihood result is no longer analytic; \eq{ml-ide} is no longer applicable
-when the uncertainties are non-negligible.
+likelihood result is no longer analytic.
 Therefore, if we want to compute the ``best-fit'' rate density, we can use a
 standard non-linear optimization algorithm.
+
 In the regions of parameter space that we tend to care about, the completeness
 is low and there are only a few observations with large uncertainties.
 In this case, we're especially interested in probabilistic constraints on the
@@ -817,6 +791,8 @@ includes periods longer than five days so this is not a problem.
 We're using the \emph{median} transit probability (instead of the mean)
 because it is a more robust estimator in the presence of outliers but in our
 experiments, the results do not seem to be very sensitive to this choice.
+
+\dfmtodo{Include Kipping's comments about eccentricity.}
 
 \section{Validation using synthetic catalogs}
 \sectlabel{valid}
@@ -1108,14 +1084,14 @@ different, in qualitative agreement with previous results (\citealt{dong}).
 \Fig{period} shows that larger planets tend to be on longer periods than
 smaller planets.
 
-In detail, any inference of the exoplanet population depends on the choices
-made in the pipeline that creates the catalog.
-Our results are based on a catalog that only includes single transiting
-systems (\citealt{petigura}) so our conclusions---and theirs---must be
-considered with this in mind.
-In particular, the exclusion of second (and third, and so on) planets must
-suppress the inferred rate density, especially at long periods and small
-radii.
+% In detail, any inference of the exoplanet population depends on the choices
+% made in the pipeline that creates the catalog.
+% Our results are based on a catalog that only includes single transiting
+% systems (\citealt{petigura}) so our conclusions---and theirs---must be
+% considered with this in mind.
+% In particular, the exclusion of second (and third, and so on) planets must
+% suppress the inferred rate density, especially at long periods and small
+% radii.
 
 Our extrapolation of the rate density to the location of Earth is more general
 and conservative than any previously published method.
@@ -1272,17 +1248,90 @@ It is a pleasure to thank
 Ruth Angus (Oxford),
 Tom Barclay (NASA Ames),
 Jo Bovy (IAS),
-Eric Ford (PSU), and
-Ben Montet (Caltech/Harvard)
+Eric Ford (PSU),
+David Kipping (CfA),
+Ben Montet (Caltech/Harvard), and
+Scott Tremaine (IAS)
 for helpful contributions to the ideas and code presented here.
-We would also like to acknowlege the anonymous referee for suggestions that
+We would also like to acknowledge the anonymous referee and the Scientific
+Editor, Eric Feigelson, for suggestions that
 substantially improved the paper.
 This project was partially supported by the NSF (grant AST-0908357), NASA
 (grant NNX08AJ48G), and the Moore--Sloan Data Science Environment at NYU.
-This research builds on ideas generated at a three-week workshop on ``Modern
-Statistical and Computational Methods for Analysis of Kepler Data'' at SAMSI
-in 2013 June.
+This research builds on ideas generated at a three-week workshop supported by
+NSF Grant DMS-1127914 to the Statistical and Applied Mathematical Sciences
+Institute.
 This research made use of the NASA \project{Astrophysics Data System}.
+
+\appendix
+
+\section*{APPENDIX}
+
+\section{Inverse-detection-efficiency}
+\sectlabel{inv-det-eff}
+
+One huge benefit of the inverse-detection-efficiency procedure is its
+simplicity.
+Therefore, it's worth noting that there is a probabilistically justified
+procedure that will always provide less biased results while being only
+marginally more complicated.
+
+The standard procedure involves making a weighted histogram of the catalog
+entries where the weight for object $\entry_k$ is $1/\completeness(\entry_k)$.
+This makes intuitive sense but it does not have a clear probabilistic
+justification or interpretation.
+As we will show below, the maximum likelihood result involves weighting the
+points by the inverse of the \emph{integral} of the completeness function over
+the bin area.
+
+To motivate this derivation, let's start by considering the following
+pathological example: a single bin where the completeness sharply drops from
+one to zero halfway across the bin.
+If we observe $K$ objects in this bin, we would have observed about $2K$
+objects in a complete sample.
+If we apply the inverse-detection-efficiency procedure to this dataset, each
+sample will get unit weight because they are all found in the part of the bin
+where the completeness is one.
+Therefore, we would \emph{underestimate} the true rate in the bin by half.
+It's clear in this specific case that giving the points a weight of two would
+give a better solution and we'll derive the general result below.
+
+If we model the occurrence rate density as a histogram with $J$ fixed bin
+volumes $\binarea_j$ (\eqalt{rate-model}) then \eq{poisson-like} becomes
+\begin{eqnarray}
+\ln p(\{\entry_k\}\,|\,\ratepars) &=&
+    \sum_{k=1}^K \sum_{j=1}^J \mathbf{1}[\entry_k \in
+        \binarea_j]\,[\ln\completeness(\entry_k)+\ratepar_j]
+    -\sum_{j=1}^J\exp(\ratepar_j)\,
+        \int_{\binarea_j} \completeness(\entry)\dd\entry
+\end{eqnarray}
+where the indicator function $\mathbf{1}[\cdot]$ is one if $\cdot$ is true and
+zero otherwise.
+Taking the gradient of this function with respect to \ratepars\ and setting it
+equal to zero, we find the maximum likelihood result
+\begin{eqnarray}\eqlabel{ml-ide}
+\exp ({\ratepar_j}^*) &=&
+\frac{K_j}{\int_{\binarea_j} \completeness(\entry)\dd\entry}
+\end{eqnarray}
+where $K_j$ is the number of objects that fall within the bin $j$.
+We estimate the uncertainty $\delta\ratepar_j$ on this value by examining the
+curvature of the log-likelihood function near the maximum and find
+\begin{eqnarray}
+\frac{\delta\exp({\ratepar_j}^*)}{\exp({\ratepar_j}^*)}
+&=& \frac{1}{\sqrt{K_j}}
+\quad.
+\end{eqnarray}
+
+In our pathological example from above, the integral of the completeness
+function over the bin is $1/2$, giving each sample the expected weight of $2$.
+In more realistic cases, where the completeness function varies smoothly, the
+inverse-detection-efficiency result will begin to agree with \eq{ml-ide} but
+the severity of this bias will be very problem dependent.
+Therefore, if you have a dataset with negligible observational uncertainties,
+we recommend that you always apply \eq{ml-ide} instead of the standard
+inverse-detection-efficiency procedure.
+As the uncertainties become more significant, there is no longer an analytic
+result and the method derived in this \paper\ is necessary.
 
 \newcommand{\arxiv}[1]{\href{http://arxiv.org/abs/#1}{arXiv:#1}}
 \begin{thebibliography}{}\raggedright
