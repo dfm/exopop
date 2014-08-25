@@ -31,8 +31,6 @@ q = quantile(num, [0.16, 0.5, 0.84])
 print("Integrated observable number: {0:.3f}_{{-{1:.3f}}}^{{+{2:.3f}}}"
       .format(q[1], *(np.diff(q))))
 
-assert 0
-
 bins = [ln_period_bin_edges, ln_radius_bin_edges]
 labels = ["R / R_\oplus", "P / \mathrm{day}"]
 slices = [
