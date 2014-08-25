@@ -655,8 +655,8 @@ exponential-squared kernel so elements of the matrix are
 where $\Sigma^{-1}$ is the diagonal matrix
 \begin{eqnarray}
 \Sigma^{-1} &=& \left(\begin{array}{cc}
-1/\smooth_\period & 0 \\
-0 & 1/\smooth_\radius
+1/\smooth_\period^2 & 0 \\
+0 & 1/\smooth_\radius^2
 \end{array}\right) \quad.
 \end{eqnarray}
 
@@ -1598,6 +1598,27 @@ The vertical black line with error bars shown as dashed lines is the result
 from \citet{petigura} converted to a rate density by dividing by their bin
 volume.
 \figlabel{real-rate}}
+\end{figure}
+
+\begin{figure}[p]
+\begin{center}
+\includegraphics[width=\textwidth]{figures/comparison.pdf}
+\end{center}
+\caption{%
+Comparison of various estimates of \gammaearth.
+From the top, the first value is the number published by \citet{petigura} and
+converted to consistent units.
+The second point shows the value implied by the power law model for the
+occurrence rate of $1-2\,R_\oplus$ planets from \citet{dong}.
+The point labeled ``linear extrapolation'' is the result of modeling the
+distribution of small planets ($1-2\,R_\oplus$) on long periods
+($50-400\,\mathrm{days}$) but allowing the period distribution to be
+\emph{linear} instead of \emph{uniform}.
+The ``negligible uncertainties'' value is given by applying the model
+developed in this \paper\ but with the error bars on radius artificially
+set to zero.
+Finally, the bottom point is the result of our full analysis.
+\figlabel{comparison}}
 \end{figure}
 
 \end{document}
