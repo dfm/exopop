@@ -792,7 +792,16 @@ We're using the \emph{median} transit probability (instead of the mean)
 because it is a more robust estimator in the presence of outliers but in our
 experiments, the results do not seem to be very sensitive to this choice.
 
-\dfmtodo{Include Kipping's comments about eccentricity.}
+Implicit in the expression for the transit probability in \eq{transitprob} is
+the assumption that all of the planets are on circular orbits.
+Recently, \citet{kipping} demonstrated that when eccentric orbits are
+included, our given value is an underestimate by about 10\%.
+This effect will propagate directly to our inferred rate densities.
+Even though the degeneracy is not exact---due to our choice of priors on the
+rate density parameters---it is not a bad approximation to assume that it is
+and scale the results down by your preferred factor.
+The right thing to do would be to marginalize over this effect directly during
+inference but that exercise is beyond the scope of the current \paper.
 
 \section{Validation using synthetic catalogs}
 \sectlabel{valid}
@@ -883,8 +892,9 @@ That is, \gammaearth\ is the rate density of exoplanets around a Sun-like
 star (expected number of planets per star per natural logarithm of period per
 natural logarithm of radius), evaluated at the period and radius of Earth.
 
-In \eq{gammaearth}, we define ``Earth analog'' in terms of measurable
-quantities with no mention of habitability or composition.
+In \eq{gammaearth}, we use the symbol $\Gamma$ instead of the more commonly
+used $\eta$ since we define ``Earth analog'' in terms of measurable quantities
+with no mention of habitability or composition.
 This might seem unsatisfying but the composition of an exoplanet is
 notoriously difficult to measure even with large uncertainty and any
 definition of habitability is still extremely subjective.
@@ -1041,16 +1051,79 @@ posterior constraint is
 \quad.
 \end{eqnarray}
 
+\dfmtodo{Do we want to add a comment about giant planets? Or maybe some sort
+of cumulative distribution plot/code snippet?}
+
+\section{Comparison with previous work}
+
 Our inferred rate density of Earth analogs (\eqalt{ge-result}) is not
-consistent with the previously published result even though we use
-\emph{exactly the same dataset}.
-This inconsistency is due to the different assumptions made.
-In particular, for their analysis, \citet{petigura} asserted that the period
-distribution for small planets on long orbits is flat in logarithmic period.
-If we enforce the same constraint, we reproduce their result but when we relax
-this assumption, allowing the data to constrain the period distribution, we
-find evidence for a \emph{decreasing} period distribution as a function of
-logarithmic period (see \fig{period}).
+consistent with previously published results.
+In particular, our result is completely inconsistent with the earlier result
+based on \emph{exactly the same dataset} (\citealt{petigura}).
+This inconsistency is due to the different assumptions made the detailed cause
+merits some investigation.
+The two key differences between our analysis and previous work are \emph{(a)}
+the form of the extrapolation function and \emph{(b)} the presence of
+measurement uncertainties on the planet radii.
+
+To make their estimate of \gammaearth, \citet{petigura} asserted a flat
+distribution in logarithmic period for small planets.
+Our results suggest that the data \emph{do not support} this assumption (see
+\fig{period}).
+We find that the data require a \emph{decreasing} period distribution in the
+relevant range.
+A similar result was also found by \citet{dong} and it is apparent in Figure 2
+of \citet{petigura}.
+
+To test the significance of the choice of extrapolation function, we relax the
+assumption of a uniform period distribution and allow the distribution to be
+linear in the same range ($R=1-2\,R_\oplus$ and $P=50-400\mathrm{d}$).
+Under this model, the likelihood of the catalog of planets in this range can
+be calculated using \eq{poisson-like}.
+We apply uniform priors in the physically allowed range of slopes and
+intercepts for this distribution and estimate the posterior probability for
+the extrapolated rate using MCMC (\citealt{emcee}).
+This results give a much more uncertain and substantially lower estimate for
+the rate of Earth analogs
+\begin{eqnarray}
+\Gamma_\oplus &=& 0.072^{+0.088}_{-0.047} \quad.
+\end{eqnarray}
+With the large error bars, this result is consistent with both results (see
+\fig{comparison} where this value is labeled ``linear extrapolation'') but it
+does not fully account for the discrepancy.
+
+To examine the effects of measurement uncertainties, we repeat our analysis
+with the error bars on the radii artificially set to zero, keeping everything
+else the same.
+This analysis (labeled ``negligible uncertainties'' in \fig{comparison}) gives
+the result
+\begin{eqnarray}
+\Gamma_\oplus &=& 0.040^{+0.031}_{-0.019} \quad.
+\end{eqnarray}
+This result is relatively more precise and higher than our final result and
+consistent with the value obtained with linear extrapolation.
+This confirms the hypothesis that the discrepancy between our result and the
+previously published values is the combined result of both of our key
+generalizations.
+
+For comparison, we have also included the value of \gammaearth\ implied by
+\citet[][their Table 2]{dong}.
+This result is based on a power law fit to the period distribution of small
+planets ($R=1-2\,R_\oplus$) on long periods ($P=10-250\,\mathrm{d}$) in a
+different catalog (\citealt{kepler-catalog}) with a parametric completeness
+model.
+There are a few factors to consider when comparing to this to our analysis.
+Firstly, while \citet{dong} did use a somewhat flexible extrapolation
+function than (a power law in log period), it is still very restrictive
+considering the large range of periods; a broken power law might have been
+more applicable.
+Furthermore, their analysis did not incorporate the effects of measurement
+uncertainties.
+Finally, unlike the \citet{petigura}, the \citet{kepler-catalog} catalog used
+by \citet{dong} includes multiple transiting systems.
+As mentioned previously, the effect of this selection is hard to determine
+without further investigation but it should, intuitively, cause any inference
+based on the \citet{petigura} sample an underestimate of the \True\ rate.
 
 \section{Discussion}
 
@@ -1407,6 +1480,9 @@ Hogg, D.~W., Myers, A.~D., \& Bovy, J.\ 2010b, \apj, 725, 2166
 \bibitem[Howard \etal(2012)]{howard}
 Howard, A.~W., Marcy, G.~W., Bryson, S.~T., \etal\ 2012, \apjs, 201, 15
 (\arxiv{1103.2541})
+
+\bibitem[Kipping(2014)]{kipping}
+Kipping, D.~M.\ 2014, \arxiv{1408.1393}
 
 \bibitem[Lewis \& Shedler(1979)]{poisson}
 Lewis, P.~A.~W., \& Shedler, G.~S.\ 1979, Naval Research Logistics Quarterly,
