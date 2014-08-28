@@ -19,6 +19,7 @@ from itertools import izip
 
 import numpy as np
 
+import scipy.ndimage
 from scipy.misc import logsumexp
 from scipy.linalg import cho_factor, cho_solve
 
@@ -238,8 +239,12 @@ class Population(object):
         if censor is not None:
             x, y = censor.bins
             z = np.exp(censor.lncompleteness[1:-1, 1:-1])
-            ax.contour(x[:-1]+0.5*np.diff(x), y[:-1]+0.5*np.diff(y), z.T, 3,
-                       colors="k", linewidths=1, alpha=0.6)
+            z = scipy.ndimage.filters.gaussian_filter(z, 1.5)
+            c = ax.contour(x[:-1]+0.5*np.diff(x), y[:-1]+0.5*np.diff(y), z.T,
+                           3, colors="k", linewidths=1, alpha=0.6, vmin=0,
+                           vmax=1)
+            locs = [(5.8, 0.7), (5.8, 1.0), (5.8, 2.7)]
+            pl.clabel(c, fontsize=12, inline=1, manual=locs, fmt="%.2f")
 
         # Plot the data.
         if catalog is not None:
