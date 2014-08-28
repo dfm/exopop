@@ -810,6 +810,10 @@ rate density parameters---it is not a bad approximation to assume that it is
 and scale the results down by your preferred factor.
 The right thing to do would be to marginalize over this effect directly during
 inference but that exercise is beyond the scope of the current \paper.
+To complicate matters, the detection probability of a transit is also a
+non-trivial function of the duration.
+To account for this effect, so non-circular orbits should also be injected
+when measuring the survey completeness.
 
 \section{Validation using synthetic catalogs}
 \sectlabel{valid}
@@ -1303,7 +1307,8 @@ sensitivity of exoplanet search pipelines to small planets orbiting on long
 periods, then we should find some Earth analogs in the existing data.
 Furthermore, because of the treatment of multiple transiting systems in the
 catalog, the \True\ expected number of transiting Earth-like exoplanets
-orbiting Sun-like stars is probably larger than the values in \eq{ntransit}!
+orbiting Sun-like stars is almost certainly larger than the values in
+\eq{ntransit}!
 
 Some of the caveats on the results in this paper are due to assumptions made
 for computational simplicity but a much more robust study would be possible

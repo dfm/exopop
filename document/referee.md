@@ -148,9 +148,11 @@ distinction.
 
 ## Other Changes
 
+Beyond the changes discussed above and fixing some typos, we also made the
+following minor changes:
+
 1. We increased the number of per-object samples from 256 to 512 and re-ran
    the analyses. The results don't change beyond the sampling noise.
 
 2. We added a comment about the effects of eccentric orbits on the geometric
    transit probability (following Kipping, 2014 arXiv:1408.1393).
-
