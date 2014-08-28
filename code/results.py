@@ -80,10 +80,16 @@ print([b.shape for b in pop.bins])
 def xmap(f, i):
     return (f(*x) for x in i)
 
+print("Hyper:")
+
+h_mu = np.mean(hyper[-ntot:][::thin_by, :2], axis=0)
+h_std = np.std(hyper[-ntot:][::thin_by, :2], axis=0)
+print("\n".join(xmap("{0} ± {1}".format, zip(h_mu, h_std))))
+
 h_mu = np.mean(np.exp(0.5 * hyper[-ntot:][::thin_by, 2:]), axis=0)
 h_std = np.std(np.exp(0.5 * hyper[-ntot:][::thin_by, 2:]), axis=0)
-print("Hyper:")
 print("\n".join(xmap("{0} ± {1}".format, zip(h_mu, h_std))))
+
 print()
 
 with h5py.File(os.path.join(bp, "samples.h5"), "w") as f:
@@ -105,7 +111,7 @@ if os.path.exists(fn):
     ext = np.array(open(os.path.join(bp, "extrap.txt"), "r").read().split(),
                    dtype=float) / 42557.0
 else:
-    ext = np.array([0.057, -0.022, 0.017])
+    ext = np.array([0.057, -0.017, 0.022])
 
 ext /= factor
 print(ext)
