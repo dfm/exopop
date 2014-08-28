@@ -348,7 +348,7 @@ population inference and in \sect{hier}, we describe how to include the
 effects of observational uncertainties.
 The technical term for this procedure is \emph{hierarchical inference} and
 while a general discussion of this field is beyond the scope of this \paper,
-in the \sect{hier}, we present the basic probabilistic question and derive a
+in \sect{hier}, we present the basic probabilistic question and derive a
 computationally tractable inference procedure.
 In \sect{model}, we summarize the technique and derive the key equation for
 our method: \eq{money}.
@@ -357,6 +357,15 @@ and~\sectalt{extrap}.
 In \sect{real}, we use the catalog of planet candidates and the empirically
 determined detection efficiency from \citet{petigura} to measure the
 occurrence rate density of small planets with long orbital periods.
+
+Sections~\sectalt{likelihood} and~\sectalt{hier} provide a general pedagogical
+introduction to the methods used in this \paper.
+Readers looking to \emph{implement} a population inference are directed to
+\app{inv-det-eff} if measurement uncertainties are negligible or \sect{model}
+(especially \eqalt{money}) for problems with non-negligible uncertainties.
+Readers interested in our results---the inferred population of exoplanets and
+Earth-analogs---can safely skip to \sect{real} and continue to the discussion
+in \sect{comparison}.
 
 \section{The likelihood method}
 \sectlabel{likelihood}
@@ -420,8 +429,7 @@ but that is not a requirement for the validity of this method.
 Instead, we could use a functional form for the completeness and even infer
 its parameters along with the parameters of the rate density.
 
-Finally, for all the results in this \paper, we'll model the rate density as
-a piecewise constant step function
+Finally, we model the rate density as a piecewise constant step function
 \begin{eqnarray}\eqlabel{rate-model}
 \rate_\ratepars (\entry) &=& \left\{\begin{array}{ll}
 \exp(\ratepar_1) & \entry \in \binarea_1,\\
@@ -433,10 +441,8 @@ a piecewise constant step function
 \end{eqnarray}
 where the parameters $\ratepar_j$ are the log step heights and the bins
 $\binarea_j$ are fixed \foreign{a priori}.
-
-In \app{inv-det-eff}, we use the model in \eq{rate-model} and neglect
-observational uncertainties, we can derive the analytic maximum likelihood
-solution for the step heights.
+In \app{inv-det-eff}, we use this parameterization and derive the analytic
+maximum likelihood solution for the step heights.
 This result is similar to and just as simple as the
 inverse-detection-efficiency method and it is guaranteed to provide a lower
 variance estimate of the rate density than the standard procedure.
@@ -476,10 +482,10 @@ delta-function measurements.
 
 In other words, we treat the catalog as being a dimensionality reduction of
 the raw data with all the relevant information retained.
-In the context of \kepler, the catalog reduces the set of downloaded pixel
-time series (approximately 70,000 data points for the typical \kepler\ target)
-to probabilistic constraints on a handful of physical parameters---\entry\
-from above---like the orbital period and planetary radius.
+In the context of \kepler, the catalog reduces the set of downloaded time
+series (approximately 70,000 data points for the typical \kepler\ target) to
+probabilistic constraints on a handful of physical parameters---\entry\ from
+above---like the orbital period and planetary radius.
 If we take this set of parameters $\{\entry_k\}$ as \emph{sufficient
 statistics} of the data then we can, in theory, compute \eq{crazylike}---up to
 an unimportant constant---without ever looking at the raw data again!
@@ -588,6 +594,8 @@ as described in the previous section.
 \Eq{money} is the \emph{money equation} for our method.
 It lets us efficiently compute the \emph{marginalized likelihood of the entire
 set of light curves for a particular occurrence rate density}.
+
+\dfmtodo{Add a few more pedagogical words here.}
 
 In this equation, we're making the further assumption that the catalog treated
 the objects independently.
@@ -927,7 +935,7 @@ This works because the Gaussian process regularization actually captures our
 prior beliefs about the shape of the rate density function.
 This model---and any other extrapolation---will, of course, break down if
 there is an unmeasured sharp feature in the occurrence rate density near the
-location of Earth and our method is the most conservative extrapolation
+location of Earth but our method is the most conservative extrapolation
 technique published to date.
 
 For comparison, we also implemented and applied the extrapolation technique
@@ -944,7 +952,7 @@ Instead of defining \gammaearth\ differentially, as we did in \eq{gammaearth},
 period and radius ($1 \le \radius/\radius_\oplus < 2$ and $200 \le
 \period/\mathrm{day} < 400$).
 Since their model implicitly assumes a constant rate density across the bin,
-the differential rate is just their number divided by the bin area.
+the differential rate is just their number divided by the bin volume.
 This rate density (rate divided by bin volume) is what is shown as a
 comparison to our results in the figures.
 
@@ -998,7 +1006,7 @@ planets ($R > 8\,R_\oplus$) is inconsistent with the distribution of smaller
 planets.
 The rate density of large planets appears to monotonically increase as a
 function of log period while the distribution for small planets seems to turn
-over at a relatively short period (around 50 days) and decrease for larger
+over at a relatively short period (around 50 days) and decrease for longer
 periods.
 
 The equivalent results for the radius distribution are shown in
@@ -1057,15 +1065,16 @@ of cumulative distribution plot/code snippet?}
 \dfmtodo{Add sentence listing posterior constraints on hyperparameters.}
 
 \section{Comparison with previous work}
+\sectlabel{comparison}
 
 Our inferred rate density of Earth analogs (\eqalt{ge-result}) is not
 consistent with previously published results.
 In particular, our result is completely inconsistent with the earlier result
 based on \emph{exactly the same dataset} (\citealt{petigura}).
-This inconsistency is due to the different assumptions made the detailed cause
-merits some investigation.
+This inconsistency is due to the different assumptions made and the detailed
+cause merits some investigation.
 The two key differences between our analysis and previous work are \emph{(a)}
-the form of the extrapolation function and \emph{(b)} the presence of
+the form of the extrapolation function, and \emph{(b)} the presence of
 measurement uncertainties on the planet radii.
 
 To make their estimate of \gammaearth, \citet{petigura} asserted a flat
@@ -1115,17 +1124,17 @@ planets ($R=1-2\,R_\oplus$) on long periods ($P=10-250\,\mathrm{d}$) in a
 different catalog (\citealt{kepler-catalog}) with a parametric completeness
 model.
 There are a few factors to consider when comparing to this to our analysis.
-Firstly, while \citet{dong} did use a somewhat flexible extrapolation
-function than (a power law in log period), it is still very restrictive
-considering the large range of periods; a broken power law might have been
-more applicable.
+Firstly, while \citet{dong} fit a power law in log period, this is still a
+very restrictive model when considering this large range of periods.
+A broken power law might be more applicable.
 Furthermore, their analysis did not incorporate the effects of measurement
 uncertainties.
 Finally, unlike the \citet{petigura}, the \citet{kepler-catalog} catalog used
 by \citet{dong} includes multiple transiting systems.
 As mentioned previously, the effect of this selection is hard to determine
 without further investigation but it should, intuitively, cause any inference
-based on the \citet{petigura} sample an underestimate of the \True\ rate.
+based on the \citet{petigura} sample to be an underestimate of the \True\
+rate.
 
 \section{Discussion}
 
@@ -1172,8 +1181,9 @@ Our extrapolation of the rate density to the location of Earth is more general
 and conservative than any previously published method.
 We find a rate density of Earth analogs that is inconsistent with the result
 published by \citet{petigura}.
-This discrepancy can be largely attributed to the rigidity of the assumptions
-about the period distribution.
+This discrepancy can be attributed to both the rigidity of the assumptions
+about the period distribution and the effects of non-negligible measurement
+uncertainties.
 Our extrapolation is also less confident than previous measurements.
 Again, this difference is due to the fact that we allow a much more flexible
 extrapolation function.
