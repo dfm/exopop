@@ -171,7 +171,8 @@ class Population(object):
 
     def plot_2d(self, thetas, ranges=None, censor=None, catalog=None,
                 err=None, labels=None, top_axes=None, literature=None,
-                lit_style={}, true=None, true_style={}, alpha=0.2):
+                lit_style={}, true=None, true_style={}, alpha=0.2,
+                norm=1.0, vmin=None, vmax=None):
         assert len(self.base) == 2
 
         # Pre-compute the ranges and allowed ranges.
@@ -201,9 +202,17 @@ class Population(object):
 
         # Plot the occurence image.
         img = np.median(grids, axis=0).T
-        m = ax.pcolor(self.base[0], self.base[1], np.exp(img),
-                      cmap="gray", alpha=0.6)
+        m = ax.pcolor(self.base[0], self.base[1], np.exp(img) / norm,
+                      cmap="gray", alpha=0.6, vmin=vmin, vmax=vmax)
         m.set_rasterized(True)
+
+        # Make the colorbar axis.
+        ax_cb = pl.axes([0.74, 0.72, 0.02, 0.18])
+        cb = pl.colorbar(m, ax_cb)
+        cb.locator = MaxNLocator(5)
+        cb.update_ticks()
+        ax_cb.set_ylabel(r"$\Gamma(w)$", rotation=270)
+        ax_cb.yaxis.set_label_coords(6.0, 0.5)
 
         # Plot the occurence histograms.
         ys = [logsumexp(grids

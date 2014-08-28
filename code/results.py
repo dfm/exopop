@@ -151,6 +151,6 @@ fig.savefig(os.path.join(bp, "rate.pdf"))
 somesamples = samples[np.random.randint(len(samples), size=50), :]
 fig = pop.plot_2d(somesamples, censor=model.censor, catalog=np.log(catalog),
                   err=err, true=truth, labels=labels, top_axes=top_axes,
-                  literature=literature)
+                  literature=literature, norm=nstar, vmin=0, vmax=None)
 fig.savefig(os.path.join(bp, "results.png"), dpi=300)
 fig.savefig(os.path.join(bp, "results.pdf"))
