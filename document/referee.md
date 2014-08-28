@@ -1,6 +1,6 @@
 # Referee Report
 
-## Anonymous Referee's comments:
+## Referee's comments:
 
 > This paper describes a statistical analysis of the Kepler exoplanet catalog,
 > with particular emphasis on estimating the fraction of stars having Earth
@@ -156,6 +156,12 @@ distinction.
 > figures. For example, the real and simulated data points in Figs 1-2-5 could be
 > provided as `Data behind the Figure'
 > (http://aas.org/authors/manuscript-preparation-aj-apj-author-instructions).
+
+We think that it is most useful to distribute our results in a single package
+including the real and simulated catalogs, the completeness function, and our
+posterior samples but we can also include a FITS file of the simulated
+catalogs to live with the paper.
+
 
 ## Other Changes
 
