@@ -101,7 +101,18 @@ clearer.
 > (c) you can just set all the radius errors to zero), or whether there is some
 > other explanation.
 
-This is a great point and we've made a few changes to try to address it!
+This is a great point and we've added a new section (Section 9) and a figure
+(Figure 10) to address it. In this discussion, we argue that there are two
+main contributions that our method makes: (1) a more general extrapolation
+function, and (2) a framework for including uncertainties. We conclude that
+the discrepancy is due to a combination of the two effects by running two
+experiments. First, we generalize the Petigura et al. extrapolation technique
+by allowing the period distribution to be a *linear* function log-period
+instead of uniform. This experiment finds a lower value for Gamma-Earth but
+it's still somewhat higher than our method. To test the effects of including
+uncertainties, we ran the referee's suggested experiment: setting the error
+bars to zero. In this experiment, the inferred Gamma-Earth is higher than our
+final number and consistent with the previous experiment.
 
 
 ## Scientific Editor's comments:
