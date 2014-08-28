@@ -94,7 +94,7 @@
 
 \newcommand{\gammaearth}{{\ensuremath{\rate_\oplus}}}
 
-\newcommand{\resultsurl}{\url{http://dx.doi.org/10.6084/m9.figshare.1051864}}
+\newcommand{\resultsurl}{\url{http://dx.doi.org/10.5281/zenodo.11507}}
 
 \begin{document}
 
@@ -597,8 +597,6 @@ as described in the previous section.
 It lets us efficiently compute the \emph{marginalized likelihood of the entire
 set of light curves for a particular occurrence rate density}.
 
-\dfmtodo{Add a few more pedagogical words here.}
-
 In this equation, we're making the further assumption that the catalog treated
 the objects independently.
 This is a somewhat subtle point if we were to consider targets with more than
@@ -1073,7 +1071,8 @@ Both of these scales are larger than a bin in their respective dimension.
 For completeness we also find the following constraints on the other
 hyperparameters
 \begin{eqnarray}
-\mean = 5.44 \pm 1.56 &\quad& \ln\smooth_0 = 1.68 \pm 0.72 \quad.
+\mean = 5.44 \pm 1.56 &\quad\mathrm{and}\quad&
+\ln\smooth_0 = 1.68 \pm 0.72 \quad.
 \end{eqnarray}
 The MCMC chains used to compute these values is available
 online\footnote{\resultsurl}.
@@ -1332,8 +1331,7 @@ would be very useful if the authors of upcoming catalogs also published
 samples from these distributions \emph{along with the value of their prior
 function evaluated at each sample}.
 In this spirit, we have released the results of this paper as posterior
-samplings\footnote{\resultsurl} for
-the occurrence rate density function.
+samplings\footnote{\resultsurl} for the occurrence rate density function.
 
 All of the code used in this project is available from
 \url{http://github.com/dfm/exopop} under the MIT open-source software license.
