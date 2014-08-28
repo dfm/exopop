@@ -1,5 +1,7 @@
 # Referee Report
 
+## Referee's comments:
+
 > This paper describes a statistical analysis of the Kepler exoplanet catalog,
 > with particular emphasis on estimating the fraction of stars having Earth
 > analogs, that is, planets of roughly an Earth radius orbiting at roughly 1 AU.
@@ -25,7 +27,17 @@
 > recognize that this is better than the methods he or she has been using up to
 > now?
 
-We have taken this criticism to heart and we hope that
+We have taken this criticism to heart and we've taken a few steps to try to
+make the description more user-friendly:
+
+- We added a more complete summary of the structure of the paper and some
+  suggested road maps through the paper at the end of the introduction.
+- We re-ordered and some paragraphs of clarification the first two sections.
+- We moved the derivation of our proposed inverse-detection-efficiency
+  algorithm to the Appendix and added a discussion of the right places to use
+  it (most specifically in the limit of negligible uncertainties).
+- We tried to emphasize Equation (11) as the key component of the algorithm as
+  far as implementation is concerned.
 
 > 2. The restriction of the Petigura et al. catalog to the highest S/N planet
 > candidate in multi-planet systems is important. However, it is brought up in
@@ -63,7 +75,7 @@ solution is no longer analytic and you'll need to do something like our method.
 We have expanded the discussion in the appendix in an attempt to make this
 clearer.
 
-> 5. The value derived in this paper for Gamma_Earth, 0.017 +0.018/-0.009,
+> 5. The value derived in this paper for Gamma-Earth, 0.017 +0.018/-0.009,
 > differs from the value given by Petigura et al., 0.119 +0.035/-0.046 , by more
 > than 2 sigma, even though the two analyses use exactly the same data. This
 > discrepancy is surprising and important, and one of the primary goals of the
@@ -88,31 +100,76 @@ clearer.
 > be hard to figure out which of these explanations is correct (e.g., to check
 > (c) you can just set all the radius errors to zero), or whether there is some
 > other explanation.
->
->
->
-> Scientific Editor comments:
->
+
+This is a great point and we've added a new section (Section 9) and a figure
+(Figure 10) to address it. In this discussion, we argue that there are two
+main contributions that our method makes: (1) a more general extrapolation
+function, and (2) a framework for including uncertainties. We conclude that
+the discrepancy is due to a combination of the two effects by running two
+experiments. First, we generalize the Petigura et al. extrapolation technique
+by allowing the period distribution to be a *linear* function log-period
+instead of uniform. This experiment finds a lower value for Gamma-Earth but
+it's still somewhat higher than our method. To test the effects of including
+uncertainties, we ran the referee's suggested experiment: setting the error
+bars to zero. In this experiment, the inferred Gamma-Earth is higher than our
+final number and consistent with the previous experiment.
+
+
+## Scientific Editor's comments:
+
 > a) In Fig 1 and similar diagrams, can a scale to the gray squares be provided?
 > Can the values of the contours be provided?
->
+
+Done.
+
 > b) Related to the referee's point 5b, can you discuss the role of histogram
 > binning in the difference between your and previous results? Earlier
 > researchers choose arbitrarily chosen bins in mass or period or radius, and are
 > subject to bins with few data points. Is your method bin-free? Can your low
 > occurrence rate of Earths be approached using inverse-detection-efficiency if
 > different binning procedures were chosen?
->
+
+We're actually using exactly the same bins as Petigura et al. and we fixed
+them (arbitrarily) a priori. Our new version of inverse-detection-efficiency
+(that is now derived in Appendix A) is the correct maximum-likelihood result
+in the limit of negligible observational uncertainties. If you want to include
+uncertainties, there is no method as simple as inv-det-eff! We've added some
+comments to try to clarify this point in the introduction and the appendix.
+
 > c) Again related to the referee's 5b, can you clarify the relative importance
 > of smoothing vs. binning (eqns 14 vs 12) and MLE vs. Bayesian (i.e. use of a
 > prior, eqn 16)?
->
-> d) Is the quantity in eqn 26 the same as the eta_\earth quantities in other
+
+As described above, we've added a section where we discuss the possible
+sources of discrepancy.
+
+> d) Is the quantity in eqn 26 the same as the etaearth quantities in other
 > studies. If so, please use established nomenclature; if not, please clarify for
 > the reader.
->
+
+Unlike the standard definition of "eta-Earth", our definition explicitly
+doesn't mention "habitability". We've added a sentence to clarify this
+distinction.
+
 > e) The Journal is moving towards an electronic-only format, and increasingly
 > encourages authors to provide electronic materials to accompany the text and
 > figures. For example, the real and simulated data points in Figs 1-2-5 could be
 > provided as `Data behind the Figure'
 > (http://aas.org/authors/manuscript-preparation-aj-apj-author-instructions).
+
+We think that it is most useful to distribute our results in a single package
+including the real and simulated catalogs, the completeness function, and our
+posterior samples but we can also include a FITS file of the simulated
+catalogs to live with the paper.
+
+
+## Other Changes
+
+Beyond the changes discussed above and fixing some typos, we also made the
+following minor changes:
+
+1. We increased the number of per-object samples from 256 to 512 and re-ran
+   the analyses. The results don't change beyond the sampling noise.
+
+2. We added a comment about the effects of eccentric orbits on the geometric
+   transit probability (following Kipping, 2014 arXiv:1408.1393).

@@ -94,6 +94,8 @@
 
 \newcommand{\gammaearth}{{\ensuremath{\rate_\oplus}}}
 
+\newcommand{\resultsurl}{\url{http://dx.doi.org/10.6084/m9.figshare.1051864}}
+
 \begin{document}
 
 \title{%
@@ -810,6 +812,10 @@ rate density parameters---it is not a bad approximation to assume that it is
 and scale the results down by your preferred factor.
 The right thing to do would be to marginalize over this effect directly during
 inference but that exercise is beyond the scope of the current \paper.
+To complicate matters, the detection probability of a transit is also a
+non-trivial function of the duration.
+To account for this effect, so non-circular orbits should also be injected
+when measuring the survey completeness.
 
 \section{Validation using synthetic catalogs}
 \sectlabel{valid}
@@ -849,7 +855,7 @@ The second---\modelb---is designed to be exactly the distribution inferred by
 extrapolated outside that range.
 The catalogs generated from these two models are shown in \fig{smooth-results}
 and \fig{simulation-results}, respectively and the data are available
-online\footnote{\url{http://dx.doi.org/10.6084/m9.figshare.1051864}}.
+online\footnote{\resultsurl}.
 
 For each catalog, we directly apply both the inverse-detection-efficiency
 procedure as implemented by \citealt{petigura}\footnote{Our implementation
@@ -990,8 +996,7 @@ We directly applied our method to the \citet{petigura} sample and generated
 MCMC samples from the posterior probability for the occurrence rate density
 step heights, marginalizing over the hyperparameters of the Gaussian process
 model.
-The resulting MCMC chain is available online\footnote{\url{%
-http://dx.doi.org/10.6084/m9.figshare.1051864}}.
+The resulting MCMC chain is available online\footnote{\resultsurl}.
 
 \Fig{real-results} shows posterior samples from the inferred occurrence rate
 density as a function of period and radius conditioned on the catalog.
@@ -1059,10 +1064,19 @@ posterior constraint is
 \quad.
 \end{eqnarray}
 
-\dfmtodo{Do we want to add a comment about giant planets? Or maybe some sort
-of cumulative distribution plot/code snippet?}
-
-\dfmtodo{Add sentence listing posterior constraints on hyperparameters.}
+Although they are mainly nuisance parameters, we also obtain posterior
+constraints on the hyperparameters \mean\ and \smoothpars.
+In particular, the constraints on the length scales in $\ln \period$ and $\ln
+\radius$ are $\smooth_\period = 3.65 \pm 1.03$ and $\smooth_\radius = 0.65 \pm
+0.12$ respectively.
+Both of these scales are larger than a bin in their respective dimension.
+For completeness we also find the following constraints on the other
+hyperparameters
+\begin{eqnarray}
+\mean = 5.44 \pm 1.56 &\quad& \ln\smooth_0 = 1.68 \pm 0.72 \quad.
+\end{eqnarray}
+The MCMC chains used to compute these values is available
+online\footnote{\resultsurl}.
 
 \section{Comparison with previous work}
 \sectlabel{comparison}
@@ -1303,7 +1317,8 @@ sensitivity of exoplanet search pipelines to small planets orbiting on long
 periods, then we should find some Earth analogs in the existing data.
 Furthermore, because of the treatment of multiple transiting systems in the
 catalog, the \True\ expected number of transiting Earth-like exoplanets
-orbiting Sun-like stars is probably larger than the values in \eq{ntransit}!
+orbiting Sun-like stars is almost certainly larger than the values in
+\eq{ntransit}!
 
 Some of the caveats on the results in this paper are due to assumptions made
 for computational simplicity but a much more robust study would be possible
@@ -1317,7 +1332,7 @@ would be very useful if the authors of upcoming catalogs also published
 samples from these distributions \emph{along with the value of their prior
 function evaluated at each sample}.
 In this spirit, we have released the results of this paper as posterior
-samplings\footnote{\url{http://dx.doi.org/10.6084/m9.figshare.1051864}} for
+samplings\footnote{\resultsurl} for
 the occurrence rate density function.
 
 All of the code used in this project is available from
