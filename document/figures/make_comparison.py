@@ -10,7 +10,7 @@ values = [
     ("Petigura \emph{et al.}\ (2013)", 0.119, 0.046, 0.035),
     ("Dong \& Zhu (2013)", 0.086, 0.048, 0.031),
     ("linear extrapolation", 0.072, 0.087, 0.046),
-    ("negligible uncertainties",
+    ("uncertainties ignored",
      0.0397591956934, 0.0309881584307, 0.0190620520124),
     ("Foreman-Mackey \emph{et al.}\ (2014)",
      0.0188817594233, 0.0193141328059, 0.0104440671941),
