@@ -25,7 +25,8 @@ def rename(fn):
     return os.path.split(a)[1] + "-" + b, fn
 
 
-for a, b in imap(rename, glob.glob("figures/*/*.pdf")):
+for a, b in imap(rename, glob.glob("figures/*/*.pdf")
+                 + glob.glob("figures/*.pdf")):
     shutil.copyfile(b, os.path.join(TMPDIR, a))
     tex = tex.replace(b, a)
 
